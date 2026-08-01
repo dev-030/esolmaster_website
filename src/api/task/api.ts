@@ -70,3 +70,7 @@ export const getAllScheduledTasks = async (params: PaginationQuery): Promise<Pag
   return data;
 }
 
+export const deleteTask = async (taskId: string) => {
+  const { data } = await axios.delete(`/tasks/${taskId}`);
+  return data;
+};

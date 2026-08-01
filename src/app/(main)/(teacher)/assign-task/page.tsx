@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import ActivityBuilder from "@/webcomponents/teacher/assign-task/ActivityBuilder";
 
 export default function AssignTaskPage() {
-  redirect("/assign-task/reading");
+  return <ActivityBuilder />;
 }

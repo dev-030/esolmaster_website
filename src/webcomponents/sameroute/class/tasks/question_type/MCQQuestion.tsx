@@ -16,9 +16,10 @@ export const MCQQuestion = ({
   return (
     <div className="space-y-4">
 
-      <p className="text-base font-medium leading-relaxed text-foreground">
-        {question.config.question}
-      </p>
+      <div 
+        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
+        dangerouslySetInnerHTML={{ __html: (question.config.question || "").replace(/&nbsp;/g, ' ') }}
+      />
 
       <div className="grid gap-2">
 

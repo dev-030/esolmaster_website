@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, X, ListChecks } from "lucide-react";
+import { Pencil, X, ListChecks, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CorrectToggleInput } from "../wrapper/CorrectToggleInput";
 import { PercentageBar } from "../wrapper/PercentageBar";
@@ -20,6 +20,7 @@ export interface MCQData {
   correctIndex: number;
   explanation: string;
   criterionId?: string;
+  marks?: number;
 }
 
 interface MCQQuestionProps {
@@ -39,6 +40,7 @@ const DEFAULT_DATA: MCQData = {
   options: ["", "", "", ""],
   correctIndex: -1,
   explanation: "",
+  marks: 1,
 };
 
 export const MCQQuestion = ({
@@ -71,7 +73,20 @@ export const MCQQuestion = ({
     handleSave({ options: updatedOptions });
   };
 
-  const OPTION_LABELS = ["A", "B", "C", "D"];
+  const addOption = () => {
+    handleSave({ options: [...draft.options, ""] });
+  };
+
+  const removeOption = (index: number) => {
+    const newOptions = draft.options.filter((_, i) => i !== index);
+    let newCorrectIndex = draft.correctIndex;
+    if (draft.correctIndex === index) {
+      newCorrectIndex = -1;
+    } else if (draft.correctIndex > index) {
+      newCorrectIndex = draft.correctIndex - 1;
+    }
+    handleSave({ options: newOptions, correctIndex: newCorrectIndex });
+  };
 
   return (
     <Card className={cn("transition-all w-full")}>
@@ -141,13 +156,18 @@ export const MCQQuestion = ({
           )}
         </div>
 
-        {showCriterion && (
-          <CriteriaInfiniteSelect
-            value={draft.criterionId}
-            disabled={isDisabled}
-            onChange={(criterionId) => handleSave({ criterionId })}
-          />
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+          {showCriterion && (
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Criterion</Label>
+              <CriteriaInfiniteSelect
+                value={draft.criterionId}
+                disabled={isDisabled}
+                onChange={(criterionId) => handleSave({ criterionId })}
+              />
+            </div>
+          )}
+        </div>
 
         <div className="space-y-2 w-full">
           <Label
@@ -164,49 +184,77 @@ export const MCQQuestion = ({
             )}
           </Label>
 
-          {OPTION_LABELS.map((label, i) => (
-            <div key={i} className="flex items-center gap-2 w-full">
-              <span
-                className={cn(
-                  "w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 border",
-                  draft.correctIndex === i
-                    ? "bg-emerald-500 border-emerald-500 text-white"
-                    : "border-border text-muted-foreground",
-                )}
-              >
-                {label}
-              </span>
-
-              {isDisabled ? (
-                <div
+          {(isDisabled ? data.options : draft.options).map((optValue, i) => {
+            const label = String.fromCharCode(65 + i); // A, B, C, D, E...
+            return (
+              <div key={i} className="flex items-center gap-2 w-full">
+                <span
                   className={cn(
-                    "flex-1 rounded-md px-3 py-2 text-sm border",
-                    draft.correctIndex === i
-                      ? "bg-emerald-50 border-emerald-200 text-emerald-800 font-medium"
-                      : "bg-muted/60 border-border",
+                    "w-6 h-6 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 border",
+                    (isDisabled ? data.correctIndex : draft.correctIndex) === i
+                      ? "bg-emerald-50 border-emerald-500 text-white"
+                      : "border-border text-muted-foreground",
                   )}
                 >
-                  {draft.options[i] || (
-                    <span className="text-muted-foreground/50 italic text-xs">
-                      Empty
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <CorrectToggleInput
-                  value={draft.options[i] || ""}
-                  onChange={(v) => setOption(i, v)}
-                  isCorrect={draft.correctIndex === i}
-                  onToggleCorrect={() => handleSave({ correctIndex: i })}
-                  placeholder={`Option ${label}`}
-                  useVocabSuggestion={useVocabSuggestions}
-                  suggestions={vocabSuggestions}
-                  onSearchSuggestion={onSearchSuggestion}
-                  onSelectSuggestion={(s) => setOption(i, s.wordName)}
-                />
-              )}
-            </div>
-          ))}
+                  {label}
+                </span>
+
+                {isDisabled ? (
+                  <div
+                    className={cn(
+                      "flex-1 rounded-md px-3 py-2 text-sm border",
+                      data.correctIndex === i
+                        ? "bg-emerald-50 border-emerald-200 text-emerald-800 font-medium"
+                        : "bg-muted/60 border-border",
+                    )}
+                  >
+                    {data.options[i] || (
+                      <span className="text-muted-foreground/50 italic text-xs">
+                        Empty
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <CorrectToggleInput
+                      value={draft.options[i] || ""}
+                      onChange={(v) => setOption(i, v)}
+                      isCorrect={draft.correctIndex === i}
+                      onToggleCorrect={() => handleSave({ correctIndex: i })}
+                      placeholder={`Option ${label}`}
+                      useVocabSuggestion={useVocabSuggestions}
+                      suggestions={vocabSuggestions}
+                      onSearchSuggestion={onSearchSuggestion}
+                      onSelectSuggestion={(s) => setOption(i, s.wordName)}
+                    />
+                    
+                    {draft.options.length > 2 && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0 text-muted-foreground hover:text-destructive h-10 w-10"
+                        onClick={() => removeOption(i)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
+          
+          {!isDisabled && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2 w-full border-dashed"
+              onClick={addOption}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Option
+            </Button>
+          )}
         </div>
 
         <div className="space-y-1.5">

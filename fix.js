@@ -1,4 +1,6 @@
-"use client";
+const fs = require('fs');
+
+const code = `"use client";
 
 import { useState } from "react";
 import { SectionHeading } from "@/webcomponents/reusable";
@@ -27,7 +29,7 @@ export const MyTask = () => {
   const { data: tasksData, isLoading, isFetching } = useGetTasks({
     page: currentPage,
     limit,
-    folderId: folderId || 'null',
+    folderId,
   });
 
   const { data: rootFoldersData, isLoading: isRootFoldersLoading } = useGetFolders(undefined);
@@ -81,7 +83,7 @@ export const MyTask = () => {
           {ancestors.map((anc) => (
             <div key={anc.id} className="flex items-center gap-2">
               <ChevronRight className="w-4 h-4" />
-              <Link href={`/content-library?folderId=${anc.id}`} className="hover:text-foreground transition-colors">
+              <Link href={\`/content-library?folderId=\${anc.id}\`} className="hover:text-foreground transition-colors">
                 {anc.name}
               </Link>
             </div>
@@ -105,17 +107,38 @@ export const MyTask = () => {
         action={
           (!isEmpty || isLoading || isFoldersLoading) && (
             <div className="flex items-center gap-3">
-              <Button variant="outline" className="gap-2 px-3 h-9 text-sm font-semibold rounded-full hover:bg-slate-50 transition-all border-slate-300 shadow-sm" onClick={() => setIsCreateModalOpen(true)}>
-                <FolderPlus className="w-4 h-4" />
-                Create Section
-              </Button>
+              <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="gap-2 px-3 h-9 text-sm font-semibold rounded-full hover:bg-slate-50 transition-all border-slate-300 shadow-sm">
+                    <FolderPlus className="w-4 h-4" />
+                    Create Section
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create New Section</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex flex-col gap-4 py-4">
+                    <Input
+                      placeholder="Section Name"
+                      value={newSectionName}
+                      onChange={(e) => setNewSectionName(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleCreateSection()}
+                      autoFocus
+                    />
+                    <Button onClick={handleCreateSection} disabled={isCreating || !newSectionName.trim()}>
+                      {isCreating ? "Creating..." : "Create Section"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
 
               {folderId && (
                 <Link 
-                  href={`/assign-task?folderId=${folderId}`}
-                  className={buttonVariants({ variant: "default", className: "gap-2 px-4 h-9 text-sm font-semibold rounded-full shadow-sm hover:shadow-md transition-all" })}
+                  href={\`/assign-task?folderId=\${folderId}\`}
+                  className={buttonVariants({ variant: "default", size: "lg", className: "gap-2 px-6 py-6 text-base font-semibold rounded-full shadow-sm hover:shadow-md transition-all" })}
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-6 h-6" />
                   Add Activity
                 </Link>
               )}
@@ -143,10 +166,14 @@ export const MyTask = () => {
           <p className="text-muted-foreground mt-2 max-w-sm mb-6">
             Create a new section to organize your activities.
           </p>
-          <Button size="lg" className="gap-2" onClick={() => setIsCreateModalOpen(true)}>
-            <FolderPlus className="w-5 h-5" />
-            Create New Section
-          </Button>
+          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="gap-2">
+                <FolderPlus className="w-5 h-5" />
+                Create New Section
+              </Button>
+            </DialogTrigger>
+          </Dialog>
         </div>
       ) : (folderId && foldersToDisplay.length === 0 && filteredTasks.length === 0) ? (
         <div className={cn("flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-border rounded-xl bg-slate-50/50 transition-opacity", isFetching && "opacity-50 pointer-events-none")}>
@@ -160,12 +187,16 @@ export const MyTask = () => {
             Create a folder or add an activity to get started.
           </p>
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="lg" className="gap-2" onClick={() => setIsCreateModalOpen(true)}>
-              <FolderPlus className="w-5 h-5" />
-              Create Section
-            </Button>
+            <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="lg" className="gap-2">
+                  <FolderPlus className="w-5 h-5" />
+                  Create Section
+                </Button>
+              </DialogTrigger>
+            </Dialog>
             <Link 
-              href={`/assign-task?folderId=${folderId}`}
+              href={\`/assign-task?folderId=\${folderId}\`}
               className={buttonVariants({ size: "lg", className: "gap-2" })}
             >
               <Plus className="w-5 h-5" />
@@ -180,7 +211,7 @@ export const MyTask = () => {
               {foldersToDisplay.map((folder) => (
                 <div key={folder.id} className="relative group">
                   <Link 
-                    href={`/content-library?folderId=${folder.id}`}
+                    href={\`/content-library?folderId=\${folder.id}\`}
                     className="flex flex-col p-5 bg-white border border-slate-200 rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-200 transition-all duration-300 cursor-pointer h-full overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -204,8 +235,10 @@ export const MyTask = () => {
 
                   <div className="absolute top-4 right-4 z-20">
                     <DropdownMenu>
-                      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full" />}>
-                        <MoreVertical className="h-4 w-4" />
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-40">
                         <DropdownMenuItem onClick={() => {
@@ -300,27 +333,6 @@ export const MyTask = () => {
         </div>
       )}
 
-      {/* Create Section Dialog */}
-      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Section</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-4 py-4">
-            <Input
-              placeholder="Section Name"
-              value={newSectionName}
-              onChange={(e) => setNewSectionName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleCreateSection()}
-              autoFocus
-            />
-            <Button onClick={handleCreateSection} disabled={isCreating || !newSectionName.trim()}>
-              {isCreating ? "Creating..." : "Create Section"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={!!folderToRename} onOpenChange={(open) => !open && setFolderToRename(null)}>
         <DialogContent>
           <DialogHeader>
@@ -369,3 +381,5 @@ export const MyTask = () => {
     </div>
   );
 };
+`
+fs.writeFileSync('src/webcomponents/teacher/my-task/MyTask.tsx', code);

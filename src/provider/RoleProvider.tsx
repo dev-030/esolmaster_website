@@ -36,6 +36,9 @@ export const RoleProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         setRole(null);
         setUser(null);
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
       } finally {
         setIsLoading(false);
       }

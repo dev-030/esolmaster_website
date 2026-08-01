@@ -1,0 +1,26 @@
+--- src/webcomponents/teacher/assign-task/QuestionConfigs.tsx
++++ src/webcomponents/teacher/assign-task/QuestionConfigs.tsx
+@@ -14,7 +14,10 @@
+ export function MCQConfigUI({ config, onChange }: ConfigProps) {
+   const [items, setItems] = useState<{ id: string; text: string }[]>(() => {
+     if (config?.options && Array.isArray(config.options)) {
+-      return config.options.map((opt: string) => ({ id: Math.random().toString(36).substring(7), text: opt || "" }));
++      return config.options.map((opt: any) => ({ 
++        id: Math.random().toString(36).substring(7), 
++        text: typeof opt === 'string' ? opt : (opt?.text || "")
++      }));
+     }
+     return [
+       { id: "1", text: "" },
+@@ -79,7 +82,10 @@
+ export function GapFillConfigUI({ config, onChange }: ConfigProps) {
+   const [items, setItems] = useState<{ id: string; text: string }[]>(() => {
+     if (config?.options && Array.isArray(config.options)) {
+-      return config.options.map((opt: string) => ({ id: Math.random().toString(36).substring(7), text: opt || "" }));
++      return config.options.map((opt: any) => ({ 
++        id: Math.random().toString(36).substring(7), 
++        text: typeof opt === 'string' ? opt : (opt?.text || "")
++      }));
+     }
+     return [{ id: "1", text: "" }, { id: "2", text: "" }];
+   });

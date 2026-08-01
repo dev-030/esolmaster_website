@@ -209,7 +209,7 @@ export default function TaskTypeClientLayout({
       {/* ── Tabs Content ── */}
       <div className="border-b flex gap-2">
         {tabs.map((tab) => {
-          const href = `/my-task/${taskId}/${taskType}/${tab}`;
+          const href = `/content-library/${taskId}/${taskType}/${tab}`;
 
           return (
             <Link

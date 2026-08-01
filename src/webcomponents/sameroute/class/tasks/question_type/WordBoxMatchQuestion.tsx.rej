@@ -1,0 +1,10 @@
+@@ -95,7 +95,8 @@
+       {/* Sentences with Drag Targets */}
+       <div className="space-y-4">
+         {normalizedSentences.map((sentence) => {
+-          const parts = sentence.text.split("__");
++          const rawText = (sentence.text || "").replace(/<[^>]*>?/gm, '');
++          const parts = rawText.split("__");
+           const isAnswered = !!userAnswer?.[sentence.key];
+ 
+           return (

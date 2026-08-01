@@ -41,10 +41,9 @@ export const OrderingQuestion = ({
 
   return (
     <div className="space-y-4">
-      <div 
-        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
-        dangerouslySetInnerHTML={{ __html: (question.config?.question || "").replace(/&nbsp;/g, ' ') }}
-      />
+      <p className="text-base font-medium leading-relaxed text-foreground">
+        {question.config?.question}
+      </p>
       <p className="text-xs text-muted-foreground">
         Use the arrows to arrange the items into the correct order.
       </p>

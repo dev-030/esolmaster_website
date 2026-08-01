@@ -24,10 +24,9 @@ export const TextInputQuestion = ({
     <div className="space-y-4">
 
       {/* Question */}
-      <div 
-        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
-        dangerouslySetInnerHTML={{ __html: (question.config?.question || "").replace(/&nbsp;/g, ' ') }}
-      />
+      <p className="text-base font-medium leading-relaxed text-foreground">
+        {question.config?.question}
+      </p>
 
       {/* Input */}
       <div className="relative">

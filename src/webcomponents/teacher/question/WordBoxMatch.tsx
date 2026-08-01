@@ -33,6 +33,7 @@ export interface WordBoxConfig {
   sentences: Sentence[]
   explanation: string
   criterionId?: string
+  marks?: number
 }
 
 interface Props {
@@ -60,6 +61,7 @@ const DEFAULT_DATA: WordBoxConfig = {
     makeSentence()
   ],
   explanation: "",
+  marks: 1,
 }
 
 export const WordBoxQuestion = ({ 
@@ -215,7 +217,8 @@ export const WordBoxQuestion = ({
       words: validWords,
       sentences: validSentences,
       explanation: draft.explanation,
-      criterionId: draft.criterionId
+      criterionId: draft.criterionId,
+      marks: draft.marks ?? 1
     })
     
     if (currentMode === "create") {
@@ -300,14 +303,18 @@ export const WordBoxQuestion = ({
           )}
         </div>
 
-        {/* Criterion */}
-        {showCriterion && (
-          <CriteriaInfiniteSelect
-            value={draft.criterionId}
-            disabled={isDisabled}
-            onChange={(criterionId) => handleSave({ criterionId })}
-          />
-        )}
+        {/* Footer row: Criterion */}
+        <div className="flex gap-4">
+          {showCriterion && (
+            <div className="flex-1">
+              <CriteriaInfiniteSelect
+                value={draft.criterionId}
+                disabled={isDisabled}
+                onChange={(criterionId) => handleSave({ criterionId })}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Word Box */}
         <div className="space-y-3">

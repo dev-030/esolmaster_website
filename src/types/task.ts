@@ -59,6 +59,9 @@ export type TaskStatus =
 export interface TaskQuery extends PaginationQuery {
   status?: TaskStatus;
   isPremium?: boolean;
+  type?: TaskType;
+  search?: string;
+  folderId?: string;
 }
 
 export interface Task {

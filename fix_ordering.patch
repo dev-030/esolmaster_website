@@ -1,0 +1,14 @@
+--- src/webcomponents/teacher/assign-task/QuestionConfigs.tsx
++++ src/webcomponents/teacher/assign-task/QuestionConfigs.tsx
+@@ -254,7 +254,10 @@
+ export function OrderingConfigUI({ config, onChange }: ConfigProps) {
+   const [items, setItems] = useState<{ id: string; text: string }[]>(() => {
+     if (config?.items && Array.isArray(config.items)) {
+-      return config.items.map((i: string) => ({ id: Math.random().toString(36).substring(7), text: i }));
++      return config.items.map((i: any) => ({ 
++        id: Math.random().toString(36).substring(7), 
++        text: typeof i === 'string' ? i : (i?.text || "")
++      }));
+     }
+     return [{ id: "1", text: "" }, { id: "2", text: "" }, { id: "3", text: "" }];
+   });

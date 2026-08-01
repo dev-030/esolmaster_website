@@ -1,0 +1,61 @@
+--- src/webcomponents/sameroute/class/tasks/question_type/MCQQuestion.tsx
++++ src/webcomponents/sameroute/class/tasks/question_type/MCQQuestion.tsx
+@@ -18,7 +18,7 @@
+ 
+       <div 
+-        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0"
+-        dangerouslySetInnerHTML={{ __html: question.config.question || "" }}
++        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
++        dangerouslySetInnerHTML={{ __html: (question.config.question || "").replace(/&nbsp;/g, ' ') }}
+       />
+ 
+--- src/webcomponents/sameroute/class/tasks/question_type/MatchingQuestion.tsx
++++ src/webcomponents/sameroute/class/tasks/question_type/MatchingQuestion.tsx
+@@ -176,7 +176,7 @@
+       {/* Question */}
+       <div 
+-        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0"
+-        dangerouslySetInnerHTML={{ __html: question.config.question || "Match the following items." }}
++        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
++        dangerouslySetInnerHTML={{ __html: (question.config.question || "Match the following items.").replace(/&nbsp;/g, ' ') }}
+       />
+ 
+--- src/webcomponents/sameroute/class/tasks/question_type/TextInputQuestion.tsx
++++ src/webcomponents/sameroute/class/tasks/question_type/TextInputQuestion.tsx
+@@ -26,7 +26,7 @@
+       {/* Question */}
+       <div 
+-        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0"
+-        dangerouslySetInnerHTML={{ __html: question.config?.question || "" }}
++        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
++        dangerouslySetInnerHTML={{ __html: (question.config?.question || "").replace(/&nbsp;/g, ' ') }}
+       />
+ 
+--- src/webcomponents/sameroute/class/tasks/question_type/OrderingQuestion.tsx
++++ src/webcomponents/sameroute/class/tasks/question_type/OrderingQuestion.tsx
+@@ -44,7 +44,7 @@
+       <div 
+-        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0"
+-        dangerouslySetInnerHTML={{ __html: question.config?.question || "" }}
++        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
++        dangerouslySetInnerHTML={{ __html: (question.config?.question || "").replace(/&nbsp;/g, ' ') }}
+       />
+       <p className="text-xs text-muted-foreground">
+--- src/webcomponents/sameroute/class/tasks/question_type/WordBoxMatchQuestion.tsx
++++ src/webcomponents/sameroute/class/tasks/question_type/WordBoxMatchQuestion.tsx
+@@ -77,7 +77,7 @@
+       <div className="space-y-2">
+         <div 
+-          className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0"
+-          dangerouslySetInnerHTML={{ __html: question.config.question || "Choose the best word for each sentence." }}
++          className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
++          dangerouslySetInnerHTML={{ __html: (question.config.question || "Choose the best word for each sentence.").replace(/&nbsp;/g, ' ') }}
+         />
+ 
+--- src/webcomponents/sameroute/class/tasks/question_type/GapMCQQuestion.tsx
++++ src/webcomponents/sameroute/class/tasks/question_type/GapMCQQuestion.tsx
+@@ -15,7 +15,7 @@
+ 
+-  const rawQuestion = (question.config.question || "").replace(/<[^>]*>?/gm, '');
++  const rawQuestion = (question.config.question || "").replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ');
+   const parts = rawQuestion.split("__");

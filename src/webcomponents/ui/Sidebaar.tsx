@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Book,
   LayoutDashboard,
@@ -13,11 +13,13 @@ import {
   ClipboardList,
   GraduationCap,
   Trophy,
+  Folder,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { useRole } from "@/provider/RoleProvider";
-import { useGetMyProfileQuery } from "@/api/auth";
+import { useGetMyProfileQuery, useSignOutMutation } from "@/api/auth";
+import { toast } from "sonner";
 type Role = "admin" | "student" | "teacher"; // Extendable for future roles
 
 const MENU_CONFIG = {
@@ -34,7 +36,7 @@ const MENU_CONFIG = {
   teacher: {
     main: [
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { name: "My Task", href: "/my-task", icon: CheckSquare },
+      { name: "My Task", href: "/content-library", icon: CheckSquare },
       { name: "Assign Task", href: "/assign-task", icon: ClipboardList },
       { name: "Classes", href: "/classes", icon: Users },
       { name: "Students", href: "/students", icon: GraduationCap },
@@ -46,7 +48,7 @@ const MENU_CONFIG = {
     main: [
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { name: "User Management", href: "/users", icon: Users },
-      { name: "Task Management", href: "/my-task", icon: CheckSquare },
+      { name: "Content Library", href: "/content-library", icon: Folder },
       { name: "Performance", href: "/perfomance", icon: BarChart },
       { name: "Packages", href: "/billing", icon: Package },
       { name: "Analytics", href: "/analysis", icon: BarChart },
@@ -65,8 +67,22 @@ export const Sidebar = () => {
   const config = MENU_CONFIG[role as Role] || MENU_CONFIG["student"]; // Fallback to student config
   const isAdmin = role === "admin";
   const { data: myProfile } = useGetMyProfileQuery();
+  const { mutateAsync: signOut, isPending: isSignOutPending } = useSignOutMutation();
+  const router = useRouter();
+
   const isActive = (href: string) => {
     return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success("Logged out successfully");
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      toast.error("Failed to logout");
+    }
   };
 
   return (
@@ -98,21 +114,22 @@ export const Sidebar = () => {
           </p>
           <div className="space-y-1">
             {config.main.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md transition-all text-sm font-medium",
-                  isActive(item.href)
-                    ? "bg-primary text-white"
-                    : isAdmin
-                      ? "hover:bg-slate-800"
-                      : "hover:bg-slate-100",
-                )}
-              >
-                <item.icon className="w-4 h-4" />
-                {item.name}
-              </Link>
+              <div key={item.name} className="flex flex-col">
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-md transition-all text-sm font-medium",
+                    isActive(item.href)
+                      ? "bg-primary text-white"
+                      : isAdmin
+                        ? "hover:bg-slate-800"
+                        : "hover:bg-slate-100",
+                  )}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.name}
+                </Link>
+              </div>
             ))}
           </div>
         </div>
@@ -151,8 +168,8 @@ export const Sidebar = () => {
 
       {/* Footer Section */}
       <div className="p-4 border-t border-slate-200/20">
-        {role === "student" ? (
-          <div className="space-y-3 bg-linear-to-br from-[#8EC2FF99] to [#2475D396] p-4 rounded-lg">
+        {role === "student" && (
+          <div className="space-y-3 bg-linear-to-br from-[#8EC2FF99] to [#2475D396] p-4 rounded-lg mb-4">
             <div className="flex justify-between text-xs font-bold">
               <span>Next Level</span>
               <span>{myProfile?.level+1 || 1}</span>
@@ -163,24 +180,16 @@ export const Sidebar = () => {
               <span>{myProfile?.xpNeededForNextLevel+myProfile?.totalXp || 0} XP</span>
             </div>
           </div>
-        ) : (
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-full bg-slate-500 flex items-center justify-center text-white text-xs">
-              {myProfile?.firstName?.charAt(0).toUpperCase()}{myProfile?.lastName?.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <p className="text-sm font-bold capitalize">{role}</p>
-              <p className="text-[10px] text-slate-400 underline cursor-pointer">
-                View Profile
-              </p>
-            </div>
-          </div>
         )}
 
-        {/* <button className="flex items-center gap-2 text-sm text-red-500 font-medium mt-4 w-full px-2">
+        <button 
+          onClick={handleLogout}
+          disabled={isSignOutPending}
+          className="flex items-center gap-2 text-sm text-red-500 font-medium mt-4 w-full px-2 hover:bg-red-50 py-2 rounded-md transition-colors disabled:opacity-50"
+        >
           <LogOut className="w-4 h-4" />
-          Logout
-        </button> */}
+          {isSignOutPending ? "Logging out..." : "Logout"}
+        </button>
       </div>
     </aside>
   );

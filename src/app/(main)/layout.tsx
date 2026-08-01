@@ -8,27 +8,20 @@ export default async function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-slate-50 font-inter">
-      {/* Sidebar gets role from server, but uses localStorage internally for profile */}
-      <TranstackProvider>
-        <RoleProvider>
+    <TranstackProvider>
+      <RoleProvider>
+        <div className="flex min-h-screen bg-slate-50 font-inter">
           <Sidebar />
-        </RoleProvider>
-      </TranstackProvider>
 
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <TranstackProvider>
-          <RoleProvider>
+          <div className="flex-1 flex flex-col h-screen overflow-hidden">
             <Navbar />
-          </RoleProvider>
-        </TranstackProvider>
 
-        <main className="flex-1 overflow-y-auto p-6">
-          <TranstackProvider>
-            <RoleProvider>{children}</RoleProvider>
-          </TranstackProvider>
-        </main>
-      </div>
-    </div>
+            <main className="flex-1 overflow-y-auto p-6">
+              {children}
+            </main>
+          </div>
+        </div>
+      </RoleProvider>
+    </TranstackProvider>
   );
 }

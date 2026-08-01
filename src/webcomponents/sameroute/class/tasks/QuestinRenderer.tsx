@@ -15,6 +15,7 @@ import { BaseQuestion } from "@/types/attempt";
 // Registry — add new types here only
 const QUESTION_COMPONENTS = {
   mcq: MCQQuestion,
+  true_false: MCQQuestion,
   gap_fill: GapMCQQuestion, // ✅ FIXED
   question_answer: TextInputQuestion,
   matching: MatchingQuestion,

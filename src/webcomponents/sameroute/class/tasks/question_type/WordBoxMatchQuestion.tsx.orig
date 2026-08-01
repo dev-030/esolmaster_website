@@ -75,10 +75,9 @@ export const WordBoxMatchQuestion = ({
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <div 
-          className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
-          dangerouslySetInnerHTML={{ __html: (question.config.question || "Choose the best word for each sentence.").replace(/&nbsp;/g, ' ') }}
-        />
+        <p className="text-base font-medium leading-relaxed text-foreground">
+          {question.config.question || "Choose the best word for each sentence."}
+        </p>
 
         <div className="flex flex-wrap gap-2">
           {words.map((word) => (

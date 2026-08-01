@@ -6,6 +6,7 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  keepPreviousData,
 } from "@tanstack/react-query";
 import {
   addQuestions,
@@ -18,6 +19,7 @@ import {
   getTaskWords,
   rejectTask,
   updateTask,
+  deleteTask,
 } from "./api";
 
 export const useCreateTaskMutation = () => {
@@ -71,6 +73,7 @@ export const useGetTasks = (params?: TaskQuery) => {
   return useQuery({
     queryKey: ["tasks", params],
     queryFn: () => getTasks(params),
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -132,3 +135,15 @@ export const useGetAllScheduledTasksQuery = (pagination: PaginationQuery) => {
     queryFn: () => getAllScheduledTasks(pagination),
   });
 }
+
+export const useDeleteTaskMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (taskId: string) => {
+      return deleteTask(taskId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+};

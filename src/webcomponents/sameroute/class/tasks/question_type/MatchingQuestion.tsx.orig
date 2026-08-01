@@ -172,10 +172,9 @@ export const MatchingQuestion = ({
   return (
     <div className="space-y-4">
       {/* Question */}
-      <div 
-        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
-        dangerouslySetInnerHTML={{ __html: (question.config.question || "Match the following items.").replace(/&nbsp;/g, ' ') }}
-      />
+      <p className="text-base font-medium leading-relaxed text-foreground">
+        {question.config.question || "Match the following items."}
+      </p>
 
       {!submitted && (
         <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">

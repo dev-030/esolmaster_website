@@ -19,7 +19,7 @@ const TEACHER_PATHS = ["/profile_teacher", "/report", "/students"];
 const STUDENT_PATHS = ["/progress", "/tasks"];
 
 // Shared paths
-const ADMIN_TEACHER_PATHS = ["/assign-task", "/my-task"];
+const ADMIN_TEACHER_PATHS = ["/assign-task", "/content-library"];
 const ADMIN_STUDENT_PATHS = ["/badges"];
 const TEACHER_STUDENT_PATHS = ["/classes"];
 

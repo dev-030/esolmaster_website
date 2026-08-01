@@ -1,0 +1,14 @@
+@@ -165,9 +165,10 @@
+   return (
+     <div className="space-y-4">
+       {/* Question / Instructions */}
+-      <p className="text-base font-medium leading-relaxed text-foreground">
+-        {question.config.question || "Drag the items into the correct order."}
+-      </p>
++      <div 
++        className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0"
++        dangerouslySetInnerHTML={{ __html: question.config.question || "Drag the items into the correct order." }}
++      />
+ 
+       <DragDropContext onDragEnd={handleDragEnd}>
+         <Droppable droppableId={`ordering-${question.id}`}>

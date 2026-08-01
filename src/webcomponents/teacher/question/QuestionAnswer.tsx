@@ -20,6 +20,7 @@ export interface QAData {
   question: string;
   answer: string;
   criterionId?: string;
+  marks?: number;
 }
 
 interface QuestionAnswerProps {
@@ -36,7 +37,7 @@ interface QuestionAnswerProps {
 
 export const QuestionAnswer = ({
   mode = "create",
-  initialData = { question: "", answer: "" },
+  initialData = { question: "", answer: "", marks: 1 },
   useVocabSuggestions = false,
   percentage,
   onSave,
@@ -129,13 +130,18 @@ export const QuestionAnswer = ({
           )}
         </div>
 
-        {showCriterion && (
-          <CriteriaInfiniteSelect
-            value={draft.criterionId}
-            disabled={isDisabled}
-            onChange={(criterionId) => handleSave({ criterionId })}
-          />
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+          {showCriterion && (
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Criterion</Label>
+              <CriteriaInfiniteSelect
+                value={draft.criterionId}
+                disabled={isDisabled}
+                onChange={(criterionId) => handleSave({ criterionId })}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Answer */}
         <div className="space-y-1.5">

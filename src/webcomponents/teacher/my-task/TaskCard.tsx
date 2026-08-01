@@ -8,12 +8,25 @@ import {
   LucideIcon,
   School,
   Type,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
-import { useApproveTaskMutation } from "@/api/task";
+import { useApproveTaskMutation, useDeleteTaskMutation } from "@/api/task";
 import { toast } from "sonner";
 import { useRole } from "@/provider/RoleProvider";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const TASK_TYPE_CONFIG: Record<
   TaskType,
@@ -38,8 +51,8 @@ const TASK_TYPE_CONFIG: Record<
 
 // ── Link logic ────────────────────────────────────────────────────────────────
 function getTaskLink(task: Task): string {
-  // Simple and direct: /my-task/ID/TYPE
-  return `/my-task/${task.id}/${task.type.toLowerCase()}`;
+  // Simple and direct: open the new Activity Builder with this task ID
+  return `/assign-task?taskId=${task.id}`;
 }
 
 export const TaskCard = ({ task }: { task: Task }) => {
@@ -47,9 +60,12 @@ export const TaskCard = ({ task }: { task: Task }) => {
   const classes = task.classes ?? [];
   const href = getTaskLink(task);
   const { role } = useRole();
+  const router = useRouter();
   const { mutate: approveTask, isPending } = useApproveTaskMutation();
+  const { mutate: deleteTask, isPending: isDeleting } = useDeleteTaskMutation();
 
-  const handleApprove = () => {
+  const handleApprove = (e: React.MouseEvent) => {
+    e.stopPropagation();
     approveTask(task.id, {
       onSuccess: () => {
         toast.success("Task approved successfully!");
@@ -57,11 +73,26 @@ export const TaskCard = ({ task }: { task: Task }) => {
     });
   };
 
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteTask(task.id, {
+      onSuccess: () => {
+        toast.success("Task deleted successfully!");
+      },
+      onError: () => {
+        toast.error("Failed to delete task.");
+      }
+    });
+  };
+
   // Extract the icon component from config
   const TypeIcon = cfg.icon;
 
   return (
-    <div className="flex items-center gap-4 rounded-xl border bg-card px-5 py-4 hover:shadow-sm transition-all duration-200 group">
+    <div 
+      onClick={() => router.push(href)}
+      className="flex items-center gap-4 rounded-xl border bg-card px-5 py-4 hover:shadow-sm transition-all duration-200 group cursor-pointer"
+    >
       {/* Left content */}
       <div className="flex-1 min-w-0 space-y-1.5">
         {/* Row 1 — type badge with Lucide Icon */}
@@ -117,20 +148,35 @@ export const TaskCard = ({ task }: { task: Task }) => {
             {task.status === "PENDING_APPROVAL" ? "Approve" : "Approved"}
           </Button>
         )}
-        <Link href={href} className="shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "gap-1.5 rounded-lg font-medium text-primary",
-              "bg-primary/5 hover:bg-primary/10 border border-primary/10",
-              "transition-all duration-150",
-            )}
+        
+        <AlertDialog>
+          <AlertDialogTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => e.stopPropagation()}
+                disabled={isDeleting}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50/50"
+              />
+            }
           >
-            Open
-            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
-          </Button>
-        </Link>
+            <Trash2 className="w-4 h-4" />
+          </AlertDialogTrigger>
+          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the task
+                and remove it from all assigned classes.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
