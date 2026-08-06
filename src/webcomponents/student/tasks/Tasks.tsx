@@ -63,7 +63,7 @@ export const Tasks = () => {
   const hasActiveFilter = selectedType !== "" || selectedLevel !== "all";
 
   return (
-    <div className="py-16 flex flex-col gap-6 lg:px-6 md:px-4 max-md:px-2">
+    <div className="flex flex-col gap-6 lg:px-6 md:px-4 max-md:px-2">
       <SectionHeading
         heading="Browse Tasks"
         subheading="Here are the tasks assigned to you."

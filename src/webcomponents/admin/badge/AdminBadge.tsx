@@ -171,7 +171,7 @@ export const AdminBadge = () => {
   };
 
   return (
-    <div className=" py-8">
+    <div>
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Header */}
         <div>

@@ -113,7 +113,7 @@ export const Report = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 py-16">
+    <div className="flex flex-col gap-6">
       <SectionHeading heading="Reports" />
 
       <Card className="rounded-2xl border border-gray-100 shadow-sm">

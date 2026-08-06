@@ -72,7 +72,7 @@ export const TeacherDashboard = () => {
   const isLoading = teacherAnalyticsLoading || tasksLoading;
 
   return (
-    <div className="py-8 px-4 md:px-6 lg:px-8 space-y-8 bg-linear-to-br from-background via-background to-muted/20 min-h-screen">
+    <div className="space-y-8 bg-linear-to-br from-background via-background to-muted/20 min-h-screen">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="space-y-1">

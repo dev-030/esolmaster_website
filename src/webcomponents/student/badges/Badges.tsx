@@ -42,11 +42,11 @@ export const Badges = () => {
   const completed = badges.filter((b) => b.completed).length;
 
   if (isLoading) {
-    return <div className="p-6">Loading...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <SectionHeading
         heading="Badges & Achievements"
         subheading={`You've unlocked ${completed} of ${badges.length} badges. Keep going!`}

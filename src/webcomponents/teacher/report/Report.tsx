@@ -11,7 +11,7 @@ export const Report = () => {
 
   if (isLoading) {
     return (
-      <div className="py-16 flex flex-col gap-6">
+      <div className="flex flex-col gap-6">
         <SectionHeading
           heading="Report"
           subheading="Track performance metrics across all your classes."
@@ -28,7 +28,7 @@ export const Report = () => {
 
   if (!reportsOverview) {
     return (
-      <div className="py-16 flex flex-col gap-6">
+      <div className="flex flex-col gap-6">
         <SectionHeading
           heading="Report"
           subheading="Track performance metrics across all your classes."
@@ -99,7 +99,7 @@ export const Report = () => {
   }));
 
   return (
-    <div className="py-16 flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <SectionHeading
         heading="Report"
         subheading="Track performance metrics across all your classes."

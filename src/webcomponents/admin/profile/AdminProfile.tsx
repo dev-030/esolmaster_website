@@ -86,7 +86,7 @@ export const AdminProfile = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 py-16">
+    <div className="flex flex-col gap-6">
       <SectionHeading heading="Profile and Security" />
       {/* ── Profile Information ─────────────────────────────────────────── */}
       <Card className="rounded-2xl border border-gray-100 shadow-sm">

@@ -54,7 +54,7 @@ export const AdminDashboard = () => {
   },
 ];
   return (
-    <div className="flex flex-col gap-6 py-16">
+    <div className="flex flex-col gap-6">
       <SectionHeading
         heading="Admin Dashboard"
         subheading="Manage your application settings and user accounts."

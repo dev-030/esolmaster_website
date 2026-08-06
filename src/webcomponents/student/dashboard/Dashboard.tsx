@@ -234,7 +234,7 @@ export const StudentDashboard = () => {
   // Error State
   if (isTasksError || isDashboardError) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="flex flex-col space-y-6">
         <SectionHeading
           heading="Student Dashboard"
           subheading="Welcome back! Here's your learning overview for this month."
@@ -257,7 +257,7 @@ export const StudentDashboard = () => {
   // Loading State with animations
   if (isDashboardLoading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="flex flex-col space-y-6">
         <div className="shimmer-loading rounded-lg h-16 w-full" />
         
         {/* Loading Stat Cards */}
@@ -301,7 +301,7 @@ export const StudentDashboard = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="flex flex-col space-y-6">
       {/* Heading with animation */}
       <div className="animate-fade-in-up">
         <SectionHeading

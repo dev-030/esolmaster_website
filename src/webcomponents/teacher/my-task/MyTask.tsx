@@ -70,7 +70,7 @@ export const MyTask = () => {
   const isEmpty = foldersToDisplay.length === 0 && filteredTasks.length === 0;
 
   return (
-    <div className="pt-0 pb-16 flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {/* Breadcrumbs */}
       {folderId && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2 overflow-x-auto pb-2">

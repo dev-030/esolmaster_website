@@ -32,7 +32,7 @@ export const Performance = () => {
     });
   };
   return (
-    <div className="flex flex-col gap-6 py-16">
+    <div className="flex flex-col gap-6">
       {/* Header row */}
       <div className="flex items-start justify-between gap-4">
         <SectionHeading

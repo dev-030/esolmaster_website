@@ -107,7 +107,7 @@ export const Users = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-6 py-16">
+      <div className="flex flex-col gap-6">
         <UserTabs active={activeTab} onChange={handleTabChange} />
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12">
           <div className="flex items-center justify-center gap-3 text-gray-500">
@@ -122,7 +122,7 @@ export const Users = () => {
   // Error state
   if (isError) {
     return (
-      <div className="flex flex-col gap-6 py-16">
+      <div className="flex flex-col gap-6">
         <UserTabs active={activeTab} onChange={handleTabChange} />
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12">
           <div className="flex flex-col items-center justify-center gap-3 text-gray-500">
@@ -140,7 +140,7 @@ export const Users = () => {
   }
   
   return (
-    <div className="flex flex-col gap-6 py-16">
+    <div className="flex flex-col gap-6">
       {/* Search Bar - Optional addition */}
       <div className="flex justify-between items-center">
         <UserTabs active={activeTab} onChange={handleTabChange} />

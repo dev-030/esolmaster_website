@@ -19,7 +19,7 @@ export default function AssignTaskLayout({
   ];
 
   return (
-    <div className="py-16 flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <SectionHeading
         heading="Assign Task"
         subheading="Create and assign new tasks to your classes."
