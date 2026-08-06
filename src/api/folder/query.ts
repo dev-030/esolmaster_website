@@ -11,6 +11,8 @@ export const useGetFolders = (parentId?: string) => {
   return useQuery({
     queryKey: ["folders", parentId],
     queryFn: () => getFolders(parentId),
+    staleTime: 30 * 1000,      // treat data as fresh for 30 seconds
+    gcTime: 5 * 60 * 1000,    // keep in cache for 5 minutes
   });
 };
 
@@ -19,6 +21,8 @@ export const useGetFolderById = (id: string) => {
     queryKey: ["folder", id],
     queryFn: () => getFolderById(id),
     enabled: !!id,
+    staleTime: 60 * 1000,      // treat data as fresh for 60 seconds
+    gcTime: 5 * 60 * 1000,    // keep in cache for 5 minutes
   });
 };
 
