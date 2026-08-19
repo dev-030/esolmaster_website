@@ -2,64 +2,74 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function handleRefresh(request: NextRequest) {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    // Use private BACKEND_URL (no NEXT_PUBLIC) for server-to-server calls.
+    // NEXT_PUBLIC_* vars are baked in at build time for the browser only.
+    const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL;
 
-    // 1. Manually get the refresh token from the browser's request
     const refreshToken = request.cookies.get("refreshToken")?.value;
 
     if (!refreshToken) {
       throw new Error("No refresh token found in cookies");
     }
 
-    // 2. Perform the server-to-server call
+    // Server-to-server: manually pass the cookie header
     const response = await fetch(`${backendUrl}/auth/refresh_token`, {
-      method: "POST", // Ensure this is definitely POST
+      method: "POST",
       headers: {
         Cookie: `refreshToken=${refreshToken}`,
         "Content-Type": "application/json",
       },
-      // Important: Ensure no redirection magic is happening
-      redirect: "follow",
-      body: JSON.stringify({}), // Even an empty body can help some parsers identify it as POST
+      body: JSON.stringify({}),
     });
 
-    console.log(`Refresh token response status: ${response.status}`);
-
     if (!response.ok) {
-      // ADD THESE LOGS:
       const errorText = await response.text();
-      console.error(`Backend responded with status: ${response.status}`);
-      console.error(`Backend error message: ${errorText}`);
+      console.error(`[handleRefresh] Backend responded ${response.status}: ${errorText}`);
       throw new Error("Backend refresh call failed");
     }
 
-    // 3. Get the "Set-Cookie" header sent by your NestJS backend
+    // Backend may return multiple Set-Cookie headers.
+    // In the Fetch API, response.headers.get('set-cookie') collapses them
+    // into a comma-separated string. We parse both tokens from it.
     const setCookieHeader = response.headers.get("set-cookie");
-    console.log(setCookieHeader, "Set-Cookie header from backend");
-    if (!setCookieHeader)
-      throw new Error("Backend did not return a new cookie");
+    if (!setCookieHeader) {
+      throw new Error("Backend did not return new cookies");
+    }
 
-    // 4. Create the response to continue the navigation
     const nextResponse = NextResponse.next();
+    const isProd = process.env.NODE_ENV === "production";
 
-    // 5. Forward the new accessToken to the browser
-    // We parse the string "accessToken=xyz; Path=/; ..." to get just "xyz"
-    const tokenMatch = setCookieHeader.match(/accessToken=([^;]+)/);
-    if (tokenMatch) {
-      const tokenValue = tokenMatch[1];
-
-      nextResponse.cookies.set("accessToken", tokenValue, {
+    // Parse and forward new accessToken
+    const accessMatch = setCookieHeader.match(/accessToken=([^;,]+)/);
+    if (accessMatch) {
+      nextResponse.cookies.set("accessToken", accessMatch[1], {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProd,
         sameSite: "lax",
         path: "/",
+        maxAge: 5 * 60 * 60, // 5h in seconds
+      });
+    }
+
+    // Parse and forward the rotated refreshToken
+    const refreshMatch = setCookieHeader.match(/refreshToken=([^;,]+)/);
+    if (refreshMatch) {
+      nextResponse.cookies.set("refreshToken", refreshMatch[1], {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60, // 7d in seconds
       });
     }
 
     return nextResponse;
   } catch (error) {
-    console.error("Silent Refresh Error:", error);
-    // If anything fails, send them to login
-    return NextResponse.redirect(new URL("/login", request.url));
+    console.error("[handleRefresh] Silent Refresh Error:", error);
+    // Clear bad tokens and redirect to login
+    const response = NextResponse.redirect(new URL("/login", request.url));
+    response.cookies.delete("refreshToken");
+    response.cookies.delete("accessToken");
+    return response;
   }
 }

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { QuestionRenderer } from "@/webcomponents/sameroute/class/tasks/QuestinRenderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
@@ -13,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { createTask, getTaskById, updateTask } from "@/api/task/api";
-import { TaskPreviewModal } from "./TaskPreviewModal";
 import { 
   MCQConfigUI, 
   TrueFalseConfigUI, 
@@ -39,6 +40,269 @@ interface QuestionConfig {
 
 const LOCAL_STORAGE_KEY = "esolmaster_activity_builder_draft";
 
+const QuestionCard = React.memo(({ q, index, dragHandleProps, updateQuestion, removeQuestion }: any) => {
+  const isExpanded = q.isExpanded !== false;
+
+  return (
+    <Card className="border-slate-100 shadow-none relative group bg-white overflow-hidden transition-all rounded-xl">
+      <div 
+        className="absolute left-2 top-3.5 cursor-grab text-slate-300 hover:text-slate-500 transition-colors z-10 opacity-0 group-hover:opacity-100"
+        {...dragHandleProps}
+      >
+        <GripVertical size={18} />
+      </div>
+      <div className="pl-7">
+        <CardHeader className="py-3 px-5 bg-slate-50/30 border-b border-slate-100 flex flex-row items-center justify-between">
+          <CardTitle className="text-[13px] font-semibold text-slate-700 tracking-wide">
+            {index + 1}. {q.type.replace(/_/g, " ")}
+          </CardTitle>
+          <div className="flex items-center gap-3">
+            {isExpanded ? (
+              <div className="flex items-center gap-2 mr-2">
+                <Label className="text-xs font-medium text-slate-500">Marks</Label>
+                <Input 
+                  type="number" 
+                  min="0"
+                  className="w-16 h-7 text-xs text-center px-1 py-0 bg-white" 
+                  value={q.marks ?? 1} 
+                  onChange={(e) => updateQuestion(q.id, { marks: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+            ) : (
+              <div className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                {q.marks ?? 1} {q.marks === 1 ? 'Mark' : 'Marks'}
+              </div>
+            )}
+            <div className="flex items-center gap-1">
+              <Button type="button" 
+                variant="ghost" 
+                size="sm" 
+                className="text-slate-500 hover:text-slate-700 h-7 text-xs px-2" 
+                onClick={() => updateQuestion(q.id, { isExpanded: !isExpanded })}
+              >
+                {isExpanded ? "Collapse" : "Edit"}
+              </Button>
+              <Button type="button" variant="ghost" size="icon" className="text-slate-400 hover:text-red-600 hover:bg-red-50 h-7 w-7 transition-colors" onClick={() => removeQuestion(q.id)}>
+                <Trash2 size={15} />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        
+        {isExpanded ? (
+          <CardContent className="p-5 space-y-6">
+            <div className="space-y-2.5">
+              <Label className="text-sm font-medium text-slate-700">Question Prompt</Label>
+              <RichTextEditor 
+                placeholder="Enter the question here..." 
+                value={q.content}
+                onChange={(val) => updateQuestion(q.id, { content: val })}
+              />
+            </div>
+            
+            <div className="p-5 bg-slate-50/50 border border-slate-100 rounded-lg text-sm text-slate-500 font-medium">
+              {q.type === "MCQ" && <MCQConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+              {q.type === "TRUE_FALSE" && <TrueFalseConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+              {q.type === "GAP_FILL" && <GapFillConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+              {q.type === "WORD_BOX_MATCH" && <WordBoxMatchConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+              {q.type === "MATCHING" && <MatchingConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+              {q.type === "QUESTION_ANSWER" && <QuestionAnswerConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+              {q.type === "ORDERING" && <OrderingConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+            </div>
+
+            <div className="space-y-2.5">
+              <Label className="text-sm font-medium text-slate-700">Explanation (Optional)</Label>
+              <p className="text-xs text-slate-500">Provide an explanation for the correct answer. Students will see this after they submit.</p>
+              <RichTextEditor 
+                placeholder="Explain why the answer is correct..." 
+                value={q.explanation || ""}
+                onChange={(val) => updateQuestion(q.id, { explanation: val })}
+              />
+            </div>
+          </CardContent>
+        ) : (
+          <CardContent className="p-5 py-4 flex flex-col gap-3 min-w-0 overflow-hidden relative">
+            <div 
+              className="text-sm text-slate-800 prose prose-sm prose-slate max-w-none prose-p:my-0 w-full min-w-0 whitespace-pre-wrap break-words" 
+              dangerouslySetInnerHTML={{ __html: (q.content || "<span class='text-slate-400 italic'>No prompt provided.</span>").replace(/&nbsp;/g, ' ') }} 
+            />
+            
+            {(q.type === "MCQ" || q.type === "TRUE_FALSE" || q.type === "GAP_FILL") && q.config?.options && (
+              <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
+                {q.config.options.map((optText: string, index: number) => {
+                  const isCorrect = q.config.correctIndex === index;
+                  return (
+                    <div key={index} className={`flex items-center gap-2.5 text-sm px-3 py-1.5 rounded-md border ${isCorrect ? 'bg-emerald-50/50 text-emerald-800 border-emerald-200' : 'bg-white text-slate-600 border-slate-200'}`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isCorrect ? 'bg-emerald-500' : 'bg-slate-300'} shrink-0`} />
+                      <span className="min-w-0 truncate">{optText || <span className="italic text-slate-400">Empty option</span>}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            
+            {q.type === "WORD_BOX_MATCH" && q.config?.sentences && (
+              <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
+                {q.config.sentences.map((s: any, idx: number) => (
+                  <div key={idx} className="text-sm px-3 py-2 rounded-md border bg-slate-50 border-slate-100 flex flex-col gap-1">
+                    <div className="text-slate-600 italic">"{s.text}"</div>
+                    <div className="text-emerald-700 font-medium">Answer: {s.answer}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {q.type === "MATCHING" && q.config?.leftItems && (
+              <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
+                {q.config.leftItems.map((left: string, idx: number) => {
+                  const rightIdx = q.config.matches ? q.config.matches[idx] : null;
+                  const right = rightIdx !== null && rightIdx !== undefined ? q.config.rightItems[rightIdx] : "";
+                  return (
+                    <div key={idx} className="flex items-center gap-3 text-sm px-3 py-1.5 rounded-md border bg-slate-50 border-slate-100">
+                      <span className="text-slate-700 font-medium">{left}</span>
+                      <span className="text-slate-400">-</span>
+                      <span className="text-slate-600">{right}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {q.type === "ORDERING" && q.config?.items && (
+              <div className="flex flex-col gap-1 pl-2 w-full min-w-0">
+                {q.config.items.map((item: string, idx: number) => (
+                  <div key={idx} className="flex items-center gap-2 text-sm">
+                    <span className="w-5 h-5 rounded bg-indigo-50 text-indigo-700 text-[11px] font-bold flex items-center justify-center shrink-0">{idx + 1}</span>
+                    <span className="text-slate-700">{item}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {q.type === "QUESTION_ANSWER" && q.config?.answer && (
+              <div className="text-sm px-3 py-2 rounded-md border bg-emerald-50/50 border-emerald-100 text-emerald-800 ml-2 font-medium">
+                Answer: {q.config.answer}
+              </div>
+            )}
+
+            {q.explanation && q.explanation !== "<p><br></p>" && (
+              <div className="text-sm text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-100 mt-2 w-full min-w-0 overflow-hidden">
+                <span className="font-semibold text-slate-900 mb-1.5 block">Explanation:</span>
+                <div 
+                  className="prose prose-sm prose-slate max-w-none prose-p:my-0 w-full min-w-0 whitespace-pre-wrap break-words" 
+                  dangerouslySetInnerHTML={{ __html: q.explanation.replace(/&nbsp;/g, ' ') }} 
+                />
+              </div>
+            )}
+          </CardContent>
+        )}
+      </div>
+    </Card>
+  );
+});
+
+const LocalTaskPreview = ({ title, taskType, questions }: { title: string, taskType: string, questions: QuestionConfig[] }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const currentQuestion = questions[currentIndex];
+  const totalQuestions = questions.length;
+  
+  const meta = {
+    grammar: { label: "Grammar", emoji: "📝", variant: "info" },
+    reading: { label: "Reading", emoji: "📖", variant: "success" },
+    vocabulary: { label: "Vocabulary", emoji: "💬", variant: "warning" },
+  }[taskType.toLowerCase()] || { label: taskType, emoji: "📄", variant: "default" };
+
+  if (!questions || questions.length === 0) {
+    return <div className="p-8 text-center text-slate-500">No questions added yet to preview.</div>;
+  }
+
+  // Convert builder question config to the format QuestionRenderer expects
+  const formatQuestion = (q: QuestionConfig) => {
+    let baseConfig = q.config || {};
+    return {
+      id: q.id,
+      type: q.type,
+      config: { 
+        question: q.content || "", 
+        explanation: q.explanation || "", 
+        marks: q.marks || 1, 
+        options: [], 
+        ...baseConfig 
+      }
+    };
+  };
+
+  const handleNext = () => {
+    if (currentIndex < totalQuestions - 1) setCurrentIndex(c => c + 1);
+  };
+  
+  const handlePrev = () => {
+    if (currentIndex > 0) setCurrentIndex(c => c - 1);
+  };
+
+  return (
+    <div className="space-y-8 max-w-4xl mx-auto w-full pb-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">{title || "Untitled Activity"}</h1>
+          <span className="px-3 py-1 rounded-full text-sm font-semibold bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5 shadow-sm">
+            <span>{meta.emoji}</span> {meta.label}
+          </span>
+        </div>
+      </div>
+      
+      {/* Progress Bar */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1 h-2 bg-slate-100/80 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
+          <div 
+            className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-500 ease-out" 
+            style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
+          />
+        </div>
+        <span className="text-sm font-bold text-slate-400 min-w-[3rem] text-right tracking-widest">
+          {currentIndex + 1} / {totalQuestions}
+        </span>
+      </div>
+
+      {/* Question Container */}
+      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 md:p-8">
+        <QuestionRenderer 
+          question={formatQuestion(currentQuestion) as any} 
+          userAnswer={answers[currentQuestion.id]}
+          setAnswer={(ans) => setAnswers(prev => ({...prev, [currentQuestion.id]: ans}))}
+          submitted={submitted}
+        />
+      </div>
+
+      {/* Navigation */}
+      <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-6">
+        <Button 
+          variant="outline" 
+          onClick={handlePrev}
+          disabled={currentIndex === 0}
+          className="border-slate-200"
+        >
+          Previous
+        </Button>
+        
+        {currentIndex < totalQuestions - 1 ? (
+          <Button onClick={handleNext} className="bg-indigo-600 hover:bg-indigo-700">
+            Next
+          </Button>
+        ) : (
+          <Button onClick={() => setSubmitted(true)} className="bg-emerald-600 hover:bg-emerald-700">
+            Submit
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function ActivityBuilder() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,6 +318,7 @@ export default function ActivityBuilder() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoadingTask, setIsLoadingTask] = useState(!!taskId);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewTaskId, setPreviewTaskId] = useState<string | null>(null);
 
   useEffect(() => {
     if (taskId) {
@@ -148,13 +413,13 @@ export default function ActivityBuilder() {
     }]);
   };
 
-  const removeQuestion = (id: string) => {
-    setQuestions(questions.filter(q => q.id !== id));
-  };
+  const removeQuestion = React.useCallback((id: string) => {
+    setQuestions(prev => prev.filter(q => q.id !== id));
+  }, []);
 
-  const updateQuestion = (id: string, updates: Partial<QuestionConfig>) => {
+  const updateQuestion = React.useCallback((id: string, updates: Partial<QuestionConfig>) => {
     setQuestions(prev => prev.map(q => q.id === id ? { ...q, ...updates } : q));
-  };
+  }, []);
 
   const handleSave = async (status: "PUBLISHED" | "DRAFT", shouldRedirect = true) => {
     if (!title) {
@@ -217,6 +482,8 @@ export default function ActivityBuilder() {
         }
       }
       
+      const currentTaskId = taskId || (response && response.id);
+
       if (shouldRedirect) {
         if (folderId) {
           router.push(`/content-library?folderId=${folderId}`);
@@ -228,10 +495,21 @@ export default function ActivityBuilder() {
           router.replace(`?taskId=${response.id}${folderId ? `&folderId=${folderId}` : ''}`);
         }
       }
+      
+      return currentTaskId;
     } catch (e) {
       toast.error("Failed to save activity to the server.");
       console.error(e);
+      return null;
     }
+  };
+
+  const handlePreview = () => {
+    if (questions.length === 0) {
+      toast.error("Please add at least one question to preview.");
+      return;
+    }
+    setIsPreviewOpen(true);
   };
 
   const onDragEnd = (result: any) => {
@@ -242,179 +520,7 @@ export default function ActivityBuilder() {
     setQuestions(items);
   };
 
-  const renderQuestionForm = (q: QuestionConfig, index: number, dragHandleProps: any) => {
-    const isExpanded = q.isExpanded !== false; // defaults to true
 
-    return (
-      <Card className="border-slate-100 shadow-none relative group bg-white overflow-hidden transition-all rounded-xl">
-        <div 
-          className="absolute left-2 top-3.5 cursor-grab text-slate-300 hover:text-slate-500 transition-colors z-10 opacity-0 group-hover:opacity-100"
-          {...dragHandleProps}
-        >
-          <GripVertical size={18} />
-        </div>
-        <div className="pl-7">
-          <CardHeader className="py-3 px-5 bg-slate-50/30 border-b border-slate-100 flex flex-row items-center justify-between">
-            <CardTitle className="text-[13px] font-semibold text-slate-700 tracking-wide">
-              {index + 1}. {q.type.replace(/_/g, " ")}
-            </CardTitle>
-            <div className="flex items-center gap-3">
-              {isExpanded ? (
-                <div className="flex items-center gap-2 mr-2">
-                  <Label className="text-xs font-medium text-slate-500">Marks</Label>
-                  <Input 
-                    type="number" 
-                    min="0"
-                    className="w-16 h-7 text-xs text-center px-1 py-0 bg-white" 
-                    value={q.marks ?? 1} 
-                    onChange={(e) => updateQuestion(q.id, { marks: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-              ) : (
-                <div className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
-                  {q.marks ?? 1} {q.marks === 1 ? 'Mark' : 'Marks'}
-                </div>
-              )}
-              <div className="flex items-center gap-1">
-                <Button type="button" 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-slate-500 hover:text-slate-700 h-7 text-xs px-2" 
-                  onClick={() => updateQuestion(q.id, { isExpanded: !isExpanded })}
-                >
-                  {isExpanded ? "Collapse" : "Edit"}
-                </Button>
-                <Button type="button" variant="ghost" size="icon" className="text-slate-400 hover:text-red-600 hover:bg-red-50 h-7 w-7 transition-colors" onClick={() => removeQuestion(q.id)}>
-                  <Trash2 size={15} />
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          
-          {isExpanded ? (
-            <CardContent className="p-5 space-y-6">
-              <div className="space-y-2.5">
-                <Label className="text-sm font-medium text-slate-700">Question Prompt</Label>
-                <RichTextEditor 
-                  placeholder="Enter the question here..." 
-                  value={q.content}
-                  onChange={(val) => updateQuestion(q.id, { content: val })}
-                />
-              </div>
-              
-              <div className="p-5 bg-slate-50/50 border border-slate-100 rounded-lg text-sm text-slate-500 font-medium">
-                {q.type === "MCQ" && <MCQConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-                {q.type === "TRUE_FALSE" && <TrueFalseConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-                {q.type === "GAP_FILL" && <GapFillConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-                {q.type === "WORD_BOX_MATCH" && <WordBoxMatchConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-                {q.type === "MATCHING" && <MatchingConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-                {q.type === "QUESTION_ANSWER" && <QuestionAnswerConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-                {q.type === "ORDERING" && <OrderingConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-              </div>
-
-              <div className="space-y-2.5">
-                <Label className="text-sm font-medium text-slate-700">Explanation (Optional)</Label>
-                <p className="text-xs text-slate-500">Provide an explanation for the correct answer. Students will see this after they submit.</p>
-                <RichTextEditor 
-                  placeholder="Explain why the answer is correct..." 
-                  value={q.explanation || ""}
-                  onChange={(val) => updateQuestion(q.id, { explanation: val })}
-                />
-              </div>
-
-              <div className="pt-2 flex justify-end">
-                <Button type="button" 
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm"
-                  onClick={() => {
-                    updateQuestion(q.id, { isExpanded: false });
-                    toast.success("Question saved locally.");
-                  }}
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Question
-                </Button>
-              </div>
-            </CardContent>
-          ) : (
-            <CardContent className="p-5 py-4 flex flex-col gap-3 min-w-0 overflow-hidden relative">
-              <div 
-                className="text-sm text-slate-800 prose prose-sm prose-slate max-w-none prose-p:my-0 w-full min-w-0 whitespace-pre-wrap break-words" 
-                dangerouslySetInnerHTML={{ __html: (q.content || "<span class='text-slate-400 italic'>No prompt provided.</span>").replace(/&nbsp;/g, ' ') }} 
-              />
-              
-              {(q.type === "MCQ" || q.type === "TRUE_FALSE" || q.type === "GAP_FILL") && q.config?.options && (
-                <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
-                  {q.config.options.map((optText: string, index: number) => {
-                    const isCorrect = q.config.correctIndex === index;
-                    return (
-                      <div key={index} className={`flex items-center gap-2.5 text-sm px-3 py-1.5 rounded-md border ${isCorrect ? 'bg-emerald-50/50 text-emerald-800 border-emerald-200' : 'bg-white text-slate-600 border-slate-200'}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${isCorrect ? 'bg-emerald-500' : 'bg-slate-300'} shrink-0`} />
-                        <span className="min-w-0 truncate">{optText || <span className="italic text-slate-400">Empty option</span>}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              
-              {q.type === "WORD_BOX_MATCH" && q.config?.sentences && (
-                <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
-                  {q.config.sentences.map((s: any, idx: number) => (
-                    <div key={idx} className="text-sm px-3 py-2 rounded-md border bg-slate-50 border-slate-100 flex flex-col gap-1">
-                      <div className="text-slate-600 italic">"{s.text}"</div>
-                      <div className="text-emerald-700 font-medium">Answer: {s.answer}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {q.type === "MATCHING" && q.config?.leftItems && (
-                <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
-                  {q.config.leftItems.map((left: string, idx: number) => {
-                    const rightIdx = q.config.matches ? q.config.matches[idx] : null;
-                    const right = rightIdx !== null && rightIdx !== undefined ? q.config.rightItems[rightIdx] : "";
-                    return (
-                      <div key={idx} className="flex items-center gap-3 text-sm px-3 py-1.5 rounded-md border bg-slate-50 border-slate-100">
-                        <span className="text-slate-700 font-medium">{left}</span>
-                        <span className="text-slate-400">-</span>
-                        <span className="text-slate-600">{right}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {q.type === "ORDERING" && q.config?.items && (
-                <div className="flex flex-col gap-1 pl-2 w-full min-w-0">
-                  {q.config.items.map((item: string, idx: number) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm">
-                      <span className="w-5 h-5 rounded bg-indigo-50 text-indigo-700 text-[11px] font-bold flex items-center justify-center shrink-0">{idx + 1}</span>
-                      <span className="text-slate-700">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {q.type === "QUESTION_ANSWER" && q.config?.answer && (
-                <div className="text-sm px-3 py-2 rounded-md border bg-emerald-50/50 border-emerald-100 text-emerald-800 ml-2 font-medium">
-                  Answer: {q.config.answer}
-                </div>
-              )}
-
-              {q.explanation && q.explanation !== "<p><br></p>" && (
-                <div className="text-sm text-slate-700 bg-slate-50 p-4 rounded-lg border border-slate-100 mt-2 w-full min-w-0 overflow-hidden">
-                  <span className="font-semibold text-slate-900 mb-1.5 block">Explanation:</span>
-                  <div 
-                    className="prose prose-sm prose-slate max-w-none prose-p:my-0 w-full min-w-0 whitespace-pre-wrap break-words" 
-                    dangerouslySetInnerHTML={{ __html: q.explanation.replace(/&nbsp;/g, ' ') }} 
-                  />
-                </div>
-              )}
-            </CardContent>
-          )}
-        </div>
-      </Card>
-    );
-  };
 
   if (isLoadingTask) {
     return <div className="w-full min-h-screen flex items-center justify-center bg-slate-50/50"><div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div></div>;
@@ -428,7 +534,7 @@ export default function ActivityBuilder() {
           <p className="text-sm text-slate-500 mt-1">{taskId ? "Update your assessment" : "Design an assessment with mixed question types."}</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="border-slate-200 text-slate-600 hover:bg-slate-50" onClick={() => setIsPreviewOpen(true)}>
+          <Button variant="outline" className="border-slate-200 text-slate-600 hover:bg-slate-50" onClick={handlePreview}>
             <Eye className="w-4 h-4 mr-2" />
             Preview
           </Button>
@@ -529,7 +635,13 @@ export default function ActivityBuilder() {
                               style={provided.draggableProps.style}
                               className={`pb-3 ${snapshot.isDragging ? "opacity-90" : ""}`}
                             >
-                              {renderQuestionForm(q, index, provided.dragHandleProps)}
+                              <QuestionCard 
+                                q={q} 
+                                index={index} 
+                                dragHandleProps={provided.dragHandleProps} 
+                                updateQuestion={updateQuestion} 
+                                removeQuestion={removeQuestion} 
+                              />
                             </div>
                           )}
                         </Draggable>
@@ -590,16 +702,18 @@ export default function ActivityBuilder() {
           </Card>
         </div>
       </div>
-      <TaskPreviewModal 
-        open={isPreviewOpen} 
-        onOpenChange={setIsPreviewOpen} 
-        taskData={{
-          title,
-          type: taskType,
-          questions,
-          readingContent: taskType === "READING" && readingPassage ? { text: readingPassage } : undefined,
-        }}
-      />
+
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="sm:max-w-4xl md:max-w-5xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Student Preview</DialogTitle>
+            <DialogDescription>Experience this activity exactly as your students will see it.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <LocalTaskPreview title={title} taskType={taskType} questions={questions} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

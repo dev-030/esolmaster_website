@@ -33,6 +33,17 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Handle explicit logout/auth clearing from client
+  if (request.nextUrl.searchParams.get("clearAuth") === "true") {
+    // Strip the query param before redirecting
+    const redirectUrl = new URL(pathname, request.url);
+    redirectUrl.searchParams.delete("clearAuth");
+    const response = NextResponse.redirect(redirectUrl);
+    response.cookies.delete("accessToken");
+    response.cookies.delete("refreshToken");
+    return response;
+  }
+
   const isRoot = pathname === "/";
   const isAuthPage = AUTH_PAGES.includes(pathname);
 

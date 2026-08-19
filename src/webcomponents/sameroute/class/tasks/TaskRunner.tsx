@@ -31,8 +31,9 @@ const TASK_TYPE_META: Record<
   vocabulary: { label: "Vocabulary", emoji: "💬", variant: "warning" },
 };
 
-export const TaskRunner = () => {
-  const { taskId } = useParams<{ taskId: string }>();
+export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
+  const params = useParams<{ taskId: string }>();
+  const taskId = taskIdProp || params?.taskId;
 
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [answer, setAnswer] = useState<any>(null);

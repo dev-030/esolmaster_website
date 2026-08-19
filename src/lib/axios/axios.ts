@@ -24,8 +24,8 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Avoid infinite loop if refresh token API itself returns 401
-    if (originalRequest.url === '/auth/refresh_token') {
+    // Avoid infinite loop if refresh token API itself returns 401, and don't intercept login failures
+    if (originalRequest.url === '/auth/refresh_token' || originalRequest.url === '/auth/signin') {
       return Promise.reject(error);
     }
 
@@ -54,7 +54,7 @@ api.interceptors.response.use(
         // If refresh fails, they are truly logged out. Redirect to login.
         if (typeof window !== 'undefined') {
           localStorage.removeItem('role');
-          window.location.href = '/login';
+          window.location.href = '/login?clearAuth=true';
         }
         return Promise.reject(err);
       } finally {
