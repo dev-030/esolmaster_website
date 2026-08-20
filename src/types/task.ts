@@ -3,6 +3,9 @@ import { PaginationQuery } from "./pagintaion";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export enum TaskType {
   READING = "READING",
+  WRITING = "WRITING",
+  LISTENING = "LISTENING",
+  SPEAKING = "SPEAKING",
   GRAMMAR = "GRAMMAR",
   VOCABULARY = "VOCABULARY",
 }
@@ -19,7 +22,7 @@ export type EntryType =
   | "ENTRY2"
   | "ENTRY3"
   | "LEVEL1"
-  | "LEVEL2"
+  | "LEVEL2";
 
 export interface CreateGrammarTaskPayload {
   title: string;
@@ -74,6 +77,17 @@ export interface Task {
   createdById: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string;
+
+  readingContent?: {
+    awardingBody?: AwardingBody;
+    entryType?: EntryType[];
+    passMark?: number;
+    passLogic?: string;
+    imageUrl?: string;
+  };
+  grammarContent?: {
+    entryType?: EntryType[];
+  };
 
   createdBy: {
     email: string;

@@ -5,6 +5,9 @@ import { CheckCircle, XCircle } from "lucide-react"
 const typeBadgeVariant: Record<Task["type"], string> = {
   GRAMMAR: "bg-purple-100 text-purple-700 border-purple-200",
   READING: "bg-blue-100 text-blue-700 border-blue-200",
+  WRITING: "bg-purple-100 text-purple-700 border-purple-200",
+  LISTENING: "bg-cyan-100 text-cyan-700 border-cyan-200",
+  SPEAKING: "bg-rose-100 text-rose-700 border-rose-200",
   VOCABULARY: "bg-green-100 text-green-700 border-green-200",
 }
 

@@ -17,14 +17,6 @@ export const TASK_TYPE_CONFIG: Record<TaskType, {
   border: string;
   text: string;
 }> = {
-  GRAMMAR: {
-    label: "Grammar",
-    icon: PencilLine,
-    badgeVariant: "info",
-    bg: "bg-blue-50",
-    border: "border-blue-200",
-    text: "text-blue-700",
-  },
   READING: {
     label: "Reading",
     icon: BookOpen,
@@ -32,6 +24,38 @@ export const TASK_TYPE_CONFIG: Record<TaskType, {
     bg: "bg-emerald-50",
     border: "border-emerald-200",
     text: "text-emerald-700",
+  },
+  WRITING: {
+    label: "Writing",
+    icon: PencilLine,
+    badgeVariant: "info",
+    bg: "bg-purple-50",
+    border: "border-purple-200",
+    text: "text-purple-700",
+  },
+  LISTENING: {
+    label: "Listening",
+    icon: Zap,
+    badgeVariant: "info",
+    bg: "bg-cyan-50",
+    border: "border-cyan-200",
+    text: "text-cyan-700",
+  },
+  SPEAKING: {
+    label: "Speaking",
+    icon: HelpCircle,
+    badgeVariant: "info",
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+    text: "text-rose-700",
+  },
+  GRAMMAR: {
+    label: "Grammar",
+    icon: PencilLine,
+    badgeVariant: "info",
+    bg: "bg-blue-50",
+    border: "border-blue-200",
+    text: "text-blue-700",
   },
   VOCABULARY: {
     label: "Vocabulary",

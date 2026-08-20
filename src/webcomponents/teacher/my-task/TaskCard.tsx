@@ -9,6 +9,10 @@ import {
   School,
   Type,
   Trash2,
+  PenTool,
+  Headphones,
+  Mic,
+  Award,
 } from "lucide-react";
 import Link from "next/link";
 import { useApproveTaskMutation, useDeleteTaskMutation } from "@/api/task";
@@ -32,15 +36,30 @@ const TASK_TYPE_CONFIG: Record<
   TaskType,
   { label: string; icon: LucideIcon; badge: string }
 > = {
-  [TaskType.GRAMMAR]: {
-    label: "Grammar",
-    icon: Type,
-    badge: "bg-blue-50 text-blue-700 border-blue-200",
-  },
   [TaskType.READING]: {
     label: "Reading",
     icon: BookOpen,
     badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  [TaskType.WRITING]: {
+    label: "Writing",
+    icon: PenTool,
+    badge: "bg-purple-50 text-purple-700 border-purple-200",
+  },
+  [TaskType.LISTENING]: {
+    label: "Listening",
+    icon: Headphones,
+    badge: "bg-cyan-50 text-cyan-700 border-cyan-200",
+  },
+  [TaskType.SPEAKING]: {
+    label: "Speaking",
+    icon: Mic,
+    badge: "bg-rose-50 text-rose-700 border-rose-200",
+  },
+  [TaskType.GRAMMAR]: {
+    label: "Grammar",
+    icon: Type,
+    badge: "bg-blue-50 text-blue-700 border-blue-200",
   },
   [TaskType.VOCABULARY]: {
     label: "Vocabulary",
@@ -51,18 +70,20 @@ const TASK_TYPE_CONFIG: Record<
 
 // ── Link logic ────────────────────────────────────────────────────────────────
 function getTaskLink(task: Task): string {
-  // Simple and direct: open the new Activity Builder with this task ID
   return `/assign-task?taskId=${task.id}`;
 }
 
 export const TaskCard = ({ task }: { task: Task }) => {
-  const cfg = TASK_TYPE_CONFIG[task.type];
+  const cfg = TASK_TYPE_CONFIG[task.type] || TASK_TYPE_CONFIG[TaskType.GRAMMAR];
   const classes = task.classes ?? [];
   const href = getTaskLink(task);
   const { role } = useRole();
   const router = useRouter();
   const { mutate: approveTask, isPending } = useApproveTaskMutation();
   const { mutate: deleteTask, isPending: isDeleting } = useDeleteTaskMutation();
+
+  const awardingBody = task.readingContent?.awardingBody;
+  const entryLevel = task.readingContent?.entryType?.[0] || task.grammarContent?.entryType?.[0];
 
   const handleApprove = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -85,26 +106,40 @@ export const TaskCard = ({ task }: { task: Task }) => {
     });
   };
 
-  // Extract the icon component from config
   const TypeIcon = cfg.icon;
 
   return (
     <div 
       onClick={() => router.push(href)}
-      className="flex items-center gap-4 rounded-xl border bg-card px-5 py-4 hover:shadow-sm transition-all duration-200 group cursor-pointer"
+      className="flex items-center gap-4 rounded-xl border bg-card px-5 py-4 hover:shadow-sm transition-all duration-200 group cursor-pointer bg-white"
     >
       {/* Left content */}
       <div className="flex-1 min-w-0 space-y-1.5">
-        {/* Row 1 — type badge with Lucide Icon */}
-        <span
-          className={cn(
-            "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold",
-            cfg.badge,
+        {/* Row 1 — badges (Skill + Awarding Body + Level) */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold",
+              cfg.badge,
+            )}
+          >
+            <TypeIcon className="w-3 h-3" />
+            {cfg.label}
+          </span>
+
+          {awardingBody && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-bold">
+              <Award className="w-2.5 h-2.5" />
+              {awardingBody}
+            </span>
           )}
-        >
-          <TypeIcon className="w-3 h-3" />
-          {cfg.label}
-        </span>
+
+          {entryLevel && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold">
+              {entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}
+            </span>
+          )}
+        </div>
 
         {/* Row 2 — task title */}
         <p className="text-sm font-semibold text-foreground leading-snug truncate">

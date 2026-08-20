@@ -24,11 +24,10 @@ export const MyTask = () => {
   const folderId = searchParams.get("folderId") || undefined;
   const limit = 10;
 
-  const { data: tasksData, isLoading, isFetching } = useGetTasks({
-    page: currentPage,
-    limit,
-    folderId: folderId || 'null',
-  });
+  // Only fetch tasks if we are inside a specific folder/section
+  const { data: tasksData, isLoading: isTasksLoading, isFetching } = useGetTasks(
+    folderId ? { page: currentPage, limit, folderId } : ({} as any)
+  );
 
   const { data: rootFoldersData, isLoading: isRootFoldersLoading } = useGetFolders(undefined);
   const { data: currentFolder, isLoading: isCurrentFolderLoading } = useGetFolderById(folderId as string);
@@ -36,6 +35,7 @@ export const MyTask = () => {
   const foldersToDisplay = folderId ? (currentFolder?.children || []) : (rootFoldersData || []);
   const ancestors = currentFolder?.ancestors || [];
   const isFoldersLoading = folderId ? isCurrentFolderLoading : isRootFoldersLoading;
+  const isLoading = folderId ? (isTasksLoading || isFoldersLoading) : isRootFoldersLoading;
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newSectionName, setNewSectionName] = useState("");
@@ -58,8 +58,9 @@ export const MyTask = () => {
     }
   };
 
-  const filteredTasks = tasksData?.data || [];
-  const totalTasks = tasksData?.meta?.total || 0;
+  // Activities only exist inside sections
+  const filteredTasks = folderId ? (tasksData?.data || []) : [];
+  const totalTasks = folderId ? (tasksData?.meta?.total || 0) : 0;
   const totalPages = Math.ceil(totalTasks / limit);
 
   const handlePageChange = (page: number) => {
@@ -133,7 +134,7 @@ export const MyTask = () => {
           </p>
         </div>
       ) : (!folderId && foldersToDisplay.length === 0 && filteredTasks.length === 0) ? (
-        <div className={cn("flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-border rounded-xl bg-slate-50/50 transition-opacity", isFetching && "opacity-50 pointer-events-none")}>
+        <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-border rounded-xl bg-slate-50/50">
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border border-border mb-4">
             <Folder className="w-8 h-8 text-muted-foreground" />
           </div>
@@ -149,7 +150,7 @@ export const MyTask = () => {
           </Button>
         </div>
       ) : (folderId && foldersToDisplay.length === 0 && filteredTasks.length === 0) ? (
-        <div className={cn("flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-border rounded-xl bg-slate-50/50 transition-opacity", isFetching && "opacity-50 pointer-events-none")}>
+        <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-border rounded-xl bg-slate-50/50">
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border border-border mb-4">
             <School className="w-8 h-8 text-muted-foreground" />
           </div>
@@ -174,77 +175,89 @@ export const MyTask = () => {
           </div>
         </div>
       ) : (
-        <div className={cn("flex flex-col gap-8 transition-opacity duration-200", isFetching && "opacity-50 pointer-events-none")}>
+        <div className="flex flex-col gap-8">
           {foldersToDisplay.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {foldersToDisplay.map((folder) => (
-                <div key={folder.id} className="relative group">
-                  <Link 
-                    href={`/content-library?folderId=${folder.id}`}
-                    className="flex flex-col p-5 bg-white border border-slate-200 rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-200 transition-all duration-300 cursor-pointer h-full overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                    <div className="flex items-center gap-3 mb-5 relative z-10 pr-8">
-                      <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm">
-                        <Folder className="w-6 h-6 fill-blue-100/50 group-hover:fill-blue-500/50 transition-colors" />
+            <div className="space-y-3">
+              {folderId && (
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                  <Folder className="w-3.5 h-3.5" /> Sub-Sections
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {foldersToDisplay.map((folder) => (
+                  <div key={folder.id} className="relative group">
+                    <Link 
+                      href={`/content-library?folderId=${folder.id}`}
+                      className="flex flex-col p-5 bg-white border border-slate-200 rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-200 transition-all duration-300 cursor-pointer h-full overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      <div className="flex items-center gap-3 mb-5 relative z-10 pr-8">
+                        <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                          <Folder className="w-6 h-6 fill-blue-100/50 group-hover:fill-blue-500/50 transition-colors" />
+                        </div>
+                        <span className="text-lg font-bold text-slate-800 truncate flex-1 tracking-tight" title={folder.name}>
+                          {folder.name}
+                        </span>
                       </div>
-                      <span className="text-lg font-bold text-slate-800 truncate flex-1 tracking-tight" title={folder.name}>
-                        {folder.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mt-auto relative z-10">
-                      <span className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-md">
-                        <Folder className="w-3.5 h-3.5 text-slate-400" /> {folder._count?.children || 0} Sections
-                      </span>
-                      <span className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-md">
-                        <School className="w-3.5 h-3.5 text-slate-400" /> {folder._count?.tasks || 0} Activities
-                      </span>
-                    </div>
-                  </Link>
+                      <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mt-auto relative z-10">
+                        <span className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-md">
+                          <Folder className="w-3.5 h-3.5 text-slate-400" /> {folder._count?.children || 0} Sections
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-md">
+                          <School className="w-3.5 h-3.5 text-slate-400" /> {folder._count?.tasks || 0} Activities
+                        </span>
+                      </div>
+                    </Link>
 
-                  <div className="absolute top-4 right-4 z-20">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full" />}>
-                        <MoreVertical className="h-4 w-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40">
-                        <DropdownMenuItem onClick={() => {
-                          setFolderToRename({ id: folder.id, name: folder.name });
-                          setNewFolderName(folder.name);
-                        }}>
-                          <Edit2 className="h-4 w-4 mr-2" />
-                          Rename
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50" onClick={async () => {
-                          if ((folder._count?.children || 0) > 0 || (folder._count?.tasks || 0) > 0) {
-                            toast.error("Please delete the sections or activities inside it first.");
-                          } else {
-                            if (window.confirm("Are you sure you want to delete this empty section?")) {
-                              try {
-                                await deleteFolder(folder.id);
-                                toast.success("Section deleted successfully.");
-                              } catch (e) {
-                                toast.error("Failed to delete section.");
+                    <div className="absolute top-4 right-4 z-20">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full" />}>
+                          <MoreVertical className="h-4 w-4" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem onClick={() => {
+                            setFolderToRename({ id: folder.id, name: folder.name });
+                            setNewFolderName(folder.name);
+                          }}>
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Rename
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50" onClick={async () => {
+                            if ((folder._count?.children || 0) > 0 || (folder._count?.tasks || 0) > 0) {
+                              toast.error("Please delete the sections or activities inside it first.");
+                            } else {
+                              if (window.confirm("Are you sure you want to delete this empty section?")) {
+                                try {
+                                  await deleteFolder(folder.id);
+                                  toast.success("Section deleted successfully.");
+                                } catch (e) {
+                                  toast.error("Failed to delete section.");
+                                }
                               }
                             }
-                          }
-                        }}>
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          }}>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
 
           {filteredTasks.length > 0 && (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-              {filteredTasks.map((task: any) => (
-                <TaskCard key={task.id} task={task} />
-              ))}
+            <div className="space-y-3">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                <School className="w-3.5 h-3.5" /> Activities & Exam Papers
+              </div>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                {filteredTasks.map((task: any) => (
+                  <TaskCard key={task.id} task={task} />
+                ))}
+              </div>
             </div>
           )}
 
