@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { PlusCircle, Trash2, CheckCircle2, Circle, GripVertical } from "lucide-react";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 
 interface ConfigProps {
   config: any;
@@ -22,6 +23,7 @@ export function MCQConfigUI({ config, onChange }: ConfigProps) {
     return [
       { id: "1", text: "" },
       { id: "2", text: "" },
+      { id: "3", text: "" },
     ];
   });
   const [correctIndex, setCorrectIndex] = useState<number>(config?.correctIndex ?? 0);
@@ -42,25 +44,54 @@ export function MCQConfigUI({ config, onChange }: ConfigProps) {
 
   return (
     <div className="space-y-3">
-      <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">MCQ Options</Label>
-      <div className="space-y-2">
-        {items.map((opt, index) => (
-          <div key={opt.id} className="flex items-center gap-2">
-            <button type="button" onClick={() => setCorrect(index)} className="shrink-0 transition-colors">
-              {correctIndex === index ? <CheckCircle2 className="w-5 h-5 text-emerald-500" /> : <Circle className="w-5 h-5 text-slate-300 hover:text-emerald-400" />}
-            </button>
-            <Input 
-              className={`shadow-none focus-visible:ring-primary/20 ${correctIndex === index ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-200'}`}
-              placeholder="Option text..." value={opt.text} onChange={(e) => updateOption(opt.id, e.target.value)}
-            />
-            <Button type="button" variant="ghost" size="icon" className="text-slate-400 hover:text-red-500 shrink-0" onClick={() => removeOption(index)} disabled={items.length <= 2}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        ))}
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-semibold text-slate-600">
+          Multiple Choice Options (Select the green circle for the correct answer)
+        </Label>
       </div>
-      <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200" onClick={addOption}>
-        <PlusCircle className="w-3.5 h-3.5 mr-1.5" /> Add Option
+      <div className="space-y-2">
+        {items.map((opt, index) => {
+          const letter = String.fromCharCode(65 + index);
+          const isCorrect = correctIndex === index;
+          return (
+            <div key={opt.id} className="flex items-center gap-2">
+              <button 
+                type="button" 
+                onClick={() => setCorrect(index)} 
+                title={isCorrect ? "Correct Answer" : "Mark as Correct"}
+                className="shrink-0 transition-colors cursor-pointer"
+              >
+                {isCorrect ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                ) : (
+                  <Circle className="w-5 h-5 text-slate-300 hover:text-emerald-500" />
+                )}
+              </button>
+              <span className={`w-6 h-6 rounded-md font-bold text-xs flex items-center justify-center shrink-0 border ${isCorrect ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+                {letter}
+              </span>
+              <Input 
+                className={`h-9 text-xs shadow-none focus-visible:ring-blue-400 ${isCorrect ? 'border-emerald-300 bg-emerald-50/40 text-emerald-950 font-medium' : 'border-slate-200 bg-white'}`}
+                placeholder={`Option ${letter} text...`} 
+                value={opt.text} 
+                onChange={(e) => updateOption(opt.id, e.target.value)}
+              />
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="icon" 
+                className="text-slate-400 hover:text-red-500 shrink-0 h-8 w-8" 
+                onClick={() => removeOption(index)} 
+                disabled={items.length <= 2}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          );
+        })}
+      </div>
+      <Button type="button" variant="outline" size="sm" className="mt-1 text-xs border-slate-200 bg-white hover:bg-slate-50" onClick={addOption}>
+        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-blue-600" /> Add Option ({String.fromCharCode(65 + items.length)})
       </Button>
     </div>
   );
@@ -252,69 +283,331 @@ export function WordBoxMatchConfigUI({ config, onChange }: ConfigProps) {
 }
 
 // 5. Matching
+const PAIR_THEMES = [
+  { stroke: "#3b82f6", bg: "bg-blue-500 text-white", border: "border-blue-300", light: "bg-blue-50 text-blue-700", ring: "ring-blue-400" },
+  { stroke: "#6366f1", bg: "bg-indigo-500 text-white", border: "border-indigo-300", light: "bg-indigo-50 text-indigo-700", ring: "ring-indigo-400" },
+  { stroke: "#0d9488", bg: "bg-teal-600 text-white", border: "border-teal-300", light: "bg-teal-50 text-teal-700", ring: "ring-teal-400" },
+  { stroke: "#f59e0b", bg: "bg-amber-500 text-white", border: "border-amber-300", light: "bg-amber-50 text-amber-700", ring: "ring-amber-400" },
+  { stroke: "#8b5cf6", bg: "bg-purple-500 text-white", border: "border-purple-300", light: "bg-purple-50 text-purple-700", ring: "ring-purple-400" },
+  { stroke: "#e11d48", bg: "bg-rose-500 text-white", border: "border-rose-300", light: "bg-rose-50 text-rose-700", ring: "ring-rose-400" },
+  { stroke: "#0284c7", bg: "bg-sky-500 text-white", border: "border-sky-300", light: "bg-sky-50 text-sky-700", ring: "ring-sky-400" },
+];
+
 export function MatchingConfigUI({ config, onChange }: ConfigProps) {
-  const [pairs, setPairs] = useState<{ id: string; left: string; right: string }[]>(() => {
-    if (config?.leftItems && config?.rightItems && config?.matches) {
-      return config.leftItems.map((left: string, index: number) => {
-        const rightIndex = config.matches[index];
-        const right = typeof rightIndex === 'number' ? config.rightItems[rightIndex] : "";
-        return { id: Math.random().toString(36).substring(7), left, right };
-      });
+  const [leftItems, setLeftItems] = useState<{ id: string; text: string }[]>(() => {
+    if (config?.leftItems && Array.isArray(config.leftItems) && config.leftItems.length > 0) {
+      return config.leftItems.map((text: string) => ({ id: Math.random().toString(36).substring(7), text }));
+    }
+    if (config?.pairs && Array.isArray(config.pairs) && config.pairs.length > 0) {
+      return config.pairs.map((p: any) => ({ id: Math.random().toString(36).substring(7), text: p.left || "" }));
     }
     return [
-      { id: "1", left: "", right: "" },
-      { id: "2", left: "", right: "" },
+      { id: "1", text: "" },
+      { id: "2", text: "" },
     ];
   });
 
-  useEffect(() => {
-    const leftItems = pairs.map(p => p.left);
-    const rightItems = pairs.map(p => p.right);
-    const matches: Record<string, number> = {};
-    pairs.forEach((_, index) => {
-      matches[index.toString()] = index;
-    });
-    
-    onChange({ leftItems, rightItems, matches, pairs: pairs.map(p => ({ left: p.left, right: p.right })) });
-  }, [pairs]);
+  const [rightItems, setRightItems] = useState<{ id: string; text: string }[]>(() => {
+    if (config?.rightItems && Array.isArray(config.rightItems) && config.rightItems.length > 0) {
+      return config.rightItems.map((text: string) => ({ id: Math.random().toString(36).substring(7), text }));
+    }
+    if (config?.pairs && Array.isArray(config.pairs) && config.pairs.length > 0) {
+      return config.pairs.map((p: any) => ({ id: Math.random().toString(36).substring(7), text: p.right || "" }));
+    }
+    return [
+      { id: "1", text: "" },
+      { id: "2", text: "" },
+    ];
+  });
 
-  const updatePair = (id: string, field: "left" | "right", value: string) => setPairs(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
-  const addPair = () => setPairs(prev => [...prev, { id: Math.random().toString(36).substring(7), left: "", right: "" }]);
-  const removePair = (id: string) => {
-    if (pairs.length <= 2) return;
-    setPairs(prev => prev.filter(p => p.id !== id));
+  const [matches, setMatches] = useState<Record<number, number>>(() => {
+    if (config?.matches && typeof config.matches === "object" && Object.keys(config.matches).length > 0) {
+      const initial: Record<number, number> = {};
+      Object.entries(config.matches).forEach(([k, v]) => {
+        initial[Number(k)] = Number(v);
+      });
+      return initial;
+    }
+    return {};
+  });
+
+  const [activeLeftIdx, setActiveLeftIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    const outputLeft = leftItems.map(l => l.text);
+    const outputRight = rightItems.map(r => r.text);
+    const outputPairs = leftItems.map((l, idx) => {
+      const rIdx = matches[idx] ?? idx;
+      return { left: l.text, right: rightItems[rIdx]?.text || "" };
+    });
+
+    const serializedMatches: Record<string, number> = {};
+    Object.entries(matches).forEach(([k, v]) => {
+      serializedMatches[k] = v;
+    });
+
+    onChange({
+      leftItems: outputLeft,
+      rightItems: outputRight,
+      matches: serializedMatches,
+      pairs: outputPairs,
+    });
+  }, [leftItems, rightItems, matches]);
+
+  const updateLeft = (id: string, text: string) => {
+    setLeftItems(prev => prev.map(l => l.id === id ? { ...l, text } : l));
   };
 
+  const updateRight = (id: string, text: string) => {
+    setRightItems(prev => prev.map(r => r.id === id ? { ...r, text } : r));
+  };
+
+  const addPair = () => {
+    setLeftItems(prev => [...prev, { id: Math.random().toString(36).substring(7), text: "" }]);
+    setRightItems(prev => [...prev, { id: Math.random().toString(36).substring(7), text: "" }]);
+  };
+
+  const removePair = (index: number) => {
+    if (leftItems.length <= 2) return;
+    setLeftItems(prev => prev.filter((_, i) => i !== index));
+    setRightItems(prev => prev.filter((_, i) => i !== index));
+    setMatches(prev => {
+      const nextMatches: Record<number, number> = {};
+      let nextL = 0;
+      Object.keys(prev).forEach((k) => {
+        const l = Number(k);
+        if (l !== index) {
+          const r = prev[l];
+          const newR = r > index ? r - 1 : r;
+          nextMatches[nextL] = newR;
+          nextL++;
+        }
+      });
+      return nextMatches;
+    });
+    if (activeLeftIdx === index) setActiveLeftIdx(null);
+  };
+
+  const handleLeftAnchorClick = (lIdx: number) => {
+    setActiveLeftIdx(prev => (prev === lIdx ? null : lIdx));
+  };
+
+  const handleRightAnchorClick = (rIdx: number) => {
+    if (activeLeftIdx === null) {
+      // Unlink if clicked when not in active selection mode
+      const connectedL = getConnectedLeftIndex(rIdx);
+      if (connectedL !== undefined) {
+        setMatches(prev => {
+          const next = { ...prev };
+          delete next[connectedL];
+          return next;
+        });
+      }
+      return;
+    }
+
+    // Set connection from activeLeftIdx to this rIdx
+    setMatches(prev => {
+      const next: Record<number, number> = {};
+      Object.entries(prev).forEach(([l, r]) => {
+        if (Number(l) !== activeLeftIdx && r !== rIdx) {
+          next[Number(l)] = r;
+        }
+      });
+      next[activeLeftIdx] = rIdx;
+      return next;
+    });
+    setActiveLeftIdx(null);
+  };
+
+  const getConnectedLeftIndex = (rIdx: number): number | undefined => {
+    const entry = Object.entries(matches).find(([, r]) => r === rIdx);
+    return entry ? Number(entry[0]) : undefined;
+  };
+
+  const rowHeight = 48; // px height per row
+  const rowGap = 12; // px gap between rows
+
   return (
-    <div className="space-y-3">
-      <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Matching Pairs</Label>
-      <div className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-center text-xs font-medium text-slate-400 mb-1">
-        <div>Left Side</div>
-        <div className="w-4"></div>
-        <div>Right Side (Matches)</div>
-        <div className="w-8"></div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+          Matching Pairs & Answer Key
+        </Label>
+        <span className="text-[11px] text-slate-500">
+          Click an anchor to connect pairs
+        </span>
       </div>
-      
-      <div className="space-y-2">
-        {pairs.map((pair) => (
-          <div key={pair.id} className="grid grid-cols-[1fr_auto_1fr_auto] gap-2 items-center">
-            <Input 
-              className="shadow-none border-slate-200 focus-visible:ring-primary/20"
-              placeholder="e.g. Apple" value={pair.left} onChange={(e) => updatePair(pair.id, "left", e.target.value)}
-            />
-            <div className="text-slate-300">-</div>
-            <Input 
-              className="shadow-none border-slate-200 focus-visible:ring-primary/20"
-              placeholder="e.g. Fruit" value={pair.right} onChange={(e) => updatePair(pair.id, "right", e.target.value)}
-            />
-            <Button type="button" variant="ghost" size="icon" className="text-slate-400 hover:text-red-500" onClick={() => removePair(pair.id)} disabled={pairs.length <= 2}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
+
+      {activeLeftIdx !== null && (
+        <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 font-medium flex items-center justify-between animate-in fade-in duration-150">
+          <span>
+            Connecting Left Item <strong className="underline">#{activeLeftIdx + 1}</strong> — Click an empty Right anchor to connect!
+          </span>
+          <button
+            type="button"
+            onClick={() => setActiveLeftIdx(null)}
+            className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold cursor-pointer ml-2"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {/* Interactive Connecting Board */}
+      <div className="relative border border-slate-200/80 bg-slate-50/25 rounded-xl p-4">
+        {/* SVG Bezier Connection Strings Overlay */}
+        <div className="absolute inset-0 pointer-events-none z-10 hidden sm:block">
+          <svg className="w-full h-full">
+            {leftItems.map((_, lIdx) => {
+              const rIdx = matches[lIdx];
+              if (rIdx === undefined || rIdx >= rightItems.length) return null;
+              const isSelected = activeLeftIdx === lIdx;
+
+              // Estimated anchor Y positions
+              const startY = 32 + lIdx * (rowHeight + rowGap) + rowHeight / 2;
+              const endY = 32 + rIdx * (rowHeight + rowGap) + rowHeight / 2;
+
+              return (
+                <path
+                  key={`line-${lIdx}-${rIdx}`}
+                  d={`M calc(50% - 30px) ${startY} C calc(50% - 5px) ${startY}, calc(50% + 5px) ${endY}, calc(50% + 30px) ${endY}`}
+                  fill="none"
+                  stroke={isSelected ? "#2563eb" : "#94a3b8"}
+                  strokeWidth={isSelected ? "2" : "1.5"}
+                  strokeDasharray={isSelected ? "3,3" : "none"}
+                  opacity={isSelected ? 1 : 0.75}
+                  className="transition-all duration-200"
+                />
+              );
+            })}
+          </svg>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 relative z-20">
+          {/* Left Column (Terms) */}
+          <div className="space-y-3">
+            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100 flex items-center justify-between">
+              <span>Left Terms</span>
+              <span className="text-[10px] text-slate-400 font-normal">Connect Anchor</span>
+            </div>
+
+            <div className="space-y-3">
+              {leftItems.map((left, lIdx) => {
+                const isSelected = activeLeftIdx === lIdx;
+                const isConnected = matches[lIdx] !== undefined;
+
+                return (
+                  <div
+                    key={left.id}
+                    className={`flex items-center gap-2 p-1.5 rounded-xl border bg-white transition-all ${
+                      isSelected ? "border-blue-400 ring-2 ring-blue-400/20 shadow-xs" : "border-slate-200 shadow-2xs"
+                    }`}
+                  >
+                    {/* Left Order Number Circle Badge (Small & Subtle) */}
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-semibold shrink-0 bg-slate-100 border border-slate-200 text-slate-600">
+                      {lIdx + 1}
+                    </span>
+
+                    <Input
+                      className="h-8 text-xs border-transparent focus-visible:ring-0 focus-visible:border-slate-300 shadow-none px-2 flex-1"
+                      placeholder={`Term ${lIdx + 1}...`}
+                      value={left.text}
+                      onChange={(e) => updateLeft(left.id, e.target.value)}
+                    />
+
+                    {/* Left Anchor Button (Small Minimalist Connector Dot) */}
+                    <button
+                      type="button"
+                      onClick={() => handleLeftAnchorClick(lIdx)}
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all cursor-pointer shrink-0 ${
+                        isSelected
+                          ? "bg-blue-50 border-blue-500 ring-2 ring-blue-400/40 shadow-xs"
+                          : isConnected
+                            ? "border-blue-300 bg-blue-50/50 hover:bg-blue-50"
+                            : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100"
+                      }`}
+                      title={`Click to connect Left #${lIdx + 1}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isSelected ? "bg-blue-600 scale-125" : isConnected ? "bg-blue-500" : "bg-slate-300"}`} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        ))}
+
+          {/* Right Column (Definitions / Matches) */}
+          <div className="space-y-3">
+            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100 flex items-center justify-between">
+              <span>Right Definitions</span>
+              <span className="text-[10px] text-slate-400 font-normal">Matched Left #</span>
+            </div>
+
+            <div className="space-y-3">
+              {rightItems.map((right, rIdx) => {
+                const connectedLIdx = getConnectedLeftIndex(rIdx);
+                const isConnected = connectedLIdx !== undefined;
+
+                return (
+                  <div
+                    key={right.id}
+                    className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white shadow-2xs transition-all hover:border-slate-300"
+                  >
+                    {/* Right Anchor Button (Small, empty until connected with left order number) */}
+                    <button
+                      type="button"
+                      onClick={() => handleRightAnchorClick(rIdx)}
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold transition-all shrink-0 cursor-pointer ${
+                        isConnected
+                          ? "bg-blue-50 border-blue-200 text-blue-700 shadow-2xs"
+                          : "bg-white text-transparent border border-dashed border-slate-300 hover:border-slate-400 hover:bg-slate-50"
+                      } ${activeLeftIdx !== null ? "animate-pulse ring-2 ring-blue-400/30" : ""}`}
+                      title={
+                        activeLeftIdx !== null
+                          ? `Click to connect with Left #${activeLeftIdx + 1}`
+                          : isConnected
+                            ? `Connected to Left #${(connectedLIdx ?? 0) + 1} (Click to unlink)`
+                            : "Click to pair"
+                      }
+                    >
+                      {isConnected ? (connectedLIdx ?? 0) + 1 : ""}
+                    </button>
+
+                    <Input
+                      className="h-8 text-xs border-transparent focus-visible:ring-0 focus-visible:border-slate-300 shadow-none px-2 flex-1"
+                      placeholder={`Definition ${rIdx + 1}...`}
+                      value={right.text}
+                      onChange={(e) => updateRight(right.id, e.target.value)}
+                    />
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-slate-400 hover:text-red-500 shrink-0"
+                      onClick={() => removePair(rIdx)}
+                      disabled={leftItems.length <= 2}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
-      <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200" onClick={addPair}>
-        <PlusCircle className="w-3.5 h-3.5 mr-1.5" /> Add Pair
+
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="text-xs border-slate-200 hover:bg-slate-50 text-slate-700"
+        onClick={addPair}
+      >
+        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-blue-600" />
+        Add Matching Pair
       </Button>
     </div>
   );
@@ -344,6 +637,7 @@ export function QuestionAnswerConfigUI({ config, onChange }: ConfigProps) {
 
 // 7. Ordering
 export function OrderingConfigUI({ config, onChange }: ConfigProps) {
+  const droppableId = useId();
   const [items, setItems] = useState<{ id: string; text: string }[]>(() => {
     if (config?.items && Array.isArray(config.items)) {
       return config.items.map((i: any) => ({ 
@@ -365,30 +659,77 @@ export function OrderingConfigUI({ config, onChange }: ConfigProps) {
     setItems(prev => prev.filter(i => i.id !== id));
   };
 
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    if (result.destination.index === result.source.index) return;
+    const reordered = Array.from(items);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    setItems(reordered);
+  };
+
   return (
     <div className="space-y-3">
       <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Ordered Items</Label>
-      <p className="text-xs text-slate-500 mb-2">Input the items in their <strong>correct chronological/sequential order</strong>. The system will automatically scramble them for the student.</p>
+      <p className="text-xs text-slate-500 mb-2">Input the items in their <strong>correct chronological/sequential order</strong>. Grab the handles to reorder. The system will automatically scramble them for the student.</p>
       
-      <div className="space-y-2 relative">
-        <div className="absolute left-3 top-4 bottom-4 w-px bg-slate-200 z-0"></div>
-        {items.map((item, index) => (
-          <div key={item.id} className="flex items-center gap-3 relative z-10">
-            <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-semibold text-slate-500 shrink-0">
-              {index + 1}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId={droppableId}>
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+              {items.map((item, index) => (
+                <Draggable key={item.id} draggableId={item.id} index={index}>
+                  {(dragProvided, snapshot) => (
+                    <div
+                      ref={dragProvided.innerRef}
+                      {...dragProvided.draggableProps}
+                      className={`flex items-center gap-2.5 p-1.5 rounded-xl border bg-white transition-all ${
+                        snapshot.isDragging ? "border-blue-400 shadow-md ring-2 ring-blue-400/20 bg-blue-50/20 z-50" : "border-slate-200 shadow-2xs"
+                      }`}
+                    >
+                      {/* Drag Grip Handle */}
+                      <div
+                        {...dragProvided.dragHandleProps}
+                        className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded cursor-grab active:cursor-grabbing shrink-0"
+                        title="Drag to reorder"
+                      >
+                        <GripVertical className="w-4 h-4" />
+                      </div>
+
+                      {/* Step Number Badge */}
+                      <div className="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[11px] font-semibold text-slate-600 shrink-0">
+                        {index + 1}
+                      </div>
+
+                      <Input 
+                        className="h-8 text-xs border-transparent focus-visible:ring-0 focus-visible:border-slate-300 shadow-none px-2 flex-1"
+                        placeholder={`Step ${index + 1}...`}
+                        value={item.text}
+                        onChange={(e) => updateItem(item.id, e.target.value)}
+                      />
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-slate-400 hover:text-red-500 shrink-0"
+                        onClick={() => removeItem(item.id)}
+                        disabled={items.length <= 2}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
-            <Input 
-              className="shadow-none border-slate-200 focus-visible:ring-primary/20"
-              placeholder={`Step ${index + 1}...`} value={item.text} onChange={(e) => updateItem(item.id, e.target.value)}
-            />
-            <Button type="button" variant="ghost" size="icon" className="text-slate-400 hover:text-red-500 shrink-0" onClick={() => removeItem(item.id)} disabled={items.length <= 2}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        ))}
-      </div>
-      <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200 ml-9" onClick={addItem}>
-        <PlusCircle className="w-3.5 h-3.5 mr-1.5" /> Add Item
+          )}
+        </Droppable>
+      </DragDropContext>
+
+      <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200 text-slate-700 hover:bg-slate-50" onClick={addItem}>
+        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-blue-600" /> Add Step
       </Button>
     </div>
   );

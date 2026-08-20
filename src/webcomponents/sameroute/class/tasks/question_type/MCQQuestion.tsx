@@ -22,27 +22,32 @@ export const MCQQuestion = ({
       />
 
       <div className="grid gap-2">
-
-        {question.config.options.map((option) => {
-
+        {question.config.options.map((option, index) => {
           const isSelected = selected === option;
+          const letter = String.fromCharCode(65 + index);
 
           return (
             <button
               key={option}
+              type="button"
               onClick={() => !submitted && setAnswer(option)}
               disabled={submitted}
               className={cn(
-                "w-full text-left px-4 py-3 rounded-lg border-2 flex items-center gap-3",
-                !submitted && !isSelected && "border-border hover:border-primary/50 hover:bg-accent",
-                isSelected && !submitted && "border-primary bg-primary/5 text-primary",
+                "w-full text-left px-4 py-3 rounded-xl border-2 flex items-center gap-3 transition-all cursor-pointer",
+                !submitted && !isSelected && "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/20 text-slate-700",
+                isSelected && !submitted && "border-blue-500 bg-blue-50/50 text-blue-900 font-medium shadow-sm",
               )}
             >
-              <span className="flex-1">{option}</span>
+              <span className={cn(
+                "w-6 h-6 rounded-lg font-bold text-xs flex items-center justify-center shrink-0 border transition-colors",
+                isSelected ? "bg-blue-500 text-white border-blue-500" : "bg-slate-100 text-slate-600 border-slate-200"
+              )}>
+                {letter}
+              </span>
+              <span className="flex-1 text-sm">{option}</span>
             </button>
           );
         })}
-
       </div>
     </div>
   );

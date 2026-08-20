@@ -25,8 +25,8 @@ export const MyTask = () => {
   const limit = 10;
 
   // Only fetch tasks if we are inside a specific folder/section
-  const { data: tasksData, isLoading: isTasksLoading, isFetching } = useGetTasks(
-    folderId ? { page: currentPage, limit, folderId } : ({} as any)
+  const { data: tasksData, isLoading: isTasksLoading } = useGetTasks(
+    folderId ? { page: currentPage, limit, folderId } : undefined
   );
 
   const { data: rootFoldersData, isLoading: isRootFoldersLoading } = useGetFolders(undefined);
@@ -58,9 +58,9 @@ export const MyTask = () => {
     }
   };
 
-  // Activities only exist inside sections
-  const filteredTasks = folderId ? (tasksData?.data || []) : [];
-  const totalTasks = folderId ? (tasksData?.meta?.total || 0) : 0;
+  // Activities only exist inside specific sections and only when data is not loading
+  const filteredTasks = (folderId && !isTasksLoading) ? (tasksData?.data || []) : [];
+  const totalTasks = (folderId && !isTasksLoading) ? (tasksData?.meta?.total || 0) : 0;
   const totalPages = Math.ceil(totalTasks / limit);
 
   const handlePageChange = (page: number) => {
@@ -253,7 +253,7 @@ export const MyTask = () => {
               <div className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                 <School className="w-3.5 h-3.5" /> Activities & Exam Papers
               </div>
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredTasks.map((task: any) => (
                   <TaskCard key={task.id} task={task} />
                 ))}

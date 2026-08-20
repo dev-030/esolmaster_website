@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { QuestionRenderer } from "@/webcomponents/sameroute/class/tasks/QuestinRenderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Send, Trash2, GripVertical, Save, Eye, Award, CheckCircle2, AlertCircle, Sparkles, Folder, BookOpen } from "lucide-react";
+import { PlusCircle, Send, Trash2, GripVertical, Save, Eye, Award, CheckCircle2, AlertCircle, Sparkles, Folder, BookOpen, X, Loader2, ArrowLeft, ChevronRight, School } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -27,8 +29,9 @@ import {
   QuestionAnswerConfigUI, 
   OrderingConfigUI 
 } from "./QuestionConfigs";
+import { LocalTaskPreview } from "./LocalTaskPreview";
 
-type QuestionType = "MCQ" | "GAP_FILL" | "WORD_BOX_MATCH" | "MATCHING" | "QUESTION_ANSWER" | "ORDERING" | "TRUE_FALSE";
+type QuestionType = "MCQ" | "GAP_FILL" | "WORD_BOX_MATCH" | "MATCHING" | "QUESTION_ANSWER" | "ORDERING" | "TRUE_FALSE" | "INSTRUCTION";
 type TaskType = "READING" | "WRITING" | "LISTENING" | "SPEAKING" | "GRAMMAR" | "VOCABULARY";
 type AwardingBodyType = "ASCENTIS" | "ESB" | "GATEWAY" | "TRINITY" | "CUSTOM";
 type EntryLevelType = "ENTRY1" | "ENTRY2" | "ENTRY3" | "LEVEL1" | "LEVEL2";
@@ -65,8 +68,20 @@ export const UK_ESOL_MATRIX: Record<string, Record<string, { passMark: number; t
   },
 };
 
+export interface TaskSection {
+  id: string;
+  title: string;
+  instruction: string;
+  questionHeading?: string;
+  questionInstruction?: string;
+  stimulusType: "IMAGE" | "RICH_TEXT";
+  imageUrl?: string;
+  content?: string;
+}
+
 interface QuestionConfig {
   id: string;
+  sectionId?: string;
   type: QuestionType;
   content: string;
   explanation?: string;
@@ -78,12 +93,24 @@ interface QuestionConfig {
 
 const LOCAL_STORAGE_KEY = "esolmaster_activity_builder_draft";
 
-const QuestionCard = React.memo(({ q, index, dragHandleProps, updateQuestion, removeQuestion, criteriaList }: any) => {
+const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, updateQuestion, removeQuestion, criteriaList, isInvalid, errorMsg }: any) => {
   const isExpanded = q.isExpanded !== false;
   const currentCriterion = criteriaList?.find((c: any) => c.id === q.criterionId);
 
   return (
-    <Card className="border-slate-100 shadow-none relative group bg-white overflow-hidden transition-all rounded-xl">
+    <Card 
+      id={`card-${q.id}`} 
+      className={cn(
+        "shadow-none relative group bg-white overflow-hidden transition-all rounded-xl",
+        isInvalid ? "border-red-400 ring-2 ring-red-400/20 shadow-xs" : "border-slate-200 hover:border-slate-300"
+      )}
+    >
+      {isInvalid && (
+        <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-xs text-red-700 font-semibold flex items-center gap-1.5 animate-pulse">
+          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+          <span>{errorMsg || "This question is incomplete or contains invalid fields."}</span>
+        </div>
+      )}
       <div 
         className="absolute left-2 top-3.5 cursor-grab text-slate-300 hover:text-slate-500 transition-colors z-10 opacity-0 group-hover:opacity-100"
         {...dragHandleProps}
@@ -91,34 +118,30 @@ const QuestionCard = React.memo(({ q, index, dragHandleProps, updateQuestion, re
         <GripVertical size={18} />
       </div>
       <div className="pl-7">
-        <CardHeader className="py-3 px-5 bg-slate-50/30 border-b border-slate-100 flex flex-row items-center justify-between flex-wrap gap-2">
+        <CardHeader className="py-2.5 px-4 bg-slate-50/30 border-b border-slate-100 flex flex-row items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <CardTitle className="text-[13px] font-semibold text-slate-700 tracking-wide">
-              {index + 1}. {q.type.replace(/_/g, " ")}
+              {q.type === "INSTRUCTION" ? "Instruction Line" : `${questionNumber ?? (index + 1)}. ${q.type.replace(/_/g, " ")}`}
             </CardTitle>
-            {currentCriterion && (
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center gap-1">
-                <Award className="w-3 h-3" />
-                Criteria {currentCriterion.code}
-              </span>
-            )}
           </div>
           <div className="flex items-center gap-3">
-            {isExpanded ? (
-              <div className="flex items-center gap-2 mr-2">
-                <Label className="text-xs font-medium text-slate-500">Marks</Label>
-                <Input 
-                  type="number" 
-                  min="0"
-                  className="w-16 h-7 text-xs text-center px-1 py-0 bg-white" 
-                  value={q.marks ?? 1} 
-                  onChange={(e) => updateQuestion(q.id, { marks: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-            ) : (
-              <div className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
-                {q.marks ?? 1} {q.marks === 1 ? 'Mark' : 'Marks'}
-              </div>
+            {q.type !== "INSTRUCTION" && (
+              isExpanded ? (
+                <div className="flex items-center gap-2 mr-2">
+                  <Label className="text-xs font-medium text-slate-500">Marks</Label>
+                  <Input 
+                    type="number" 
+                    min="0" 
+                    className="w-16 h-7 text-xs text-center px-1 py-0 bg-white" 
+                    value={q.marks ?? 1} 
+                    onChange={(e) => updateQuestion(q.id, { marks: parseInt(e.target.value) || 0 })}
+                  />
+                </div>
+              ) : (
+                <div className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                  {q.marks ?? 1} {q.marks === 1 ? 'Mark' : 'Marks'}
+                </div>
+              )
             )}
             <div className="flex items-center gap-1">
               <Button type="button" 
@@ -129,7 +152,7 @@ const QuestionCard = React.memo(({ q, index, dragHandleProps, updateQuestion, re
               >
                 {isExpanded ? "Collapse" : "Edit"}
               </Button>
-              <Button type="button" variant="ghost" size="icon" className="text-slate-400 hover:text-red-600 hover:bg-red-50 h-7 w-7 transition-colors" onClick={() => removeQuestion(q.id)}>
+              <Button type="button" variant="ghost" size="icon" className="text-slate-400 hover:text-red-600 hover:bg-red-50 h-7 w-7 transition-colors cursor-pointer" onClick={() => removeQuestion(q.id)}>
                 <Trash2 size={15} />
               </Button>
             </div>
@@ -137,228 +160,95 @@ const QuestionCard = React.memo(({ q, index, dragHandleProps, updateQuestion, re
         </CardHeader>
         
         {isExpanded ? (
-          <CardContent className="p-5 space-y-6">
-            {/* Assessment Criteria Selector */}
-            <div className="p-3.5 bg-indigo-50/40 border border-indigo-100/80 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="space-y-0.5">
-                <Label className="text-xs font-semibold text-indigo-950 flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-indigo-600" />
-                  UK ESOL Assessment Criterion
-                </Label>
-                <p className="text-[11px] text-slate-500">
-                  Tag this question to a national syllabus skill (e.g. 1.1 Narrative, 3.2 Signs, 3.3 Postcodes).
-                </p>
+          q.type === "INSTRUCTION" ? (
+            <CardContent className="p-3.5 space-y-1.5">
+              <Input 
+                value={q.content ?? q.config?.heading ?? ""} 
+                onChange={(e) => {
+                  const val = e.target.value;
+                  updateQuestion(q.id, { content: val, config: { ...q.config, heading: val } });
+                }}
+                placeholder="e.g. Questions 1–8: Choose the correct answer."
+                className="h-8 text-xs bg-white border-slate-200 font-medium text-slate-800 focus-visible:ring-blue-400"
+              />
+            </CardContent>
+          ) : (
+            <CardContent className="p-5 space-y-6">
+              <div className="space-y-2.5">
+                <Label className="text-sm font-medium text-slate-700">Question Prompt</Label>
+                <RichTextEditor 
+                  placeholder="Enter the question or task instruction here..." 
+                  value={q.content}
+                  onChange={(val) => updateQuestion(q.id, { content: val })}
+                />
               </div>
-              <Select 
-                value={q.criterionId || "none"} 
-                onValueChange={(val) => updateQuestion(q.id, { criterionId: val === "none" ? undefined : val })}
-              >
-                <SelectTrigger className="w-full sm:w-[280px] h-8 text-xs bg-white border-indigo-200">
-                  <SelectValue placeholder="Select skill criterion..." />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  <SelectItem value="none" className="text-xs text-slate-500 italic">None / General</SelectItem>
-                  {criteriaList?.map((c: any) => (
-                    <SelectItem key={c.id} value={c.id} className="text-xs">
-                      <span className="font-semibold text-indigo-700 mr-1.5">[{c.code}]</span> {c.description}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              
+              <div className="p-5 bg-slate-50/50 border border-slate-100 rounded-lg text-sm text-slate-500 font-medium">
+                {q.type === "MCQ" && <MCQConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+                {q.type === "TRUE_FALSE" && <TrueFalseConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+                {q.type === "GAP_FILL" && <GapFillConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+                {q.type === "WORD_BOX_MATCH" && <WordBoxMatchConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+                {q.type === "MATCHING" && <MatchingConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+                {q.type === "QUESTION_ANSWER" && <QuestionAnswerConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+                {q.type === "ORDERING" && <OrderingConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
+              </div>
 
-            <div className="space-y-2.5">
-              <Label className="text-sm font-medium text-slate-700">Question Prompt</Label>
-              <RichTextEditor 
-                placeholder="Enter the question or task instruction here..." 
-                value={q.content}
-                onChange={(val) => updateQuestion(q.id, { content: val })}
-              />
-            </div>
-            
-            <div className="p-5 bg-slate-50/50 border border-slate-100 rounded-lg text-sm text-slate-500 font-medium">
-              {q.type === "MCQ" && <MCQConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-              {q.type === "TRUE_FALSE" && <TrueFalseConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-              {q.type === "GAP_FILL" && <GapFillConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-              {q.type === "WORD_BOX_MATCH" && <WordBoxMatchConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-              {q.type === "MATCHING" && <MatchingConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-              {q.type === "QUESTION_ANSWER" && <QuestionAnswerConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-              {q.type === "ORDERING" && <OrderingConfigUI config={q.config} onChange={(c) => updateQuestion(q.id, { config: c })} />}
-            </div>
-
-            <div className="space-y-2.5">
-              <Label className="text-sm font-medium text-slate-700">Explanation & Teacher Notes (Optional)</Label>
-              <p className="text-xs text-slate-500">Provide an explanation or feedback for learners after they complete this question.</p>
-              <RichTextEditor 
-                placeholder="Explain why the answer is correct or give feedback..." 
-                value={q.explanation || ""}
-                onChange={(val) => updateQuestion(q.id, { explanation: val })}
-              />
-            </div>
-          </CardContent>
+              <div className="space-y-2.5">
+                <Label className="text-sm font-medium text-slate-700">Explanation & Teacher Notes (Optional)</Label>
+                <p className="text-xs text-slate-500">Provide an explanation or feedback for learners after they complete this question.</p>
+                <RichTextEditor 
+                  placeholder="Explain why the answer is correct or give feedback..." 
+                  value={q.explanation || ""}
+                  onChange={(val) => updateQuestion(q.id, { explanation: val })}
+                />
+              </div>
+            </CardContent>
+          )
         ) : (
-          <CardContent className="p-5 py-4 flex flex-col gap-3 min-w-0 overflow-hidden relative">
-            <div 
-              className="text-sm text-slate-800 prose prose-sm prose-slate max-w-none prose-p:my-0 w-full min-w-0 whitespace-pre-wrap break-words" 
-              dangerouslySetInnerHTML={{ __html: (q.content || "<span class='text-slate-400 italic'>No prompt provided.</span>").replace(/&nbsp;/g, ' ') }} 
-            />
-            
-            {(q.type === "MCQ" || q.type === "TRUE_FALSE" || q.type === "GAP_FILL") && q.config?.options && (
-              <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
-                {q.config.options.map((optText: string, index: number) => {
-                  const isCorrect = q.config.correctIndex === index;
-                  return (
-                    <div key={index} className={`flex items-center gap-2.5 text-sm px-3 py-1.5 rounded-md border ${isCorrect ? 'bg-emerald-50/50 text-emerald-800 border-emerald-200' : 'bg-white text-slate-600 border-slate-200'}`}>
-                      <div className={`w-1.5 h-1.5 rounded-full ${isCorrect ? 'bg-emerald-500' : 'bg-slate-300'} shrink-0`} />
-                      <span className="min-w-0 truncate">{optText || <span className="italic text-slate-400">Empty option</span>}</span>
+          q.type === "INSTRUCTION" ? (
+            <CardContent className="px-4 py-2.5 bg-slate-50/30 flex items-center border-t border-slate-100">
+              <p className="text-xs font-medium text-slate-800 truncate">
+                {q.content || q.config?.heading || <span className="text-slate-400 italic">No instruction text provided.</span>}
+              </p>
+            </CardContent>
+          ) : (
+            <CardContent className="p-5 py-4 flex flex-col gap-3 min-w-0 overflow-hidden relative">
+              <div 
+                className="text-sm text-slate-800 prose prose-sm prose-slate max-w-none prose-p:my-0 w-full min-w-0 whitespace-pre-wrap break-words" 
+                dangerouslySetInnerHTML={{ __html: (q.content || "<span class='text-slate-400 italic'>No prompt provided.</span>").replace(/&nbsp;/g, ' ') }} 
+              />
+              
+              {(q.type === "MCQ" || q.type === "TRUE_FALSE" || q.type === "GAP_FILL") && q.config?.options && (
+                <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
+                  {q.config.options.map((optText: string, index: number) => {
+                    const isCorrect = q.config.correctIndex === index;
+                    return (
+                      <div key={index} className={`flex items-center gap-2.5 text-sm px-3 py-1.5 rounded-md border ${isCorrect ? 'bg-emerald-50/50 text-emerald-800 border-emerald-200' : 'bg-white text-slate-600 border-slate-200'}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${isCorrect ? 'bg-emerald-500' : 'bg-slate-300'} shrink-0`} />
+                        <span className="min-w-0 truncate">{optText || <span className="italic text-slate-400">Empty option</span>}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              
+              {q.type === "WORD_BOX_MATCH" && q.config?.sentences && (
+                <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
+                  {q.config.sentences.map((s: any, idx: number) => (
+                    <div key={idx} className="text-sm px-3 py-2 rounded-md border bg-slate-50 border-slate-100 flex flex-col gap-1">
+                      <div className="text-slate-600 italic">"{s.text}"</div>
+                      <div className="text-emerald-700 font-medium">Answer: {s.answer}</div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-            
-            {q.type === "WORD_BOX_MATCH" && q.config?.sentences && (
-              <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
-                {q.config.sentences.map((s: any, idx: number) => (
-                  <div key={idx} className="text-sm px-3 py-2 rounded-md border bg-slate-50 border-slate-100 flex flex-col gap-1">
-                    <div className="text-slate-600 italic">"{s.text}"</div>
-                    <div className="text-emerald-700 font-medium">Answer: {s.answer}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          )
         )}
       </div>
     </Card>
   );
 });
-
-const LocalTaskPreview = ({ title, taskType, questions, readingPassage, awardingBody, entryLevel }: any) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
-  const [submitted, setSubmitted] = useState(false);
-
-  const currentQuestion = questions[currentIndex];
-  const totalQuestions = questions.length;
-  
-  const skillMeta: Record<string, { label: string; emoji: string }> = {
-    READING: { label: "Reading", emoji: "📖" },
-    WRITING: { label: "Writing", emoji: "✍️" },
-    LISTENING: { label: "Listening", emoji: "🎧" },
-    SPEAKING: { label: "Speaking", emoji: "🗣️" },
-    GRAMMAR: { label: "Grammar", emoji: "📝" },
-    VOCABULARY: { label: "Vocabulary", emoji: "💬" },
-  };
-
-  const currentSkill = skillMeta[taskType] || { label: taskType, emoji: "📄" };
-
-  if (!questions || questions.length === 0) {
-    return <div className="p-8 text-center text-slate-500">No questions added yet to preview.</div>;
-  }
-
-  const formatQuestion = (q: QuestionConfig) => {
-    let baseConfig = q.config || {};
-    return {
-      id: q.id,
-      type: q.type,
-      config: { 
-        question: q.content || "", 
-        explanation: q.explanation || "", 
-        marks: q.marks || 1, 
-        options: [], 
-        ...baseConfig 
-      }
-    };
-  };
-
-  const handleNext = () => {
-    if (currentIndex < totalQuestions - 1) setCurrentIndex(c => c + 1);
-  };
-  
-  const handlePrev = () => {
-    if (currentIndex > 0) setCurrentIndex(c => c - 1);
-  };
-
-  return (
-    <div className="space-y-8 max-w-4xl mx-auto w-full pb-8">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">{title || "Untitled Activity"}</h1>
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5 shadow-sm">
-            <span>{currentSkill.emoji}</span> {currentSkill.label}
-          </span>
-          {awardingBody && awardingBody !== "CUSTOM" && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-900 text-white">
-              {awardingBody}
-            </span>
-          )}
-          {entryLevel && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-              {entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}
-            </span>
-          )}
-        </div>
-      </div>
-      
-      {/* Reading Passage Stimulus if applicable */}
-      {taskType === "READING" && readingPassage && (
-        <div className="bg-amber-50/40 border border-amber-200/70 rounded-xl p-5 text-slate-800 space-y-2">
-          <div className="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-            <span>📖</span> Stimulus / Reading Passage
-          </div>
-          <div className="text-sm leading-relaxed whitespace-pre-wrap">{readingPassage}</div>
-        </div>
-      )}
-
-      {/* Progress Bar */}
-      <div className="flex items-center gap-4">
-        <div className="flex-1 h-2 bg-slate-100/80 rounded-full overflow-hidden border border-slate-200/50 shadow-inner">
-          <div 
-            className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-500 ease-out" 
-            style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
-          />
-        </div>
-        <span className="text-sm font-bold text-slate-400 min-w-[3rem] text-right tracking-widest">
-          {currentIndex + 1} / {totalQuestions}
-        </span>
-      </div>
-
-      {/* Question Container */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 md:p-8">
-        <QuestionRenderer 
-          question={formatQuestion(currentQuestion) as any} 
-          userAnswer={answers[currentQuestion.id]}
-          setAnswer={(ans) => setAnswers(prev => ({...prev, [currentQuestion.id]: ans}))}
-          submitted={submitted}
-        />
-      </div>
-
-      {/* Navigation */}
-      <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-6">
-        <Button 
-          variant="outline" 
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-          className="border-slate-200"
-        >
-          Previous
-        </Button>
-        
-        {currentIndex < totalQuestions - 1 ? (
-          <Button onClick={handleNext} className="bg-indigo-600 hover:bg-indigo-700">
-            Next
-          </Button>
-        ) : (
-          <Button onClick={() => setSubmitted(true)} className="bg-emerald-600 hover:bg-emerald-700">
-            Submit
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-};
 
 export default function ActivityBuilder() {
   const router = useRouter();
@@ -381,12 +271,28 @@ export default function ActivityBuilder() {
   const [entryLevel, setEntryLevel] = useState<EntryLevelType>("ENTRY1");
   const [passingScore, setPassingScore] = useState<string>("75");
   const [mustPassAllSkills, setMustPassAllSkills] = useState(true);
-  const [readingPassage, setReadingPassage] = useState("");
+  
+  // Multi-Task Sections state
+  const [taskSections, setTaskSections] = useState<TaskSection[]>([
+    {
+      id: "sec_1",
+      title: "Task 1",
+      instruction: "",
+      questionHeading: "",
+      questionInstruction: "",
+      stimulusType: "IMAGE",
+      imageUrl: "",
+      content: ""
+    }
+  ]);
+  
   const [questions, setQuestions] = useState<QuestionConfig[]>([]);
+  const [activeSectionId, setActiveSectionId] = useState<string>("");
   const [initialQuestionIds, setInitialQuestionIds] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoadingTask, setIsLoadingTask] = useState(!!taskId);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState<"DRAFT" | "PUBLISHED" | null>(null);
 
   // Auto-set Matrix defaults when Board or Level change
   const currentMatrixConfig = UK_ESOL_MATRIX[awardingBody]?.[entryLevel];
@@ -443,6 +349,8 @@ export default function ActivityBuilder() {
 
   useEffect(() => {
     if (taskId) {
+      setIsLoaded(false);
+      setIsLoadingTask(true);
       getTaskById(taskId).then(task => {
         setTitle(task.title || "");
         setTaskType((task.type as TaskType) || "READING");
@@ -450,7 +358,39 @@ export default function ActivityBuilder() {
         if (task.readingContent?.passLogic) {
           setMustPassAllSkills(task.readingContent.passLogic === "CRITERIA_ONLY" || task.readingContent.passLogic === "CRITERIA_AND_SCORE");
         }
-        setReadingPassage(task.content || "");
+        
+        // Parse multi-task sections or fallback to legacy single passage
+        let loadedSections: TaskSection[] = [];
+        if (task.content) {
+          try {
+            const parsed = JSON.parse(task.content);
+            if (parsed && Array.isArray(parsed.sections) && parsed.sections.length > 0) {
+              loadedSections = parsed.sections;
+            }
+          } catch (e) {
+            // Legacy single string content
+            loadedSections = [{
+              id: "sec_1",
+              title: "Task 1",
+              instruction: "Read the text and answer the questions below.",
+              stimulusType: task.readingContent?.imageUrl ? "IMAGE" : "RICH_TEXT",
+              imageUrl: task.readingContent?.imageUrl || "",
+              content: task.content || ""
+            }];
+          }
+        }
+        if (loadedSections.length === 0) {
+          loadedSections = [{
+            id: "sec_1",
+            title: "Task 1",
+            instruction: "Read the text and answer the questions below.",
+            stimulusType: task.readingContent?.imageUrl ? "IMAGE" : "RICH_TEXT",
+            imageUrl: task.readingContent?.imageUrl || "",
+            content: task.content || ""
+          }];
+        }
+        setTaskSections(loadedSections);
+
         if (task.folderId) {
           setSelectedFolderId(task.folderId);
         }
@@ -462,10 +402,10 @@ export default function ActivityBuilder() {
         }
         if (task.questions) {
           const loadedQuestions = task.questions.map((q: any) => {
-            let configObj = { question: "", prompt: "", explanation: "", marks: 1, data: undefined } as any;
+            let configObj = { question: "", prompt: "", explanation: "", marks: 1, data: undefined, sectionId: undefined } as any;
             try { configObj = JSON.parse(q.config); } catch(e) {}
             
-            const { question, prompt, explanation, marks, data, ...restConfig } = configObj;
+            const { question, prompt, explanation, marks, data, sectionId, ...restConfig } = configObj;
             const contentStr = question || prompt || "";
             let extractedConfig = data || restConfig || {};
 
@@ -496,6 +436,7 @@ export default function ActivityBuilder() {
 
             return {
               id: q.id,
+              sectionId: sectionId || loadedSections[0]?.id || "sec_1",
               type: q.type,
               content: contentStr,
               explanation: explanation || "",
@@ -516,27 +457,88 @@ export default function ActivityBuilder() {
         setIsLoaded(true);
       });
     } else {
-      try {
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (saved) {
-          setQuestions(JSON.parse(saved));
-        }
-      } catch (err) {
-        console.error("Failed to load draft from localStorage", err);
-      }
       setIsLoaded(true);
     }
   }, [taskId]);
 
+  // Clean up any temporary local cache when unmounting / navigating away
   useEffect(() => {
-    if (isLoaded && !taskId) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(questions));
-    }
-  }, [questions, isLoaded, taskId]);
+    return () => {
+      try {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      } catch (err) {
+        console.error("Failed to clear draft on unmount", err);
+      }
+    };
+  }, []);
 
-  const addQuestion = (type: QuestionType) => {
-    setQuestions([...questions, {
+  const addTaskSection = () => {
+    const nextNum = taskSections.length + 1;
+    const newSection: TaskSection = {
+      id: `sec_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      title: `Task ${nextNum}`,
+      instruction: "",
+      questionHeading: "",
+      questionInstruction: "",
+      stimulusType: "IMAGE",
+      imageUrl: "",
+      content: ""
+    };
+    setTaskSections(prev => [...prev, newSection]);
+    toast.success(`Task ${nextNum} Section created!`);
+  };
+
+  const updateTaskSection = (id: string, updates: Partial<TaskSection>) => {
+    setTaskSections(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+
+  const removeTaskSection = (id: string) => {
+    const remaining = taskSections.filter(s => s.id !== id);
+    const fallbackId = remaining[0]?.id;
+    if (fallbackId) {
+      setQuestions(prev => prev.map(q => (q.sectionId === id ? { ...q, sectionId: fallbackId } : q)));
+    } else {
+      setQuestions(prev => prev.map(q => (q.sectionId === id ? { ...q, sectionId: undefined } : q)));
+    }
+    setTaskSections(remaining);
+    toast.success("Task section deleted.");
+  };
+
+  const addQuestion = (type: QuestionType, targetSectionId?: string) => {
+    let sectionId = targetSectionId;
+    if (!sectionId) {
+      if (taskSections.length === 0) {
+        const newSec: TaskSection = {
+          id: `sec_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          title: "Task 1",
+          instruction: "",
+          stimulusType: "IMAGE",
+          imageUrl: "",
+          content: ""
+        };
+        setTaskSections([newSec]);
+        sectionId = newSec.id;
+      } else {
+        sectionId = taskSections[taskSections.length - 1].id;
+      }
+    }
+    if (type === "INSTRUCTION") {
+      setQuestions(prev => [...prev, {
+        id: Math.random().toString(36).substring(7),
+        sectionId,
+        type: "INSTRUCTION",
+        content: "",
+        explanation: "",
+        marks: 0,
+        config: {},
+        isExpanded: true
+      }]);
+      return;
+    }
+
+    setQuestions(prev => [...prev, {
       id: Math.random().toString(36).substring(7),
+      sectionId,
       type,
       content: "",
       explanation: "",
@@ -546,19 +548,212 @@ export default function ActivityBuilder() {
     }]);
   };
 
+  const [invalidFieldKeys, setInvalidFieldKeys] = useState<Record<string, any>>({});
+
   const removeQuestion = React.useCallback((id: string) => {
     setQuestions(prev => prev.filter(q => q.id !== id));
+    setInvalidFieldKeys(prev => {
+      if (prev[`q_${id}`]) {
+        const next = { ...prev };
+        delete next[`q_${id}`];
+        delete next[`q_${id}_msg`];
+        return next;
+      }
+      return prev;
+    });
   }, []);
 
   const updateQuestion = React.useCallback((id: string, updates: Partial<QuestionConfig>) => {
     setQuestions(prev => prev.map(q => q.id === id ? { ...q, ...updates } : q));
+    setInvalidFieldKeys(prev => {
+      if (prev[`q_${id}`]) {
+        const next = { ...prev };
+        delete next[`q_${id}`];
+        delete next[`q_${id}_msg`];
+        return next;
+      }
+      return prev;
+    });
   }, []);
 
-  const handleSave = async (status: "PUBLISHED" | "DRAFT", shouldRedirect = true) => {
-    if (!title) {
-      toast.error("Please enter a title for the activity.");
-      return;
+  const validateActivity = (): { firstError: string; errorMap: Record<string, any>; firstElementId?: string } | null => {
+    const errors: Record<string, any> = {};
+    let firstError: string | null = null;
+    let firstElementId: string | undefined;
+
+    if (!title || !title.trim()) {
+      errors.title = true;
+      if (!firstError) {
+        firstError = "Please enter an Activity Title.";
+        firstElementId = "field-title";
+      }
     }
+
+    if (!taskType) {
+      errors.taskType = true;
+      if (!firstError) {
+        firstError = "Please select a Primary Skill Area.";
+        firstElementId = "field-taskType";
+      }
+    }
+
+    if (!entryLevel) {
+      errors.entryLevel = true;
+      if (!firstError) {
+        firstError = "Please select an Entry Level.";
+        firstElementId = "field-entryLevel";
+      }
+    }
+
+    if (!taskSections || taskSections.length === 0) {
+      errors.taskSections = true;
+      if (!firstError) {
+        firstError = "Please create at least one Task section.";
+        firstElementId = "field-taskSections";
+      }
+    }
+
+    if (!questions || questions.length === 0) {
+      errors.questions = true;
+      if (!firstError) {
+        firstError = "Please add at least one question to the activity before saving.";
+        firstElementId = "field-add-questions";
+      }
+    }
+
+    // Validate each question item
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      const qNum = i + 1;
+      const qKey = `q_${q.id}`;
+
+      if (q.type === "INSTRUCTION") {
+        if (!q.content || !q.content.trim()) {
+          errors[qKey] = true;
+          errors[`${qKey}_msg`] = "Instruction text cannot be blank.";
+          if (!firstError) {
+            firstError = `Item ${qNum} (Instruction Line) is empty. Please enter instructions or remove it.`;
+            firstElementId = `card-${q.id}`;
+          }
+        }
+        continue;
+      }
+
+      if (q.type === "MCQ") {
+        const options = q.config?.options;
+        if (!Array.isArray(options) || options.length < 2) {
+          errors[qKey] = true;
+          errors[`${qKey}_msg`] = "Multiple Choice requires at least 2 options.";
+          if (!firstError) {
+            firstError = `Question ${qNum} (MCQ) requires at least 2 options.`;
+            firstElementId = `card-${q.id}`;
+          }
+        } else if (options.some((opt: any) => !(typeof opt === "string" ? opt : opt?.text)?.trim())) {
+          errors[qKey] = true;
+          errors[`${qKey}_msg`] = "One or more options are blank. Fill in all options or remove empty ones.";
+          if (!firstError) {
+            firstError = `Question ${qNum} (MCQ) has blank options. Please fill in all options or remove empty ones.`;
+            firstElementId = `card-${q.id}`;
+          }
+        }
+      } else if (q.type === "GAP_FILL") {
+        const options = q.config?.options;
+        if (!q.content || !q.content.trim()) {
+          errors[qKey] = true;
+          errors[`${qKey}_msg`] = "Question prompt/sentence is required.";
+          if (!firstError) {
+            firstError = `Question ${qNum} (Gap Fill) requires a prompt sentence.`;
+            firstElementId = `card-${q.id}`;
+          }
+        } else if (Array.isArray(options) && options.some((opt: any) => !(typeof opt === "string" ? opt : opt?.text)?.trim())) {
+          errors[qKey] = true;
+          errors[`${qKey}_msg`] = "Option choices cannot be blank.";
+          if (!firstError) {
+            firstError = `Question ${qNum} (Gap Fill) has blank option choices.`;
+            firstElementId = `card-${q.id}`;
+          }
+        }
+      } else if (q.type === "WORD_BOX_MATCH") {
+        const words = q.config?.words;
+        const sentences = q.config?.sentences;
+        if (!Array.isArray(words) || words.length === 0 || words.some((w: any) => !w?.trim())) {
+          errors[qKey] = true;
+          errors[`${qKey}_msg`] = "Word Box requires non-empty word entries.";
+          if (!firstError) {
+            firstError = `Question ${qNum} (Word Box) has blank or missing words in the Word Box.`;
+            firstElementId = `card-${q.id}`;
+          }
+        } else if (!Array.isArray(sentences) || sentences.length === 0 || sentences.some((s: any) => !(typeof s === "string" ? s : s?.text)?.trim())) {
+          errors[qKey] = true;
+          errors[`${qKey}_msg`] = "Matching sentences cannot be blank.";
+          if (!firstError) {
+            firstError = `Question ${qNum} (Word Box) has blank matching sentences.`;
+            firstElementId = `card-${q.id}`;
+          }
+        }
+      } else if (q.type === "MATCHING") {
+        const leftItems = Array.isArray(q.config?.leftItems) ? q.config.leftItems : [];
+        const rightItems = Array.isArray(q.config?.rightItems) ? q.config.rightItems : [];
+        const pairs = Array.isArray(q.config?.pairs) ? q.config.pairs : [];
+
+        if (pairs.length > 0) {
+          if (pairs.length < 2 || pairs.some((p: any) => !p?.left?.trim() || !p?.right?.trim())) {
+            errors[qKey] = true;
+            errors[`${qKey}_msg`] = "Matching requires at least 2 complete term & definition pairs.";
+            if (!firstError) {
+              firstError = `Question ${qNum} (Matching) has incomplete matching pairs.`;
+              firstElementId = `card-${q.id}`;
+            }
+          }
+        } else {
+          if (leftItems.length < 2 || rightItems.length < 2 || leftItems.some((l: string) => !l?.trim()) || rightItems.some((r: any) => !(typeof r === "string" ? r : r?.value)?.trim())) {
+            errors[qKey] = true;
+            errors[`${qKey}_msg`] = "Matching requires at least 2 non-empty terms and definitions.";
+            if (!firstError) {
+              firstError = `Question ${qNum} (Matching) has blank terms or definitions.`;
+              firstElementId = `card-${q.id}`;
+            }
+          }
+        }
+      } else if (q.type === "ORDERING") {
+        const items = q.config?.items;
+        if (!Array.isArray(items) || items.length < 2 || items.some((it: any) => !(typeof it === "string" ? it : it?.text)?.trim())) {
+          errors[qKey] = true;
+          errors[`${qKey}_msg`] = "Ordering requires at least 2 non-empty sequence items.";
+          if (!firstError) {
+            firstError = `Question ${qNum} (Ordering) has blank items or fewer than 2 steps.`;
+            firstElementId = `card-${q.id}`;
+          }
+        }
+      }
+    }
+
+    if (firstError) {
+      return { firstError, errorMap: errors, firstElementId };
+    }
+
+    return null;
+  };
+
+  const handleSave = async (status: "PUBLISHED" | "DRAFT", shouldRedirect = true) => {
+    const validation = validateActivity();
+    if (validation) {
+      setInvalidFieldKeys(validation.errorMap);
+      toast.error(validation.firstError, { duration: 5000 });
+      if (validation.firstElementId) {
+        const el = document.getElementById(validation.firstElementId);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+            el.focus();
+          }
+        }
+      }
+      return null;
+    }
+
+    setInvalidFieldKeys({});
+    setIsSaving(status);
 
     try {
       let response: any;
@@ -567,6 +762,11 @@ export default function ActivityBuilder() {
         ? (parsedPassMark === 0 ? "CRITERIA_ONLY" : "CRITERIA_AND_SCORE") 
         : "SCORE_ONLY";
 
+      const serializedContent = JSON.stringify({
+        version: 2,
+        sections: taskSections
+      });
+
       if (taskId) {
         const deleteQuestionIds = initialQuestionIds.filter(id => !questions.some(q => q.id === id));
         const updateQuestions = questions.filter(q => initialQuestionIds.includes(q.id)).map((q, index) => ({
@@ -574,13 +774,25 @@ export default function ActivityBuilder() {
           type: q.type,
           order: index + 1,
           criterionId: q.criterionId || undefined,
-          config: JSON.stringify({ question: q.content, explanation: q.explanation || "", marks: q.marks ?? 1, ...q.config })
+          config: JSON.stringify({ 
+            question: q.content, 
+            explanation: q.explanation || "", 
+            marks: q.marks ?? 1, 
+            sectionId: q.sectionId || taskSections[0]?.id,
+            ...q.config 
+          })
         }));
         const newQuestions = questions.filter(q => !initialQuestionIds.includes(q.id)).map((q, index) => ({
           type: q.type,
           order: index + 1,
           criterionId: q.criterionId || undefined,
-          config: JSON.stringify({ question: q.content, explanation: q.explanation || "", marks: q.marks ?? 1, ...q.config }),
+          config: JSON.stringify({ 
+            question: q.content, 
+            explanation: q.explanation || "", 
+            marks: q.marks ?? 1, 
+            sectionId: q.sectionId || taskSections[0]?.id,
+            ...q.config 
+          }),
           clientKey: q.id
         }));
 
@@ -589,7 +801,7 @@ export default function ActivityBuilder() {
           type: taskType,
           status: status === "PUBLISHED" ? "PENDING_APPROVAL" : "DRAFT",
           folderId: folderId || undefined,
-          content: readingPassage,
+          content: serializedContent,
           awardingBody: awardingBody !== "CUSTOM" ? awardingBody : undefined,
           entryType: [entryLevel],
           passMark: parsedPassMark,
@@ -607,6 +819,7 @@ export default function ActivityBuilder() {
             question: q.content, 
             explanation: q.explanation || "", 
             marks: q.marks ?? 1,
+            sectionId: q.sectionId || taskSections[0]?.id,
             ...q.config 
           })
         }));
@@ -617,7 +830,7 @@ export default function ActivityBuilder() {
           status: status === "PUBLISHED" ? "PENDING_APPROVAL" : "DRAFT",
           questions: formattedQuestions as any,
           folderId: selectedFolderId || folderId || undefined,
-          content: readingPassage,
+          content: serializedContent,
           awardingBody: awardingBody !== "CUSTOM" ? awardingBody : undefined,
           entryType: [entryLevel],
           passMark: parsedPassMark,
@@ -649,10 +862,19 @@ export default function ActivityBuilder() {
       }
       
       return currentTaskId;
-    } catch (e) {
-      toast.error("Failed to save activity to the server.");
-      console.error(e);
+    } catch (e: any) {
+      const serverMsg = e?.response?.data?.message;
+      const formattedMsg = Array.isArray(serverMsg)
+        ? serverMsg.join(", ")
+        : typeof serverMsg === "string"
+          ? serverMsg
+          : "Failed to save activity to the server.";
+
+      toast.error(formattedMsg, { duration: 6000 });
+      console.error("Save activity error:", e);
       return null;
+    } finally {
+      setIsSaving(null);
     }
   };
 
@@ -672,18 +894,197 @@ export default function ActivityBuilder() {
     setQuestions(items);
   };
 
-  if (isLoadingTask) {
+  const processImageFile = (sectionId: string, file: File | Blob) => {
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64Url = uploadEvent.target?.result as string;
+      if (base64Url) {
+        updateTaskSection(sectionId, { imageUrl: base64Url, stimulusType: "IMAGE" });
+        toast.success("Image attached to task context!");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const extractAndAttachImage = async (sectionId: string, clipboardData: DataTransfer) => {
+    // 1. Direct files from clipboard
+    if (clipboardData.files && clipboardData.files.length > 0) {
+      for (let i = 0; i < clipboardData.files.length; i++) {
+        const file = clipboardData.files[i];
+        if (file.type.startsWith("image/")) {
+          processImageFile(sectionId, file);
+          return true;
+        }
+      }
+    }
+
+    // 2. Direct items (e.g. from screenshot tool, right click copy image)
+    if (clipboardData.items && clipboardData.items.length > 0) {
+      for (let i = 0; i < clipboardData.items.length; i++) {
+        const item = clipboardData.items[i];
+        if (item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) {
+            processImageFile(sectionId, file);
+            return true;
+          }
+        }
+      }
+    }
+
+    // 3. HTML content (e.g. copied from web page with <img> tag)
+    const htmlText = clipboardData.getData("text/html");
+    if (htmlText) {
+      const match = htmlText.match(/<img[^>]+src=["']([^"']+)["']/i);
+      if (match && match[1]) {
+        updateTaskSection(sectionId, { imageUrl: match[1], stimulusType: "IMAGE" });
+        toast.success("Image attached to task context!");
+        return true;
+      }
+    }
+
+    // 4. Plain text URL or Data URI
+    const plainText = clipboardData.getData("text/plain")?.trim();
+    if (plainText) {
+      if (
+        plainText.startsWith("data:image/") || 
+        plainText.startsWith("http://") || 
+        plainText.startsWith("https://")
+      ) {
+        updateTaskSection(sectionId, { imageUrl: plainText, stimulusType: "IMAGE" });
+        toast.success("Image attached to task context!");
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const handleFileUpload = (sectionId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload a valid image file.");
+        return;
+      }
+      processImageFile(sectionId, file);
+    }
+  };
+
+  const handlePasteImage = async (sectionId: string, e: React.ClipboardEvent) => {
+    if (e.clipboardData) {
+      const success = await extractAndAttachImage(sectionId, e.clipboardData);
+      if (success) {
+        e.preventDefault();
+      } else {
+        toast.error("No image found in clipboard. Please copy an image first.");
+      }
+    }
+  };
+
+  const handleDropImage = async (sectionId: string, e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer) {
+      const success = await extractAndAttachImage(sectionId, e.dataTransfer);
+      if (!success) {
+        toast.error("Please drop a valid image file.");
+      }
+    }
+  };
+
+  // Global window paste listener for instant paste when viewing/focused
+  useEffect(() => {
+    const handleGlobalPaste = async (e: ClipboardEvent) => {
+      if (!e.clipboardData) return;
+
+      const activeEl = document.activeElement;
+      const isTyping = activeEl && (
+        activeEl.tagName === "INPUT" || 
+        activeEl.tagName === "TEXTAREA" || 
+        (activeEl as HTMLElement).isContentEditable
+      );
+
+      const hasDirectImage = Array.from(e.clipboardData.items || []).some(i => i.type.startsWith("image/")) ||
+                             (e.clipboardData.files && e.clipboardData.files.length > 0 && Array.from(e.clipboardData.files).some(f => f.type.startsWith("image/")));
+
+      // If user is typing in a regular text field and didn't copy an image, don't interfere
+      if (isTyping && !hasDirectImage) {
+        return;
+      }
+
+      const targetId = activeSectionId || taskSections[0]?.id;
+      if (targetId) {
+        const success = await extractAndAttachImage(targetId, e.clipboardData);
+        if (success) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener("paste", handleGlobalPaste);
+    return () => window.removeEventListener("paste", handleGlobalPaste);
+  }, [activeSectionId, taskSections]);
+
+  if (taskId ? (!isLoaded || isLoadingTask) : !isLoaded) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center bg-slate-50/50">
-        <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div>
+      <div className="w-full min-h-screen flex flex-col items-center justify-center bg-slate-50/50 gap-3">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+        <p className="text-xs text-slate-500 font-medium animate-pulse">Loading assessment...</p>
       </div>
     );
   }
 
   const totalCalculatedMarks = questions.reduce((sum, q) => sum + (q.marks ?? 1), 0);
 
+  const backUrl = (selectedFolderId || folderId) 
+    ? `/content-library?folderId=${selectedFolderId || folderId}` 
+    : `/content-library`;
+
   return (
-    <div className="w-full max-w-[1400px] mx-auto py-8 px-8 flex flex-col gap-8 bg-slate-50/50 min-h-screen">
+    <div className="w-full max-w-[1400px] mx-auto py-8 px-8 flex flex-col gap-6 bg-slate-50/50 min-h-screen">
+      {/* Breadcrumbs & Back Navigation */}
+      <div className="flex items-center gap-3 text-sm text-slate-500 flex-wrap">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push(backUrl)}
+          className="h-8 px-2.5 rounded-lg border-slate-200 hover:bg-white hover:text-slate-800 transition-colors shadow-2xs flex items-center gap-1.5 font-medium text-xs text-slate-600 cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back
+        </Button>
+
+        <div className="flex items-center gap-2 overflow-x-auto text-xs text-slate-500 font-medium py-1">
+          <Link href="/content-library" className="hover:text-slate-900 transition-colors flex items-center gap-1.5">
+            <School className="w-3.5 h-3.5 text-slate-400" />
+            <span>Content Library</span>
+          </Link>
+
+          {currentFolder?.ancestors?.map((anc) => (
+            <div key={anc.id} className="flex items-center gap-2">
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <Link href={`/content-library?folderId=${anc.id}`} className="hover:text-slate-900 transition-colors">
+                {anc.name}
+              </Link>
+            </div>
+          ))}
+
+          {currentFolder && (
+            <div key={currentFolder.id} className="flex items-center gap-2">
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <Link href={`/content-library?folderId=${currentFolder.id}`} className="hover:text-slate-900 transition-colors">
+                {currentFolder.name}
+              </Link>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 text-slate-900 font-bold">
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span className="truncate max-w-[240px]">{taskId ? (title || "Edit Assessment") : "New Assessment"}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Page Header */}
       <div className="flex items-center justify-between pb-4 border-b border-slate-200/60 flex-wrap gap-4">
         <div>
@@ -694,17 +1095,41 @@ export default function ActivityBuilder() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="border-slate-200 text-slate-600 hover:bg-slate-50" onClick={handlePreview}>
-            <Eye className="w-4 h-4 mr-2" />
+          <Button 
+            variant="outline" 
+            className="border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" 
+            disabled={Boolean(isSaving)}
+            onClick={handlePreview}
+          >
+            <Eye className="w-4 h-4 mr-2 text-blue-600" />
             Preview Assessment
           </Button>
-          <Button type="button" variant="outline" className="font-medium border-slate-200 hover:bg-slate-50" onClick={() => handleSave("DRAFT", false)}>
-            <Save className="w-4 h-4 mr-2 text-slate-500" />
-            Save Draft
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="font-medium border-slate-200 hover:bg-slate-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" 
+            disabled={Boolean(isSaving)}
+            onClick={() => handleSave("DRAFT", false)}
+          >
+            {isSaving === "DRAFT" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin text-slate-500" />
+            ) : (
+              <Save className="w-4 h-4 mr-2 text-slate-500" />
+            )}
+            {isSaving === "DRAFT" ? "Saving Draft..." : "Save Draft"}
           </Button>
-          <Button type="button" className="font-medium bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm" onClick={() => handleSave("PUBLISHED")}>
-            <Send className="w-4 h-4 mr-2" />
-            Publish
+          <Button 
+            type="button" 
+            className="font-medium bg-blue-500 hover:bg-blue-600 text-white shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" 
+            disabled={Boolean(isSaving)}
+            onClick={() => handleSave("PUBLISHED")}
+          >
+            {isSaving === "PUBLISHED" ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin text-white" />
+            ) : (
+              <Send className="w-4 h-4 mr-2" />
+            )}
+            {isSaving === "PUBLISHED" ? "Publishing..." : "Publish"}
           </Button>
         </div>
       </div>
@@ -713,7 +1138,7 @@ export default function ActivityBuilder() {
         {/* Main Canvas Area */}
         <div className="col-span-12 lg:col-span-9 flex flex-col gap-8">
           {/* Activity Settings Card */}
-          <Card className="border-slate-100 overflow-hidden shadow-none rounded-xl bg-white">
+          <Card className="border-slate-200 overflow-hidden shadow-none rounded-xl bg-white">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 px-6 pt-5 flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-base font-semibold text-slate-800">
@@ -721,20 +1146,36 @@ export default function ActivityBuilder() {
                 </CardTitle>
               </div>
               <div className="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md border border-slate-200">
-                Total Marks: <span className="text-indigo-600 font-bold">{totalCalculatedMarks}</span>
+                Total Marks: <span className="text-blue-600 font-bold">{totalCalculatedMarks}</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-6 px-6 py-6">
-
-
               {/* Row 1: Title */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700">Assessment / Activity Title</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-medium text-slate-700">
+                    Assessment / Activity Title <span className="text-red-500">*</span>
+                  </Label>
+                  {invalidFieldKeys.title && (
+                    <span className="text-xs text-red-600 font-semibold flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" /> Title is required
+                    </span>
+                  )}
+                </div>
                 <Textarea 
-                  className="min-h-9 resize-none focus-visible:ring-indigo-500 border-slate-200 shadow-none py-1.5"
+                  id="field-title"
+                  className={cn(
+                    "min-h-9 resize-none focus-visible:ring-blue-500 shadow-none py-1.5 transition-all",
+                    invalidFieldKeys.title ? "border-red-400 ring-2 ring-red-400/20 bg-red-50/20" : "border-slate-200"
+                  )}
                   placeholder="e.g. Ascentis Entry 1 Reading Practice Paper A" 
                   value={title} 
-                  onChange={(e) => setTitle(e.target.value)} 
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    if (invalidFieldKeys.title) {
+                      setInvalidFieldKeys(prev => ({ ...prev, title: false }));
+                    }
+                  }} 
                   rows={1}
                 />
               </div>
@@ -743,12 +1184,26 @@ export default function ActivityBuilder() {
               <div className="flex flex-col sm:flex-row gap-4 pt-1">
                 {/* 1. Skill Mode Selector */}
                 <div className="flex flex-col gap-1.5 w-full sm:w-[200px] shrink-0">
-                  <span className="text-xs font-semibold text-slate-700 h-4 leading-4">Primary Skill Area</span>
+                  <span className="text-xs font-semibold text-slate-700 h-4 leading-4">
+                    Primary Skill Area <span className="text-red-500">*</span>
+                  </span>
                   <Select 
                     value={taskType} 
-                    onValueChange={(val) => { if (val) setTaskType(val as TaskType); }}
+                    onValueChange={(val) => { 
+                      if (val) setTaskType(val as TaskType); 
+                      if (invalidFieldKeys.taskType) {
+                        setInvalidFieldKeys(prev => ({ ...prev, taskType: false }));
+                      }
+                    }}
                   >
-                    <SelectTrigger className="w-full text-xs border-slate-200 shadow-sm" style={{ height: '40px' }}>
+                    <SelectTrigger 
+                      id="field-taskType"
+                      className={cn(
+                        "w-full text-xs shadow-sm transition-all",
+                        invalidFieldKeys.taskType ? "border-red-400 ring-2 ring-red-400/20" : "border-slate-200"
+                      )} 
+                      style={{ height: '40px' }}
+                    >
                       <SelectValue placeholder="Select skill">
                         {taskType === "READING" ? "📖 Reading" :
                          taskType === "WRITING" ? "✍️ Writing" :
@@ -757,7 +1212,7 @@ export default function ActivityBuilder() {
                          taskType === "GRAMMAR" ? "⚙️ Custom / Non-Preset" : "Select skill"}
                       </SelectValue>
                     </SelectTrigger>
-                    <SelectContent position="popper" className="min-w-[200px]">
+                    <SelectContent className="min-w-[200px]">
                       <SelectItem value="READING" className="text-xs">📖 Reading</SelectItem>
                       <SelectItem value="WRITING" className="text-xs">✍️ Writing</SelectItem>
                       <SelectItem value="SPEAKING" className="text-xs">🗣️ Speaking</SelectItem>
@@ -774,10 +1229,10 @@ export default function ActivityBuilder() {
                     <span className="text-[10px] text-slate-400 whitespace-nowrap ml-2 leading-4">0 or empty for no pass mark</span>
                   </div>
                   <Input 
-                    type="number"
+                    type="number" 
                     value={passingScore}
                     onChange={(e) => setPassingScore(e.target.value)}
-                    className="text-xs border-slate-200 shadow-sm"
+                    className="text-xs border-slate-200 shadow-sm focus-visible:ring-blue-500"
                     style={{ height: '40px' }}
                     placeholder="e.g. 75 (Leave empty for no pass mark)"
                     min="0"
@@ -787,7 +1242,6 @@ export default function ActivityBuilder() {
 
                 {/* 3. Must Pass All Skills Toggle */}
                 <div className="flex flex-col gap-1.5 shrink-0">
-                  {/* invisible spacer to match label height */}
                   <span className="h-4 block" aria-hidden="true" />
                   <div className="flex items-center gap-2 bg-slate-50 px-3 rounded-lg border border-slate-100 shadow-sm" style={{ height: '40px' }}>
                     <Checkbox 
@@ -804,10 +1258,10 @@ export default function ActivityBuilder() {
 
               {/* Custom Skill Input (when Custom / Non-Preset is selected) */}
               {taskType === "GRAMMAR" && (
-                <div className="space-y-2 pt-2 pb-2 p-4 mt-2 bg-indigo-50/50 border border-indigo-100/80 rounded-xl shadow-sm">
+                <div className="space-y-2 pt-2 pb-2 p-4 mt-2 bg-slate-50 border border-slate-200 rounded-xl shadow-2xs">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                    <Label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                       Custom Skill Area Name
                     </Label>
                   </div>
@@ -815,116 +1269,356 @@ export default function ActivityBuilder() {
                     value={customSkillName}
                     onChange={(e) => setCustomSkillName(e.target.value)}
                     placeholder="e.g. Pronunciation & Phonics, Spelling & Punctuation..."
-                    className="h-10 text-xs border-indigo-200 bg-white shadow-sm focus-visible:ring-indigo-500"
+                    className="h-10 text-xs border-slate-200 bg-white shadow-2xs focus-visible:ring-blue-500"
                   />
-                  <p className="text-[11px] text-indigo-600/70 font-medium pt-1">
+                  <p className="text-[11px] text-slate-500 font-medium pt-1">
                     Define a custom skill area outside the standard four UK ESOL skill presets.
                   </p>
-                </div>
-              )}
-
-
-
-
-
-              {/* Reading Stimulus Passage Box */}
-              {taskType === "READING" && (
-                <div className="space-y-2 pt-2 border-t border-slate-100">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                      <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
-                      Reading Passage / Stimulus Material
-                    </Label>
-                    <span className="text-[11px] text-slate-400">Displayed to students alongside questions</span>
-                  </div>
-                  <Textarea
-                    value={readingPassage}
-                    onChange={(e) => setReadingPassage(e.target.value)}
-                    placeholder="Enter the authentic UK reading text, notice, letter, or advert here (e.g. Fairvale Surgery rules, NHS appointments, Supermarket offers)..."
-                    className="min-h-[140px] text-xs font-normal border-slate-200 leading-relaxed"
-                  />
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Assessment Questions Area */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                Assessment Questions ({questions.length})
-              </h3>
-              {questions.length > 1 && (
-                <span className="text-xs text-slate-400">
-                  Drag handles to re-order questions
-                </span>
-              )}
-            </div>
-
-            {questions.length === 0 ? (
-              <div className="py-16 text-center border-2 border-dashed border-slate-200 rounded-xl bg-white/60">
-                <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 border border-indigo-100">
-                  <PlusCircle className="w-6 h-6" />
-                </div>
-                <h4 className="text-slate-800 font-semibold text-sm mb-1">No questions in this assessment</h4>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                  Click question types from the palette on the right to start building your UK ESOL paper.
-                </p>
+          {/* ========================================================================= */}
+          {/* MASTER ACTIVITY TASKS CONTAINER CARD (Single box containing all tasks)    */}
+          {/* ========================================================================= */}
+          <Card className="border-slate-200 overflow-hidden shadow-none rounded-xl bg-white">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 px-6 pt-5 flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold text-slate-800">
+                  Activity Tasks & Stimulus Materials
+                </CardTitle>
               </div>
-            ) : (
+              <div className="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md border border-slate-200">
+                {taskSections.length} {taskSections.length === 1 ? 'Task' : 'Tasks'} in this Activity
+              </div>
+            </CardHeader>
+
+            <CardContent className="p-6 space-y-6">
               <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="questions-droppable">
-                  {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
-                      {questions.map((q, index) => (
-                        <Draggable key={q.id} draggableId={q.id} index={index}>
-                          {(dragProvided) => (
-                            <div ref={dragProvided.innerRef} {...dragProvided.draggableProps}>
-                              <QuestionCard 
-                                q={q} 
-                                index={index} 
-                                dragHandleProps={dragProvided.dragHandleProps} 
-                                updateQuestion={updateQuestion} 
-                                removeQuestion={removeQuestion}
-                                criteriaList={criteriaList}
-                              />
+                {taskSections.map((section, secIdx) => {
+                  const sectionQuestions = questions.filter(q => (q.sectionId || taskSections[0]?.id) === section.id);
+                  const sectionMarks = sectionQuestions.reduce((sum, q) => sum + (q.marks ?? 1), 0);
+
+                  return (
+                    <div key={section.id} className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-none">
+                      {/* Clean Light Task Header (No black bar) */}
+                      <div className="bg-slate-50/80 border-b border-slate-100 px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 flex-1">
+                          <div className="w-6 h-6 rounded-md bg-blue-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                            {secIdx + 1}
+                          </div>
+                          <div className="flex-1 max-w-sm">
+                            <Input 
+                              value={section.title}
+                              onChange={(e) => updateTaskSection(section.id, { title: e.target.value })}
+                              placeholder={`Task ${secIdx + 1} Title`}
+                              className="bg-white border-slate-200 text-slate-800 font-semibold text-xs h-8 focus-visible:ring-blue-400 placeholder:text-slate-400"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+                          <span className="text-xs font-medium text-slate-600 bg-white px-2.5 py-1 rounded-md border border-slate-200">
+                            {sectionQuestions.length} {sectionQuestions.length === 1 ? 'Question' : 'Questions'} ({sectionMarks} {sectionMarks === 1 ? 'Mark' : 'Marks'})
+                          </span>
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 px-2.5 text-xs font-medium"
+                            onClick={() => removeTaskSection(section.id)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete Task
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="p-5 space-y-5">
+                        {/* Section Instruction Field */}
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-semibold text-slate-700">
+                            Task Instruction
+                          </Label>
+                          <Input 
+                            value={section.instruction}
+                            onChange={(e) => updateTaskSection(section.id, { instruction: e.target.value })}
+                            placeholder="e.g. Read the text and answer questions."
+                            className="text-xs border-slate-200 h-9 bg-slate-50/50 font-medium text-slate-800 focus-visible:ring-blue-400"
+                          />
+                        </div>
+
+                        {/* Reading Context Area */}
+                        {taskType === "READING" && (
+                          <div className="p-4 bg-slate-50/60 border border-slate-200/80 rounded-xl space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/60 pb-3">
+                              <div className="flex items-center gap-2">
+                                <BookOpen className="w-4 h-4 text-blue-500" />
+                                <span className="text-xs font-semibold text-slate-800">
+                                  Context for {section.title}
+                                </span>
+                              </div>
+                              
+                              {/* Dual Mode Switcher */}
+                              <div className="flex items-center bg-white p-0.5 rounded-lg border border-slate-200 shadow-2xs self-start sm:self-auto">
+                                <button
+                                  type="button"
+                                  onClick={() => updateTaskSection(section.id, { stimulusType: "IMAGE" })}
+                                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-md transition-all ${
+                                    section.stimulusType === "IMAGE" 
+                                      ? "bg-blue-500 text-white shadow-2xs" 
+                                      : "text-slate-600 hover:text-slate-900"
+                                  }`}
+                                >
+                                  🖼️ Image / Poster Scan
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => updateTaskSection(section.id, { stimulusType: "RICH_TEXT" })}
+                                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-md transition-all ${
+                                    section.stimulusType === "RICH_TEXT" 
+                                      ? "bg-blue-500 text-white shadow-2xs" 
+                                      : "text-slate-600 hover:text-slate-900"
+                                  }`}
+                                >
+                                  📝 Formatted Text & Tables
+                                </button>
+                              </div>
                             </div>
+
+                            {/* Image Mode */}
+                            {section.stimulusType === "IMAGE" ? (
+                              <div className="space-y-3">
+                                {section.imageUrl ? (
+                                  <div className="relative rounded-xl border border-slate-200 bg-white p-3 flex flex-col items-center gap-3">
+                                    <img 
+                                      src={section.imageUrl} 
+                                      alt="Stimulus Graphic Preview" 
+                                      className="max-h-72 object-contain rounded-lg border border-slate-100 shadow-2xs"
+                                    />
+                                    <div className="flex items-center gap-2">
+                                      <Button 
+                                        type="button" 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="text-xs text-red-600 border-red-200 hover:bg-red-50 h-7"
+                                        onClick={() => updateTaskSection(section.id, { imageUrl: "" })}
+                                      >
+                                        <Trash2 className="w-3 h-3 mr-1" /> Remove Image
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div 
+                                    tabIndex={0}
+                                    onFocus={() => setActiveSectionId(section.id)}
+                                    onClick={() => setActiveSectionId(section.id)}
+                                    onPaste={(e) => {
+                                      setActiveSectionId(section.id);
+                                      handlePasteImage(section.id, e);
+                                    }}
+                                    onDrop={(e) => {
+                                      setActiveSectionId(section.id);
+                                      handleDropImage(section.id, e);
+                                    }}
+                                    onDragOver={(e) => e.preventDefault()}
+                                    className="border-2 border-dashed border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none rounded-xl p-6 bg-white flex flex-col items-center justify-center text-center gap-3 transition-all cursor-default group"
+                                  >
+                                    <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform">
+                                      🖼️
+                                    </div>
+                                    <div className="space-y-1">
+                                      <p className="text-xs font-semibold text-slate-800">
+                                        Attach authentic exam poster, notice scan, receipt, or tickets
+                                      </p>
+                                      <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 flex-wrap">
+                                        <span>Click box and paste directly with</span>
+                                        <kbd className="px-1.5 py-0.5 text-[10px] font-semibold bg-slate-100 border border-slate-300 rounded text-slate-700 shadow-2xs">
+                                          Ctrl + V / ⌘ + V
+                                        </kbd>
+                                        <span>or drag & drop</span>
+                                      </div>
+                                    </div>
+
+                                    <div className="pt-1">
+                                      <label className="inline-flex items-center justify-center rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 cursor-pointer h-8 px-4 transition-colors shadow-2xs">
+                                        📁 Choose Image File
+                                        <input 
+                                          type="file" 
+                                          accept="image/*" 
+                                          className="hidden" 
+                                          onChange={(e) => handleFileUpload(section.id, e)}
+                                        />
+                                      </label>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              /* Rich Document Mode */
+                              <div className="space-y-1.5">
+                                <RichTextEditor 
+                                  value={section.content || ""}
+                                  onChange={(val) => updateTaskSection(section.id, { content: val })}
+                                  placeholder="Create your formatted exam text, notice, letter, or table..."
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Questions belonging to this Task Section */}
+                        <div className="space-y-4 pt-1">
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <h4 className="text-xs font-semibold text-slate-700 flex items-center gap-2">
+                              Questions for {section.title} ({sectionQuestions.filter(q => q.type !== "INSTRUCTION").length})
+                            </h4>
+                            <span className="text-[11px] text-slate-400">Drag to reorder within this task</span>
+                          </div>
+
+                          {sectionQuestions.length === 0 ? (
+                            <div className="py-8 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                              <p className="text-xs font-medium text-slate-600 mb-1">
+                                No questions or instructions added to {section.title} yet.
+                              </p>
+                              <p className="text-[11px] text-slate-400 max-w-xs mx-auto mb-3">
+                                Use the buttons below to add questions or section instructions to this task.
+                              </p>
+                            </div>
+                          ) : (
+                            <Droppable droppableId={`droppable-${section.id}`}>
+                              {(provided) => (
+                                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                                  {(() => {
+                                    let qNum = 0;
+                                    return questions.map((q, index) => {
+                                      if ((q.sectionId || taskSections[0]?.id) !== section.id) return null;
+                                      const currentQNum = q.type === "INSTRUCTION" ? null : ++qNum;
+                                      return (
+                                        <Draggable key={q.id} draggableId={q.id} index={index}>
+                                          {(dragProvided) => (
+                                            <div ref={dragProvided.innerRef} {...dragProvided.draggableProps}>
+                                              <QuestionCard 
+                                                q={q} 
+                                                index={index} 
+                                                questionNumber={currentQNum}
+                                                dragHandleProps={dragProvided.dragHandleProps} 
+                                                updateQuestion={updateQuestion} 
+                                                removeQuestion={removeQuestion}
+                                                criteriaList={criteriaList}
+                                                isInvalid={Boolean(invalidFieldKeys[`q_${q.id}`])}
+                                                errorMsg={invalidFieldKeys[`q_${q.id}_msg`]}
+                                              />
+                                            </div>
+                                          )}
+                                        </Draggable>
+                                      );
+                                    });
+                                  })()}
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
                           )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
+
+                          {/* Quick Add Question Bar for this specific Task Section */}
+                          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/70 flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                              <PlusCircle className="w-3.5 h-3.5 text-blue-500" />
+                              Add to {section.title}:
+                            </span>
+
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-blue-200 hover:border-blue-300 hover:bg-blue-50/40 text-blue-700 font-semibold" onClick={() => addQuestion("INSTRUCTION", section.id)}>
+                                + Instruction Line
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("MCQ", section.id)}>
+                                + Multiple Choice
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("TRUE_FALSE", section.id)}>
+                                + True / False
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("GAP_FILL", section.id)}>
+                                + Fill Blanks
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("WORD_BOX_MATCH", section.id)}>
+                                + Word Box
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("MATCHING", section.id)}>
+                                + Matching
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("QUESTION_ANSWER", section.id)}>
+                                + Short Fact
+                              </Button>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("ORDERING", section.id)}>
+                                + Ordering
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </Droppable>
+                  );
+                })}
               </DragDropContext>
-            )}
-          </div>
+
+              {taskSections.length === 0 && (
+                <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 p-6 flex flex-col items-center justify-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-base">
+                    📋
+                  </div>
+                  <h4 className="text-slate-800 font-semibold text-sm">No Task Sections Created</h4>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Click below to create a task section and attach reading stimulus materials and questions.
+                  </p>
+                  <Button type="button" onClick={addTaskSection} className="bg-blue-500 hover:bg-blue-600 text-white text-xs mt-1">
+                    <PlusCircle className="w-4 h-4 mr-1.5" /> Add Task 1 Section
+                  </Button>
+                </div>
+              )}
+
+              {taskSections.length > 0 && (
+                <button
+                  type="button"
+                  onClick={addTaskSection}
+                  className="w-full py-3.5 border-2 border-dashed border-slate-200 hover:border-blue-300 rounded-xl bg-slate-50 hover:bg-blue-50/30 transition-all flex items-center justify-center gap-2 text-slate-700 hover:text-blue-600 font-semibold text-xs group cursor-pointer"
+                >
+                  <PlusCircle className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" />
+                  Add Another Task Section (Task {taskSections.length + 1})
+                </button>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Right Sticky Sidebar: 1. Assessment Summary FIRST, 2. Question Palette SECOND */}
+        {/* Right Sticky Sidebar: Overview & Global Question Palette */}
         <div className="col-span-12 lg:col-span-3 sticky top-6 flex flex-col gap-5">
           {/* 1. Quick Overview Summary Card (FIRST) */}
-          <Card className="border-indigo-100/60 shadow-sm rounded-xl bg-gradient-to-b from-indigo-50/50 to-white overflow-hidden">
+          <Card className="border-slate-200 shadow-none rounded-xl bg-white overflow-hidden">
             <div className="p-4 space-y-4">
-              <div className="text-xs font-bold text-indigo-900 uppercase flex items-start justify-between border-b border-indigo-100/50 pb-3 gap-2">
+              <div className="text-xs font-bold text-slate-800 uppercase flex items-start justify-between border-b border-slate-100 pb-3 gap-2">
                 <span className="flex items-center gap-1.5 leading-snug">
-                  <Award className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <Award className="w-4 h-4 text-blue-600 shrink-0" />
                   Assessment Summary
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-semibold shrink-0">
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold shrink-0">
                   {questions.length} Items
                 </span>
               </div>
               <div className="space-y-2.5 text-xs text-slate-600">
-                <div className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100">
+                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                   <span className="font-medium">Awarding Board:</span>
                   <span className="font-semibold text-slate-900">{awardingBody}</span>
                 </div>
-                <div className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100">
+                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                   <span className="font-medium">Regulated Level:</span>
                   <span className="font-semibold text-slate-900">{entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}</span>
                 </div>
-                <div className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100">
+                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
+                  <span className="font-medium">Task Sections:</span>
+                  <span className="font-semibold text-slate-900">{taskSections.length} {taskSections.length === 1 ? 'Task' : 'Tasks'}</span>
+                </div>
+                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                   <span className="font-medium">Skill Focus:</span>
                   <span className="font-semibold text-slate-900 truncate max-w-[120px] text-right" title={taskType === "GRAMMAR" && customSkillName.trim() ? customSkillName : taskType === "GRAMMAR" ? "Custom Practice" : taskType}>
                     {taskType === "GRAMMAR" && customSkillName.trim()
@@ -934,36 +1628,53 @@ export default function ActivityBuilder() {
                       : taskType}
                   </span>
                 </div>
-                <div className="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-100">
+                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                   <span className="font-medium">Pass Threshold:</span>
-                  <span className="font-semibold text-emerald-600">
+                  <span className="font-semibold text-blue-700">
                     {passingScore === "" || passingScore === "0" ? 'N/A (No pass mark)' : `${passingScore}%`}
                   </span>
                 </div>
-                <div className="flex justify-between items-center bg-indigo-600 p-2.5 rounded-lg text-white mt-1">
-                  <span className="font-semibold text-indigo-100">Total Marks:</span>
+                <div className="flex justify-between items-center bg-blue-500 p-2.5 rounded-lg text-white mt-1">
+                  <span className="font-semibold text-blue-100">Total Marks:</span>
                   <span className="font-bold text-lg leading-none">{totalCalculatedMarks}</span>
                 </div>
               </div>
             </div>
           </Card>
 
-          {/* 2. Question Palette (SECOND) */}
-          <Card className="border-slate-100 shadow-none rounded-xl bg-white overflow-hidden">
+          {/* 2. Global Question Palette */}
+          <Card className="border-slate-200 shadow-none rounded-xl bg-white overflow-hidden">
             <CardHeader className="py-3 px-4 bg-slate-50/70 border-b border-slate-100">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                Question Palette
+                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                Quick Question Palette
               </CardTitle>
             </CardHeader>
             <CardContent className="p-3 flex flex-col gap-2">
               <button
                 type="button"
-                onClick={() => addQuestion("MCQ")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 text-left transition-all group"
+                onClick={() => addQuestion("INSTRUCTION")}
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-blue-100 bg-blue-50/20 hover:border-blue-300 hover:bg-blue-50/50 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    📄
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-blue-900">Instruction Line</div>
+                    <div className="text-[10px] text-slate-500">e.g. Questions 1–8</div>
+                  </div>
+                </div>
+                <PlusCircle className="w-4 h-4 text-blue-400 group-hover:text-blue-600" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => addQuestion("MCQ")}
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     M
                   </div>
                   <div>
@@ -971,16 +1682,16 @@ export default function ActivityBuilder() {
                     <div className="text-[10px] text-slate-400">Single or multi-select</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-indigo-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("TRUE_FALSE")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-cyan-50 text-cyan-600 flex items-center justify-center font-bold text-xs group-hover:bg-cyan-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     TF
                   </div>
                   <div>
@@ -988,16 +1699,16 @@ export default function ActivityBuilder() {
                     <div className="text-[10px] text-slate-400">Statement verification</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-indigo-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("GAP_FILL")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     G
                   </div>
                   <div>
@@ -1005,16 +1716,16 @@ export default function ActivityBuilder() {
                     <div className="text-[10px] text-slate-400">Grammar & verb drills</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-indigo-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("WORD_BOX_MATCH")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xs group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     W
                   </div>
                   <div>
@@ -1022,16 +1733,16 @@ export default function ActivityBuilder() {
                     <div className="text-[10px] text-slate-400">Word bank selection</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-indigo-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("MATCHING")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     M
                   </div>
                   <div>
@@ -1039,16 +1750,16 @@ export default function ActivityBuilder() {
                     <div className="text-[10px] text-slate-400">Headings & text types</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-indigo-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("QUESTION_ANSWER")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-pink-50 text-pink-600 flex items-center justify-center font-bold text-xs group-hover:bg-pink-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     Q
                   </div>
                   <div>
@@ -1056,16 +1767,16 @@ export default function ActivityBuilder() {
                     <div className="text-[10px] text-slate-400">Dates, prices, postcodes</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-indigo-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("ORDERING")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/40 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     O
                   </div>
                   <div>
@@ -1073,35 +1784,52 @@ export default function ActivityBuilder() {
                     <div className="text-[10px] text-slate-400">Chronological sequencing</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-indigo-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
               </button>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Assessment Live Preview Dialog */}
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-50 p-6 md:p-10">
-          <DialogHeader className="pb-4">
-            <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Eye className="w-5 h-5 text-indigo-600" /> Student Examination Preview
-            </DialogTitle>
-            <DialogDescription className="text-xs text-slate-500">
-              Preview the interactive test experience as a student taking this assessment.
-            </DialogDescription>
-          </DialogHeader>
+      {/* Fullscreen Assessment Live Preview Mode */}
+      {isPreviewOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-50 flex flex-col overflow-y-auto animate-in fade-in duration-200">
+          {/* Top Sticky Bar with Title and Exit Preview Button */}
+          <div className="sticky top-0 z-40 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-2xs">
+            <div className="flex items-center gap-3">
+              <span className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+                <Eye className="w-4 h-4" />
+              </span>
+              <div>
+                <h2 className="text-sm font-bold text-slate-900 leading-tight">Student Examination Preview</h2>
+                <p className="text-[11px] text-slate-500">Live interactive split-screen simulation</p>
+              </div>
+            </div>
 
-          <LocalTaskPreview 
-            title={title} 
-            taskType={taskType} 
-            questions={questions}
-            readingPassage={readingPassage}
-            awardingBody={awardingBody}
-            entryLevel={entryLevel}
-          />
-        </DialogContent>
-      </Dialog>
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={() => setIsPreviewOpen(false)} 
+              className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200 font-semibold text-xs px-3.5 h-8.5 rounded-lg flex items-center gap-1.5 shadow-2xs cursor-pointer"
+            >
+              <X className="w-4 h-4 text-slate-500" />
+              Exit Preview
+            </Button>
+          </div>
+
+          {/* Full Screen Content Body */}
+          <div className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-8">
+            <LocalTaskPreview 
+              title={title} 
+              taskType={taskType} 
+              questions={questions}
+              taskSections={taskSections}
+              awardingBody={awardingBody}
+              entryLevel={entryLevel}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

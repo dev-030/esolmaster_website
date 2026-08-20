@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Task, TaskType } from "@/types/task";
@@ -13,6 +14,8 @@ import {
   Headphones,
   Mic,
   Award,
+  Loader2,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import { useApproveTaskMutation, useDeleteTaskMutation } from "@/api/task";
@@ -82,6 +85,8 @@ export const TaskCard = ({ task }: { task: Task }) => {
   const { mutate: approveTask, isPending } = useApproveTaskMutation();
   const { mutate: deleteTask, isPending: isDeleting } = useDeleteTaskMutation();
 
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+
   const awardingBody = task.readingContent?.awardingBody;
   const entryLevel = task.readingContent?.entryType?.[0] || task.grammarContent?.entryType?.[0];
 
@@ -99,9 +104,12 @@ export const TaskCard = ({ task }: { task: Task }) => {
     deleteTask(task.id, {
       onSuccess: () => {
         toast.success("Task deleted successfully!");
+        setIsAlertOpen(false);
       },
-      onError: () => {
-        toast.error("Failed to delete task.");
+      onError: (err: any) => {
+        const msg = err?.response?.data?.message || "Failed to delete task.";
+        toast.error(typeof msg === "string" ? msg : "Failed to delete task.");
+        setIsAlertOpen(false);
       }
     });
   };
@@ -111,107 +119,147 @@ export const TaskCard = ({ task }: { task: Task }) => {
   return (
     <div 
       onClick={() => router.push(href)}
-      className="flex items-center gap-4 rounded-xl border bg-card px-5 py-4 hover:shadow-sm transition-all duration-200 group cursor-pointer bg-white"
+      className="relative group flex flex-col justify-between p-4.5 bg-white border border-slate-200 rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-200 transition-all duration-300 cursor-pointer h-full overflow-hidden gap-2.5 min-h-[120px]"
     >
-      {/* Left content */}
-      <div className="flex-1 min-w-0 space-y-1.5">
-        {/* Row 1 — badges (Skill + Awarding Body + Level) */}
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50/50 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+      {/* Top row: Badges + Delete action */}
+      <div className="flex items-start justify-between gap-2 relative z-10">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-semibold",
+              "inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold",
               cfg.badge,
             )}
           >
-            <TypeIcon className="w-3 h-3" />
+            <TypeIcon className="w-2.5 h-2.5" />
             {cfg.label}
           </span>
 
           {awardingBody && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-bold">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-900 text-white text-[9px] font-bold">
               <Award className="w-2.5 h-2.5" />
               {awardingBody}
             </span>
           )}
 
           {entryLevel && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 text-[9px] font-semibold">
               {entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}
             </span>
           )}
         </div>
 
-        {/* Row 2 — task title */}
-        <p className="text-sm font-semibold text-foreground leading-snug truncate">
-          {task.title}
-        </p>
-
-        {/* Row 3 — class names */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <School className="w-3 h-3 text-muted-foreground shrink-0" />
-          {classes.length > 0 ? (
-            classes.map((cls, i) => (
-              <span key={cls.id} className="text-[11px] text-muted-foreground">
-                {cls.name}
-                {i < classes.length - 1 && (
-                  <span className="mx-1 text-border">·</span>
-                )}
-              </span>
-            ))
-          ) : (
-            <span className="text-[11px] text-muted-foreground/60 italic">
-              No classes assigned
-            </span>
+        <div className="flex items-center gap-1 shrink-0 -mt-1 -mr-1">
+          {role !== "admin" && (
+            <Badge variant={task.status === "APPROVED" ? "success" : "warning"} className="capitalize text-[10px] px-1.5 py-0">
+              {task.status.replace(/_/g, " ").toLowerCase()}
+            </Badge>
           )}
+
+          {task.status === "PENDING_APPROVAL" && role === "admin" && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-6 text-[10px] px-2"
+              onClick={handleApprove}
+              disabled={isPending || task.status !== "PENDING_APPROVAL"}
+            >
+              {task.status === "PENDING_APPROVAL" ? "Approve" : "Approved"}
+            </Button>
+          )}
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(
+                task.folderId
+                  ? `/assign-task/preview/${task.id}?folderId=${task.folderId}`
+                  : `/assign-task/preview/${task.id}`,
+              );
+            }}
+            title="Preview Activity"
+            className="h-7 w-7 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
+          >
+            <Eye className="w-3.5 h-3.5" />
+          </Button>
+
+          <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+            <AlertDialogTrigger
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsAlertOpen(true);
+              }}
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={isDeleting}
+                  className="h-7 w-7 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-full cursor-pointer transition-colors"
+                />
+              }
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </AlertDialogTrigger>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the task
+                  and remove it from all assigned classes.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel 
+                  disabled={isDeleting} 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsAlertOpen(false);
+                  }}
+                  className="cursor-pointer"
+                >
+                  Cancel
+                </AlertDialogCancel>
+                <Button 
+                  type="button" 
+                  disabled={isDeleting} 
+                  onClick={handleDelete} 
+                  className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      Deleting...
+                    </>
+                  ) : (
+                    "Delete"
+                  )}
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
-      {/* Right — CTA button */}
-      <div className="flex items-center gap-2">
-        { role!== 'admin' &&
-          <Badge variant={task.status === "APPROVED" ? "success" : "warning"} className="capitalize">
-            {task.status.replace(/_/g, " ").toLowerCase()}
-          </Badge>
-        }
-        {task.status === "PENDING_APPROVAL" && role === "admin" && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleApprove}
-            disabled={isPending || task.status !== "PENDING_APPROVAL"}
-          >
-            {task.status === "PENDING_APPROVAL" ? "Approve" : "Approved"}
-          </Button>
+      {/* Middle row: Activity Title */}
+      <div className="relative z-10 my-0.5">
+        <h4 className="text-[13px] font-bold text-slate-800 group-hover:text-blue-600 transition-colors leading-snug line-clamp-2" title={task.title}>
+          {task.title}
+        </h4>
+      </div>
+
+      {/* Bottom row: Classes info */}
+      <div className="flex items-center gap-1.5 text-[11px] text-slate-400 relative z-10 pt-1.5 border-t border-slate-100">
+        <School className="w-3 h-3 shrink-0 text-slate-400" />
+        {classes.length > 0 ? (
+          <span className="text-slate-600 font-medium truncate text-[11px]">
+            {classes.map(c => c.name).join(", ")}
+          </span>
+        ) : (
+          <span className="italic text-slate-400 text-[11px]">No classes assigned</span>
         )}
-        
-        <AlertDialog>
-          <AlertDialogTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => e.stopPropagation()}
-                disabled={isDeleting}
-                className="text-red-500 hover:text-red-600 hover:bg-red-50/50"
-              />
-            }
-          >
-            <Trash2 className="w-4 h-4" />
-          </AlertDialogTrigger>
-          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the task
-                and remove it from all assigned classes.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
     </div>
   );

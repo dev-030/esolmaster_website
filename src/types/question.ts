@@ -1,9 +1,12 @@
 export type QuestionType =
   | "MCQ"
+  | "TRUE_FALSE"
   | "GAP_FILL"
   | "WORD_BOX_MATCH"
   | "MATCHING"
-  | "QUESTION_ANSWER";
+  | "QUESTION_ANSWER"
+  | "ORDERING"
+  | "INSTRUCTION";
 
 export interface BaseQuestion<TConfig> {
   id: string;

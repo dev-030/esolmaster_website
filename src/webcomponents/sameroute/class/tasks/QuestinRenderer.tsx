@@ -12,6 +12,20 @@ import {
 import { BaseQuestion } from "@/types/attempt";
 
 
+const InstructionQuestion = ({ question }: { question: any }) => {
+  const heading = question.config?.heading || question.content || "Instruction";
+  const instruction = question.config?.instruction || question.explanation || "";
+
+  return (
+    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-800">
+      <h3 className="text-base font-bold text-slate-900 leading-snug">{heading}</h3>
+      {instruction && (
+        <p className="text-sm font-medium text-slate-600 leading-relaxed">{instruction}</p>
+      )}
+    </div>
+  );
+};
+
 // Registry — add new types here only
 const QUESTION_COMPONENTS = {
   mcq: MCQQuestion,
@@ -21,6 +35,7 @@ const QUESTION_COMPONENTS = {
   matching: MatchingQuestion,
   word_box_match: WordBoxMatchQuestion,
   ordering: OrderingQuestion,
+  instruction: InstructionQuestion,
 } as const;
 
 interface QuestionRendererProps {

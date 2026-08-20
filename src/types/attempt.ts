@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type QuestionType =
   | "MCQ"
+  | "TRUE_FALSE"
   | "GAP_FILL"
   | "WORD_BOX_MATCH"
   | "MATCHING"
   | "QUESTION_ANSWER"
   | "TEXT_INPUT"
-  | "FLASHCARD";
+  | "FLASHCARD"
+  | "ORDERING"
+  | "INSTRUCTION";
 
 export interface BaseQuestion<TConfig = any> {
   id: string;

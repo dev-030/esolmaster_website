@@ -46,6 +46,8 @@ const DEFAULT: GapFillData = {
 
 // ── Preview: renders the sentence with the gap filled by the selected answer ──
 
+const GAP_REGEX = /(?:_{2,}|\.{3,}|…|\[blank\])/i;
+
 function SentencePreview({
   question,
   options,
@@ -55,22 +57,24 @@ function SentencePreview({
   options: string[];
   correctIndex: number;
 }) {
-  const parts = question.split("___");
+  const raw = (question || "").replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim();
+  const hasGap = GAP_REGEX.test(raw);
+  const parts = hasGap ? raw.split(GAP_REGEX) : [raw, ""];
   const answer = correctIndex >= 0 ? options[correctIndex] : null;
   return (
-    <div className="rounded-lg bg-muted/40 border px-4 py-3 text-sm leading-relaxed">
-      {parts[0]}
+    <div className="rounded-lg bg-muted/40 border px-4 py-3 text-sm leading-relaxed flex flex-wrap items-baseline gap-y-1">
+      <span>{parts[0]}</span>
       <span
         className={cn(
-          "inline-block mx-1 px-2 py-0.5 rounded border-b-2 font-semibold text-sm transition-all min-w-15 text-center",
+          "inline-block mx-1.5 px-2.5 py-0.5 rounded-t border-b-2 font-semibold text-sm transition-all min-w-[80px] text-center",
           answer
-            ? "border-emerald-500 bg-emerald-50 text-emerald-800"
-            : "border-dashed border-muted-foreground text-muted-foreground/60",
+            ? "border-emerald-600 bg-emerald-50 text-emerald-800"
+            : "border-slate-800 text-transparent select-none",
         )}
       >
         {answer || "___"}
       </span>
-      {parts[1] ?? ""}
+      {parts[1] ? <span>{parts[1]}</span> : null}
     </div>
   );
 }

@@ -73,7 +73,6 @@ export const useGetTasks = (params?: TaskQuery) => {
   return useQuery({
     queryKey: ["tasks", params],
     queryFn: () => getTasks(params),
-    placeholderData: keepPreviousData,
   });
 };
 
@@ -142,7 +141,35 @@ export const useDeleteTaskMutation = () => {
     mutationFn: async (taskId: string) => {
       return deleteTask(taskId);
     },
-    onSuccess: () => {
+    onMutate: async (taskId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const previousTasksQueries = queryClient.getQueriesData({ queryKey: ["tasks"] });
+
+      queryClient.setQueriesData({ queryKey: ["tasks"] }, (old: any) => {
+        if (!old) return old;
+        if (Array.isArray(old)) {
+          return old.filter((t: any) => t.id !== taskId);
+        }
+        if (old.data && Array.isArray(old.data)) {
+          return {
+            ...old,
+            data: old.data.filter((t: any) => t.id !== taskId),
+            meta: old.meta ? { ...old.meta, total: Math.max(0, (old.meta.total || 1) - 1) } : old.meta,
+          };
+        }
+        return old;
+      });
+
+      return { previousTasksQueries };
+    },
+    onError: (err, taskId, context: any) => {
+      if (context?.previousTasksQueries) {
+        context.previousTasksQueries.forEach(([queryKey, data]: any) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });

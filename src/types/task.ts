@@ -74,6 +74,7 @@ export interface Task {
   status: "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | string;
   isPublic: boolean;
   isPremium?: boolean;
+  folderId?: string;
   createdById: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string;

@@ -7,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { QuestionComponentProps, WordBoxMatchConfig } from "@/types/attempt";
 
 type StudentSentence = {
@@ -50,17 +49,6 @@ export const WordBoxMatchQuestion = ({
   const sentences = normalizeSentences(question.config.sentences);
   const selectedAnswers: string[] = Array.isArray(userAnswer) ? userAnswer : [];
 
-  const getAvailableWords = (sentenceIndex: number) => {
-    const selectedByOthers = selectedAnswers.filter(
-      (_, index) => index !== sentenceIndex,
-    );
-
-    return words.filter((word) => {
-      const current = selectedAnswers[sentenceIndex];
-      return word === current || !selectedByOthers.includes(word);
-    });
-  };
-
   const updateAnswer = (sentenceIndex: number, word: string) => {
     if (submitted) return;
 
@@ -73,50 +61,100 @@ export const WordBoxMatchQuestion = ({
   };
 
   return (
-    <div className="space-y-5">
-      <div className="space-y-2">
+    <div className="space-y-6">
+      {/* Question Prompt */}
+      {question.config.question && (
         <div 
-          className="text-base font-medium leading-relaxed text-foreground prose prose-slate max-w-none prose-p:my-0 break-words"
-          dangerouslySetInnerHTML={{ __html: (question.config.question || "Choose the best word for each sentence.").replace(/&nbsp;/g, ' ') }}
+          className="text-base font-semibold leading-relaxed text-slate-900 prose prose-slate max-w-none prose-p:my-0 break-words"
+          dangerouslySetInnerHTML={{ __html: (question.config.question).replace(/&nbsp;/g, ' ') }}
         />
+      )}
 
-        <div className="flex flex-wrap gap-2">
-          {words.map((word) => (
-            <Badge key={word} variant="outline" className="px-3 py-1">
-              {word}
-            </Badge>
-          ))}
+      {/* Official Exam Word Box Frame */}
+      {words.length > 0 && (
+        <div className="border border-blue-200 bg-blue-50/25 rounded-xl p-4 shadow-2xs">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-blue-700 mb-3 pb-1.5 border-b border-blue-100 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              📦 <span className="text-slate-800">Word Box Options</span>
+            </span>
+            <span className="text-[10px] text-slate-500 font-normal">Match items using options below</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {words.map((word, wIdx) => {
+              const letter = String.fromCharCode(65 + wIdx);
+              return (
+                <div 
+                  key={`${word}-${wIdx}`} 
+                  className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-slate-200/80 shadow-2xs"
+                >
+                  <span className="w-6 h-6 rounded bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                    {letter}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-700 select-none">{word}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="space-y-3">
+      {/* Matching Items (Exam Rows with Dotted Leaders) */}
+      <div className="space-y-3 pt-1">
         {sentences.map((sentence, index) => {
           const value = selectedAnswers[index] ?? "";
-          const availableWords = getAvailableWords(index);
+          const selectedIdx = words.findIndex((w) => w === value);
+          const selectedLetter = selectedIdx >= 0 ? String.fromCharCode(65 + selectedIdx) : null;
 
           return (
-            <div key={sentence.key} className="border rounded-lg p-3 space-y-2">
-              <p className="text-sm text-foreground">{sentence.text}</p>
+            <div
+              key={sentence.key}
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-white border border-slate-200/80 rounded-xl hover:border-slate-300 transition-all shadow-2xs"
+            >
+              {/* Item Label & Dotted Leader */}
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                  {sentence.text}
+                </span>
+                <div className="hidden sm:block flex-1 border-b-2 border-dotted border-slate-300 mx-2" />
+              </div>
 
-              <Select
-                value={value}
-                onValueChange={(selectedWord) => {
-                  if (!selectedWord) return;
-                  updateAnswer(index, selectedWord);
-                }}
-                disabled={submitted || availableWords.length === 0}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a word" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableWords.map((word) => (
-                    <SelectItem key={word} value={word}>
-                      {word}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {/* Selection Dropdown */}
+              <div className="w-full sm:w-64 shrink-0">
+                <Select
+                  value={value}
+                  onValueChange={(selectedWord) => {
+                    if (!selectedWord) return;
+                    updateAnswer(index, selectedWord);
+                  }}
+                  disabled={submitted || words.length === 0}
+                >
+                  <SelectTrigger className="w-full h-9.5 bg-slate-50 border-slate-200 text-xs font-medium focus:ring-blue-500/20 rounded-lg">
+                    <SelectValue placeholder="Select from Word Box...">
+                      {value && (
+                        <span className="flex items-center gap-1.5 truncate">
+                          {selectedLetter && (
+                            <span className="font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded text-[11px]">
+                              {selectedLetter}
+                            </span>
+                          )}
+                          <span className="truncate text-slate-900 font-semibold">{value}</span>
+                        </span>
+                      )}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {words.map((word, wIdx) => {
+                      const letter = String.fromCharCode(65 + wIdx);
+                      return (
+                        <SelectItem key={`${word}-${wIdx}`} value={word} className="text-xs">
+                          <span className="font-bold text-slate-800 mr-2">{letter}.</span> {word}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           );
         })}

@@ -52,7 +52,27 @@ export const useDeleteFolderMutation = (parentId?: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteFolder,
-    onSuccess: () => {
+    onMutate: async (folderId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["folders"] });
+      await queryClient.cancelQueries({ queryKey: ["folder"] });
+
+      queryClient.setQueriesData({ queryKey: ["folders"] }, (old: any) => {
+        if (!old || !Array.isArray(old)) return old;
+        return old.filter((f: any) => f.id !== folderId);
+      });
+
+      queryClient.setQueriesData({ queryKey: ["folder"] }, (old: any) => {
+        if (!old) return old;
+        if (old.children && Array.isArray(old.children)) {
+          return {
+            ...old,
+            children: old.children.filter((f: any) => f.id !== folderId),
+          };
+        }
+        return old;
+      });
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       queryClient.invalidateQueries({ queryKey: ["folder"] });
     },
