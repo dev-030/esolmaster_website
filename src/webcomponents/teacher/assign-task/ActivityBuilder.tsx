@@ -1,5 +1,8 @@
 "use client";
 
+import { axios } from "@/lib/axios";
+import dynamic from "next/dynamic";
+const PdfSnippingTool = dynamic(() => import("./PdfSnippingTool"), { ssr: false });
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -13,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Send, Trash2, GripVertical, Save, Eye, Award, CheckCircle2, AlertCircle, Sparkles, Folder, BookOpen, X, Loader2, ArrowLeft, ChevronRight, School } from "lucide-react";
+import { PlusCircle, Send, Trash2, GripVertical, Save, Eye, Award, CheckCircle2, AlertCircle, Sparkles, Folder, BookOpen, X, Loader2, ArrowLeft, ChevronRight, School, Scissors, FileText } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -273,18 +276,7 @@ export default function ActivityBuilder() {
   const [mustPassAllSkills, setMustPassAllSkills] = useState(true);
   
   // Multi-Task Sections state
-  const [taskSections, setTaskSections] = useState<TaskSection[]>([
-    {
-      id: "sec_1",
-      title: "Task 1",
-      instruction: "",
-      questionHeading: "",
-      questionInstruction: "",
-      stimulusType: "IMAGE",
-      imageUrl: "",
-      content: ""
-    }
-  ]);
+  const [taskSections, setTaskSections] = useState<TaskSection[]>([]);
   
   const [questions, setQuestions] = useState<QuestionConfig[]>([]);
   const [activeSectionId, setActiveSectionId] = useState<string>("");
@@ -293,6 +285,92 @@ export default function ActivityBuilder() {
   const [isLoadingTask, setIsLoadingTask] = useState(!!taskId);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSaving, setIsSaving] = useState<"DRAFT" | "PUBLISHED" | null>(null);
+
+  const [isImporting, setIsImporting] = useState(false);
+  const [pdfFileForSnipping, setPdfFileForSnipping] = useState<File | null>(null);
+  const [showSnippingOverlay, setShowSnippingOverlay] = useState(false);
+  const [snippedImages, setSnippedImages] = useState<string[]>([]);
+  const [importProgressText, setImportProgressText] = useState("Analyzing PDF...");
+  
+
+const playSuccessSound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+    osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1); // C6
+    
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  } catch (e) {
+    console.error("Audio playback failed", e);
+  }
+};
+
+  const handleImportPdf = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+      setPdfFileForSnipping(file);
+    }
+    
+    let messageInterval: NodeJS.Timeout | undefined;
+
+    try {
+      setIsImporting(true);
+      setImportProgressText("Uploading Document...");
+      
+      let messageIndex = 0;
+      const messages = [
+        "Analyzing document layout...",
+        "Reading exam text...",
+        "AI is processing...",
+        "Extracting questions...",
+        "Finalizing questions...",
+        "Almost done..."
+      ];
+      messageInterval = setInterval(() => {
+        setImportProgressText(messages[messageIndex]);
+        messageIndex = Math.min(messageIndex + 1, messages.length - 1);
+      }, 3000);
+      
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // send via custom axios instance to handle cookies correctly
+      const { data } = await axios.post('/tasks/import-pdf', formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      
+      // Update state
+      if (data.sections && data.sections.length > 0) {
+        setTaskSections(prev => [...prev.filter(s => s.title !== ""), ...data.sections.map((s: any) => ({ ...s, stimulusType: s.stimulusType || "IMAGE" }))]);
+      }
+      if (data.questions && data.questions.length > 0) {
+        setQuestions(prev => [...prev, ...data.questions]);
+      }
+      
+      toast.success("AI has successfully processed the PDF and extracted the questions!");
+      playSuccessSound();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to import PDF.");
+    } finally {
+      clearInterval(messageInterval);
+      setIsImporting(false);
+    }
+  };
+
 
   // Auto-set Matrix defaults when Board or Level change
   const currentMatrixConfig = UK_ESOL_MATRIX[awardingBody]?.[entryLevel];
@@ -1095,7 +1173,41 @@ export default function ActivityBuilder() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button 
+          
+          <div className="relative">
+            <input 
+              type="file" 
+              accept=".pdf,.doc,.docx,.rtf,.txt" 
+              onChange={handleImportPdf} 
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+              disabled={isImporting || !!pdfFileForSnipping}
+            />
+            <Button 
+              variant="outline" 
+              disabled={isImporting || !!pdfFileForSnipping}
+              className={`border-indigo-200 text-indigo-700 min-w-[140px] transition-all duration-300 ${
+                isImporting 
+                  ? "bg-indigo-50 animate-pulse border-indigo-300 shadow-inner cursor-not-allowed opacity-90" 
+                  : !!pdfFileForSnipping 
+                    ? "opacity-50 cursor-not-allowed bg-gray-50 border-gray-200 text-gray-500" 
+                    : "hover:bg-indigo-50 hover:shadow-sm cursor-pointer"
+              }`}
+            >
+              {isImporting ? (
+                <div className="flex items-center space-x-2 animate-in fade-in zoom-in duration-300">
+                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                  <span className="text-sm font-medium">{importProgressText}</span>
+                </div>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2 text-indigo-600" />
+                  Import Document
+                </>
+              )}
+            </Button>
+          </div>
+
+<Button 
             variant="outline" 
             className="border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" 
             disabled={Boolean(isSaving)}
@@ -1279,44 +1391,78 @@ export default function ActivityBuilder() {
             </CardContent>
           </Card>
 
-          {/* ========================================================================= */}
-          {/* MASTER ACTIVITY TASKS CONTAINER CARD (Single box containing all tasks)    */}
-          {/* ========================================================================= */}
-          <Card className="border-slate-200 overflow-hidden shadow-none rounded-xl bg-white">
-            <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 px-6 pt-5 flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-base font-semibold text-slate-800">
-                  Activity Tasks & Stimulus Materials
-                </CardTitle>
+          
+        {/* ========================================================================= */}
+        {/* PDF SNIPPING TOOL INTEGRATION                                             */}
+        {/* ========================================================================= */}
+        {pdfFileForSnipping && (
+          <div className="mb-6 w-full mx-auto flex items-center justify-between bg-indigo-50 border border-indigo-200 p-4 rounded-xl shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+                <FileText className="w-5 h-5" />
               </div>
-              <div className="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md border border-slate-200">
-                {taskSections.length} {taskSections.length === 1 ? 'Task' : 'Tasks'} in this Activity
+              <div>
+                <h4 className="text-sm font-semibold text-indigo-900">Original PDF Available</h4>
+                <p className="text-xs text-indigo-700">Open the snipping tool to capture images from the PDF for task contexts.</p>
               </div>
-            </CardHeader>
+            </div>
+            <Button onClick={() => setShowSnippingOverlay(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+              <Scissors className="w-4 h-4 mr-2" /> Open Snipping Tool
+            </Button>
+          </div>
+        )}
 
-            <CardContent className="p-6 space-y-6">
-              <DragDropContext onDragEnd={onDragEnd}>
-                {taskSections.map((section, secIdx) => {
-                  const sectionQuestions = questions.filter(q => (q.sectionId || taskSections[0]?.id) === section.id);
-                  const sectionMarks = sectionQuestions.reduce((sum, q) => sum + (q.marks ?? 1), 0);
+        {showSnippingOverlay && pdfFileForSnipping && (
+          <div className="fixed inset-0 z-[100] flex flex-col bg-slate-900/95 backdrop-blur-sm">
+            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-slate-900">
+              <h3 className="text-white font-semibold flex items-center gap-2">
+                <Scissors className="w-5 h-5 text-indigo-400" />
+                PDF Snipping Tool
+              </h3>
+              <Button variant="ghost" onClick={() => setShowSnippingOverlay(false)} className="text-slate-300 hover:text-white hover:bg-white/10">
+                <X className="w-5 h-5 mr-2" /> Close
+              </Button>
+            </div>
+            <div className="flex-1 overflow-hidden relative flex flex-col min-h-0">
+              <PdfSnippingTool 
+                file={pdfFileForSnipping} 
+                onSnip={(base64) => {
+                  setSnippedImages(prev => [...prev, base64]);
+                  toast.success("Image copied! Check the context gallery inside your tasks.");
+                }} 
+              />
+            </div>
+          </div>
+        )}
 
-                  return (
-                    <div key={section.id} className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-none">
-                      {/* Clean Light Task Header (No black bar) */}
-                      <div className="bg-slate-50/80 border-b border-slate-100 px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5 flex-1">
-                          <div className="w-6 h-6 rounded-md bg-blue-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                            {secIdx + 1}
-                          </div>
-                          <div className="flex-1 max-w-sm">
-                            <Input 
+        {/* ========================================================================= */}
+        {/* MASTER ACTIVITY TASKS CONTAINER CARD (Single box containing all tasks)    */}
+        {/* ========================================================================= */}
+        <Card className="border-slate-200 shadow-sm rounded-2xl bg-slate-50/50 overflow-hidden">
+          <CardContent className="p-4 sm:p-6 lg:p-8">
+        <div className="space-y-6">
+          <DragDropContext onDragEnd={onDragEnd}>
+          {taskSections.map((section, secIdx) => {
+            const sectionQuestions = questions.filter(q => (q.sectionId || taskSections[0]?.id) === section.id);
+            const sectionMarks = sectionQuestions.reduce((sum, q) => sum + (q.marks ?? 1), 0);
+
+            return (
+              <div key={section.id} className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-none">
+                
+                {/* Section Header (Grey Background) */}
+                <div className="bg-slate-50/80 border-b border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex-1 max-w-xl">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Folder className="w-4 h-4 text-slate-400" />
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Task {secIdx + 1}</span>
+                    </div>
+                    <Input
                               value={section.title}
                               onChange={(e) => updateTaskSection(section.id, { title: e.target.value })}
                               placeholder={`Task ${secIdx + 1} Title`}
                               className="bg-white border-slate-200 text-slate-800 font-semibold text-xs h-8 focus-visible:ring-blue-400 placeholder:text-slate-400"
                             />
-                          </div>
-                        </div>
+                  </div>
 
                         <div className="flex items-center gap-2.5 self-end sm:self-auto">
                           <span className="text-xs font-medium text-slate-600 bg-white px-2.5 py-1 rounded-md border border-slate-200">
@@ -1389,6 +1535,26 @@ export default function ActivityBuilder() {
                             {/* Image Mode */}
                             {section.stimulusType === "IMAGE" ? (
                               <div className="space-y-3">
+                                {/* Inline Snipped Images Gallery */}
+                                {snippedImages.length > 0 && !section.imageUrl && (
+                                  <div className="w-full bg-indigo-50/50 border border-indigo-100 rounded-xl p-3">
+                                    <p className="text-xs font-semibold text-indigo-700 mb-2 flex items-center">
+                                      <Sparkles className="w-3.5 h-3.5 mr-1" />
+                                      Select from Snipped Images
+                                    </p>
+                                    <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                                      {snippedImages.map((img, idx) => (
+                                        <div 
+                                          key={idx} 
+                                          onClick={() => updateTaskSection(section.id, { imageUrl: img })}
+                                          className="flex-shrink-0 w-24 h-24 border-2 border-transparent hover:border-indigo-400 rounded-lg overflow-hidden cursor-pointer shadow-sm bg-white transition-all hover:scale-105"
+                                        >
+                                          <img src={img} className="w-full h-full object-contain p-1" />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                                 {section.imageUrl ? (
                                   <div className="relative rounded-xl border border-slate-200 bg-white p-3 flex flex-col items-center gap-3">
                                     <img 
@@ -1587,6 +1753,7 @@ export default function ActivityBuilder() {
                   Add Another Task Section (Task {taskSections.length + 1})
                 </button>
               )}
+            </div>
             </CardContent>
           </Card>
         </div>
