@@ -366,6 +366,10 @@ const playSuccessSound = () => {
     } finally {
       clearInterval(messageInterval);
       setIsImporting(false);
+      // Reset input so the same file can be selected again
+      if (e.target) {
+        e.target.value = '';
+      }
     }
   };
 
