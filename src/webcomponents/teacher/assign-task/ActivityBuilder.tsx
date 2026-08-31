@@ -323,18 +323,17 @@ const playSuccessSound = () => {
     if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
       setPdfFileForSnipping(file);
     }
-    
+
     let messageInterval: NodeJS.Timeout | undefined;
 
     try {
       setIsImporting(true);
-      setImportProgressText("Uploading Document...");
-      
+      setImportProgressText("Uploading document...");
+
       let messageIndex = 0;
       const messages = [
+        "AI is processing your document...",
         "Analyzing document layout...",
-        "Reading exam text...",
-        "AI is processing...",
         "Extracting questions...",
         "Finalizing questions...",
         "Almost done..."
@@ -342,29 +341,28 @@ const playSuccessSound = () => {
       messageInterval = setInterval(() => {
         setImportProgressText(messages[messageIndex]);
         messageIndex = Math.min(messageIndex + 1, messages.length - 1);
-      }, 3000);
-      
+      }, 4000);
+
       const formData = new FormData();
       formData.append("file", file);
 
-      // send via custom axios instance to handle cookies correctly
       const { data } = await axios.post('/tasks/import-pdf', formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 300000 // 5 min max — handles all 3 AI tiers completing
       });
-      
-      // Update state
-      if (data.sections && data.sections.length > 0) {
+
+      if (data.sections?.length > 0) {
         setTaskSections(prev => [...prev.filter(s => s.title !== ""), ...data.sections.map((s: any) => ({ ...s, stimulusType: s.stimulusType || "IMAGE" }))]);
       }
-      if (data.questions && data.questions.length > 0) {
+      if (data.questions?.length > 0) {
         setQuestions(prev => [...prev, ...data.questions]);
       }
-      
-      toast.success("AI has successfully processed the PDF and extracted the questions!");
+
+      toast.success("AI has successfully extracted the questions!");
       playSuccessSound();
     } catch (e) {
       console.error(e);
-      toast.error("Failed to import PDF.");
+      toast.error("Failed to import document. Please try again.");
     } finally {
       clearInterval(messageInterval);
       setIsImporting(false);
