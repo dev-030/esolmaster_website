@@ -115,5 +115,13 @@ export async function cropPdfContext(
   );
 
   // 4. Return clean Base64 data URL
-  return cropCanvas.toDataURL('image/png');
+  const dataUrl = cropCanvas.toDataURL('image/png');
+
+  // 5. Memory Cleanup
+  fullCanvas.width = 0;
+  fullCanvas.height = 0;
+  cropCanvas.width = 0;
+  cropCanvas.height = 0;
+
+  return dataUrl;
 }

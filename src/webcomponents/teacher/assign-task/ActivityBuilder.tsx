@@ -97,6 +97,13 @@ interface QuestionConfig {
 
 const LOCAL_STORAGE_KEY = "esolmaster_activity_builder_draft";
 
+const getAnswerText = (q: any) => {
+  if (q.type === 'MCQ' && q.config?.options && q.config.correctIndex !== undefined) {
+    return q.config.options[q.config.correctIndex];
+  }
+  return q.config?.answer || '';
+};
+
 const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, updateQuestion, removeQuestion, criteriaList, isInvalid, errorMsg }: any) => {
   const isExpanded = q.isExpanded !== false;
   const currentCriterion = criteriaList?.find((c: any) => c.id === q.criterionId);
@@ -236,6 +243,14 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
                 </div>
               )}
               
+              {(!q.config?.options && (q.type === "GAP_FILL" || q.type === "QUESTION_ANSWER")) && (
+                <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
+                  <div className="text-sm px-3 py-2 rounded-md border bg-emerald-50/50 border-emerald-200 flex flex-col gap-1">
+                    <div className="text-emerald-700 font-medium">Answer: {getAnswerText(q) || <span className="italic text-slate-400">Not provided</span>}</div>
+                  </div>
+                </div>
+              )}
+
               {q.type === "WORD_BOX_MATCH" && q.config?.sentences && (
                 <div className="flex flex-col gap-2 pl-2 w-full min-w-0">
                   {q.config.sentences.map((s: any, idx: number) => (
