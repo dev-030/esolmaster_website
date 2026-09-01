@@ -83,11 +83,14 @@ export async function cropPdfContext(
     height = region.bottom - top;
   }
 
-  // Clamp normalized coordinates
-  left = Math.max(0, Math.min(left, 1));
-  top = Math.max(0, Math.min(top, 1));
-  width = Math.max(0.01, Math.min(width, 1 - left));
-  height = Math.max(0.01, Math.min(height, 1 - top));
+  // Add gentle 1% breathing room so outer decorative border lines are never clipped
+  const padX = width * 0.01;
+  const padY = height * 0.01;
+
+  left = Math.max(0, Math.min(left - padX, 1));
+  top = Math.max(0, Math.min(top - padY, 1));
+  width = Math.max(0.01, Math.min(width + padX * 2, 1 - left));
+  height = Math.max(0.01, Math.min(height + padY * 2, 1 - top));
 
   // Pixel coordinates on the rendered canvas
   const pixelX = Math.round(left * fullCanvas.width);

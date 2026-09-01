@@ -371,6 +371,12 @@ const playSuccessSound = () => {
             };
           })
         );
+        const generatedImages = processedSections
+          .map((s: any) => s.imageUrl)
+          .filter(Boolean);
+        if (generatedImages.length > 0) {
+          setSnippedImages(prev => Array.from(new Set([...prev, ...generatedImages])));
+        }
         setTaskSections(prev => [...prev.filter(s => s.title !== ""), ...processedSections]);
       }
       if (data.questions?.length > 0) {
@@ -1589,7 +1595,13 @@ const playSuccessSound = () => {
                                         variant="outline" 
                                         size="sm" 
                                         className="text-xs text-red-600 border-red-200 hover:bg-red-50 h-7"
-                                        onClick={() => updateTaskSection(section.id, { imageUrl: "" })}
+                                        onClick={() => {
+                                          const img = section.imageUrl;
+                                          if (typeof img === "string" && img.length > 0) {
+                                            setSnippedImages(prev => Array.from(new Set([...prev, img])));
+                                          }
+                                          updateTaskSection(section.id, { imageUrl: "" });
+                                        }}
                                       >
                                         <Trash2 className="w-3 h-3 mr-1" /> Remove Image
                                       </Button>
