@@ -3,6 +3,7 @@
 import { axios } from "@/lib/axios";
 import dynamic from "next/dynamic";
 const PdfSnippingTool = dynamic(() => import("./PdfSnippingTool"), { ssr: false });
+import { cropPdfContext } from "@/lib/pdfCropper";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -352,13 +353,31 @@ const playSuccessSound = () => {
       });
 
       if (data.sections?.length > 0) {
-        setTaskSections(prev => [...prev.filter(s => s.title !== ""), ...data.sections.map((s: any) => ({ ...s, stimulusType: s.stimulusType || "IMAGE" }))]);
+        setImportProgressText("Rendering high-resolution context crops...");
+        const processedSections = await Promise.all(
+          data.sections.map(async (s: any) => {
+            let imageUrl = s.imageUrl || "";
+            if (!imageUrl && s.contextRegions && s.contextRegions.length > 0) {
+              try {
+                imageUrl = await cropPdfContext(file, s.contextRegions[0], 2.5);
+              } catch (cropErr) {
+                console.warn(`[Client Crop] Failed to crop section "${s.title}":`, cropErr);
+              }
+            }
+            return {
+              ...s,
+              imageUrl,
+              stimulusType: imageUrl ? "IMAGE" : (s.stimulusType || "IMAGE")
+            };
+          })
+        );
+        setTaskSections(prev => [...prev.filter(s => s.title !== ""), ...processedSections]);
       }
       if (data.questions?.length > 0) {
         setQuestions(prev => [...prev, ...data.questions]);
       }
 
-      toast.success("AI has successfully extracted the questions!");
+      toast.success("Document analyzed and context crops generated!");
       playSuccessSound();
     } catch (e) {
       console.error(e);
