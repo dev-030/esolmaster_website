@@ -28,12 +28,13 @@ export const Login = () => {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await signIn({ email, password });
+      await signIn({ email: email.trim(), password: password.trim() });
       toast.success("Login successful!");
       router.push("/dashboard");
       router.refresh();
-    } catch (error) {
-      toast.error("Invalid credentials");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || "Invalid credentials");
+      console.error("[DEBUG] Login error:", error);
     }
   };
 
