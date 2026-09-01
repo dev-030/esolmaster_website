@@ -367,6 +367,8 @@ const playSuccessSound = () => {
         timeout: 300000 // 5 min max — handles all 3 AI tiers completing
       });
 
+      console.log("[DEBUG] API Response:", data);
+
       if (data.sections?.length > 0) {
         setImportProgressText("Rendering high-resolution context crops...");
         const processedSections = await Promise.all(
