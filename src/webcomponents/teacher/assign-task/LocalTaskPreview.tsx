@@ -63,18 +63,34 @@ export const LocalTaskPreview = ({
     return questions.reduce((sum: number, q: any) => sum + (q.marks || 1), 0);
   }, [questions]);
 
-  let passRequirementText = "N/A (Ungraded)";
-  
   const criteriaCodesStr = taskCriteria && taskCriteria.length > 0 
     ? taskCriteria.map((c: any) => c.code).join(", ") 
     : "Checklist";
 
+  const renderMarksBox = (val: string | number) => (
+    <span className="bg-amber-100/80 text-amber-900 px-1 rounded-[3px] border border-amber-300/60 shadow-xs mx-0.5 min-w-[1.25rem] text-center inline-block">{val}</span>
+  );
+
+  const renderMarksFraction = () => (
+    <span className="inline-flex items-center">
+      {renderMarksBox(passMark ?? 0)}
+      <span className="text-amber-400 font-black px-0.5">/</span>
+      {renderMarksBox(totalCalculatedMarks)}
+    </span>
+  );
+
+  let passRequirementNode: React.ReactNode = "N/A (Ungraded)";
+
   if (passLogic === "CRITERIA_AND_SCORE") {
-    passRequirementText = `${passMark}/${totalCalculatedMarks} Marks & Fulfill Criteria: ${criteriaCodesStr}`;
+    passRequirementNode = (
+      <>
+        Pass: {renderMarksFraction()} Marks <span className="text-amber-300 mx-1">|</span> Fulfill Criteria: {criteriaCodesStr}
+      </>
+    );
   } else if (passLogic === "CRITERIA_ONLY") {
-    passRequirementText = `Fulfill Criteria: ${criteriaCodesStr}`;
+    passRequirementNode = <>Fulfill Criteria: {criteriaCodesStr}</>;
   } else if (passLogic === "SCORE_ONLY" && passMark !== null && passMark !== undefined) {
-    passRequirementText = `${passMark}/${totalCalculatedMarks} Marks`;
+    passRequirementNode = <>Pass: {renderMarksFraction()} Marks</>;
   }
 
   const currentSkill = skillMeta[taskType] || { label: taskType, emoji: "📄" };
@@ -154,10 +170,10 @@ export const LocalTaskPreview = ({
               {entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}
             </span>
           )}
-          {passRequirementText !== "N/A (Ungraded)" && (
+          {passRequirementNode !== "N/A (Ungraded)" && (
             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-2xs ml-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
-              Pass: {passRequirementText}
+              {passRequirementNode}
             </span>
           )}
         </div>
@@ -290,8 +306,10 @@ export const LocalTaskPreview = ({
                           {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                         </span>
                       )}
-                      <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                        {currentQuestion?.marks ?? 1}{" "}
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 pl-0.5 pr-1.5 py-0.5 rounded flex items-center gap-1">
+                        <span className="bg-slate-200/80 text-slate-700 px-1 rounded-[3px] border border-slate-300/50 shadow-xs min-w-[1rem] text-center inline-block">
+                          {currentQuestion?.marks ?? 1}
+                        </span>
                         {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
                       </span>
                     </div>
@@ -396,8 +414,10 @@ export const LocalTaskPreview = ({
                         {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                       </span>
                     )}
-                    <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                      {currentQuestion?.marks ?? 1}{" "}
+                    <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 pl-0.5 pr-1.5 py-0.5 rounded flex items-center gap-1">
+                      <span className="bg-slate-200/80 text-slate-700 px-1 rounded-[3px] border border-slate-300/50 shadow-xs min-w-[1rem] text-center inline-block">
+                        {currentQuestion?.marks ?? 1}
+                      </span>
                       {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
                     </span>
                   </div>
