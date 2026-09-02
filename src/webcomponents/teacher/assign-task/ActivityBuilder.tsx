@@ -1567,7 +1567,7 @@ const playSuccessSound = () => {
               </div>
 
               {/* Row 3: Skill Criteria Checklist */}
-              <div className="pt-3 border-t border-slate-100 space-y-3">
+              <div className="pt-2 space-y-3">
                 <div className={cn(
                   "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3",
                   mustPassAllSkills ? "bg-slate-50 border-slate-300 shadow-sm" : "bg-slate-50/60 border-slate-200"
