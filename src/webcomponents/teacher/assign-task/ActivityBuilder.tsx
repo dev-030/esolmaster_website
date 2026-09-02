@@ -1390,23 +1390,24 @@ const playSuccessSound = () => {
         </div>
         <div className="flex items-center gap-3">
           
-          <div className="relative">
+          <div className="relative group">
             <input 
               type="file" 
               accept=".pdf,.doc,.docx,.rtf,.txt" 
               onChange={handleImportPdf} 
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+              className="absolute inset-0 z-10 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
               disabled={isImporting || !!pdfFileForSnipping}
+              title=""
             />
             <Button 
               variant="outline" 
               disabled={isImporting || !!pdfFileForSnipping}
-              className={`border-blue-200 text-blue-500 min-w-[140px] transition-all duration-300 ${
+              className={`border-blue-200 text-blue-500 min-w-[140px] transition-all duration-300 pointer-events-none ${
                 isImporting 
                   ? "bg-blue-50 animate-pulse border-blue-300 shadow-inner cursor-not-allowed opacity-90" 
                   : !!pdfFileForSnipping 
                     ? "opacity-50 cursor-not-allowed bg-slate-50 border-slate-200 text-slate-500" 
-                    : "hover:bg-blue-50 hover:border-blue-300 hover:shadow-sm cursor-pointer"
+                    : "group-hover:bg-blue-50 group-hover:border-blue-300 group-hover:shadow-sm"
               }`}
             >
               {isImporting ? (
