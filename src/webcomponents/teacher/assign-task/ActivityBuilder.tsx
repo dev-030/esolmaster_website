@@ -2352,6 +2352,7 @@ const playSuccessSound = () => {
               taskType={taskType} 
               questions={questions}
               taskSections={taskSections}
+              taskCriteria={taskCriteria}
               awardingBody={awardingBody}
               entryLevel={entryLevel}
             />

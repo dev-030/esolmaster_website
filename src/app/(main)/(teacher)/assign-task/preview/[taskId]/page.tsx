@@ -20,6 +20,7 @@ export default function PreviewTaskPage() {
     taskType: string;
     questions: any[];
     taskSections: any[];
+    taskCriteria?: any[];
     awardingBody?: string;
     entryLevel?: string;
   } | null>(null);
@@ -126,11 +127,22 @@ export default function PreviewTaskPage() {
             });
           }
 
+          let loadedCriteria: any[] = [];
+          if (task.content) {
+            try {
+              const parsed = JSON.parse(task.content);
+              if (parsed && Array.isArray(parsed.criteria)) {
+                loadedCriteria = parsed.criteria;
+              }
+            } catch (e) {}
+          }
+
           setTaskData({
             title: task.title || "",
             taskType: task.type || "READING",
             questions: loadedQuestions,
             taskSections: loadedSections,
+            taskCriteria: loadedCriteria,
             awardingBody: task.readingContent?.awardingBody || undefined,
             entryLevel: task.readingContent?.entryType?.[0] || undefined,
           });
@@ -207,6 +219,7 @@ export default function PreviewTaskPage() {
           taskType={taskData.taskType}
           questions={taskData.questions}
           taskSections={taskData.taskSections}
+          taskCriteria={taskData.taskCriteria}
           awardingBody={taskData.awardingBody}
           entryLevel={taskData.entryLevel}
         />

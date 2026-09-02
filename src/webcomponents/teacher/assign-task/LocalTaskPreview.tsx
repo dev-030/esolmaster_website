@@ -9,6 +9,7 @@ export interface LocalTaskPreviewProps {
   taskType?: string;
   questions?: any[];
   taskSections?: any[];
+  taskCriteria?: any[];
   awardingBody?: string;
   entryLevel?: string;
 }
@@ -18,6 +19,7 @@ export const LocalTaskPreview = ({
   taskType = "READING",
   questions = [],
   taskSections = [],
+  taskCriteria = [],
   awardingBody,
   entryLevel,
 }: LocalTaskPreviewProps) => {
@@ -247,9 +249,20 @@ export const LocalTaskPreview = ({
               ) : (
                 <>
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-                      Question {currentIndex + 1}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                        Question {currentIndex + 1}
+                      </span>
+                      {currentQuestion?.criterionId && taskCriteria && (
+                        <span 
+                          className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1" 
+                          title={taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.description}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+                          {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
                       {currentQuestion?.marks ?? 1}{" "}
                       {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
@@ -342,9 +355,20 @@ export const LocalTaskPreview = ({
             ) : (
               <>
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-                    Question {currentIndex + 1}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                      Question {currentIndex + 1}
+                    </span>
+                    {currentQuestion?.criterionId && taskCriteria && (
+                      <span 
+                        className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1" 
+                        title={taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.description}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+                        {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">
                     {currentQuestion?.marks ?? 1}{" "}
                     {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
