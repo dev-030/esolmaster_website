@@ -64,10 +64,15 @@ export const LocalTaskPreview = ({
   }, [questions]);
 
   let passRequirementText = "N/A (Ungraded)";
+  
+  const criteriaCodesStr = taskCriteria && taskCriteria.length > 0 
+    ? taskCriteria.map((c: any) => c.code).join(", ") 
+    : "Checklist";
+
   if (passLogic === "CRITERIA_AND_SCORE") {
-    passRequirementText = `${passMark}/${totalCalculatedMarks} Marks & Checklist`;
+    passRequirementText = `${passMark}/${totalCalculatedMarks} Marks & Fulfill: ${criteriaCodesStr}`;
   } else if (passLogic === "CRITERIA_ONLY") {
-    passRequirementText = "Checklist Only";
+    passRequirementText = `Fulfill Criteria: ${criteriaCodesStr}`;
   } else if (passLogic === "SCORE_ONLY" && passMark !== null && passMark !== undefined) {
     passRequirementText = `${passMark}/${totalCalculatedMarks} Marks`;
   }
