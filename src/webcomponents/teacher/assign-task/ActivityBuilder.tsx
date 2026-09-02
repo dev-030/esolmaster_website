@@ -384,7 +384,7 @@ export default function ActivityBuilder() {
     // Check if already in global DB
     const existing = criteriaList.find((c: any) => c.code.toLowerCase() === code.toLowerCase());
     if (existing) {
-      setTaskCriteria(prev => [...prev, { id: existing.id, code: existing.code, description: existing.description }]);
+      setTaskCriteria(prev => [...prev, { id: existing.id, code: existing.code, description }]);
       setNewCritCode("");
       setNewCritDesc("");
       setIsAddingCrit(false);
@@ -1635,34 +1635,36 @@ const playSuccessSound = () => {
                         {/* Created Criteria Grid */}
                         {taskCriteria.length > 0 && (
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                            {taskCriteria.map((crit) => {
+                            {[...taskCriteria].sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true, sensitivity: 'base' })).map((crit) => {
                               const mappedCount = criteriaCoverage.map[crit.id] || 0;
                               const isCovered = mappedCount > 0;
                               return (
                                 <div 
                                   key={crit.id} 
                                   className={cn(
-                                    "p-2.5 rounded-lg border text-xs flex items-center justify-between gap-2 transition-all group",
+                                    "p-2 rounded-lg border text-xs flex items-center justify-between gap-2 transition-all group bg-white shadow-xs hover:shadow-sm",
                                     isCovered 
-                                      ? "bg-white border-blue-200 shadow-2xs" 
-                                      : "bg-slate-50 border-slate-200 border-dashed"
+                                      ? "border-blue-300" 
+                                      : "border-slate-200"
                                   )}
                                 >
                                   <div className="flex flex-col min-w-0">
                                     <div className="flex items-center gap-1.5">
-                                      <span className="font-bold text-slate-800">{crit.code}</span>
-                                      <span className="text-[11px] text-slate-500 truncate" title={crit.description}>
-                                        {crit.description}
-                                      </span>
+                                      <span className="font-bold text-slate-700 text-[13px]">{crit.code}</span>
+                                      {crit.description && (
+                                        <span className="text-[11px] text-slate-500 truncate" title={crit.description}>
+                                          {crit.description}
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-1.5 shrink-0">
+                                  <div className="flex items-center gap-2 shrink-0">
                                     {isCovered ? (
-                                      <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                                        {mappedCount} {mappedCount === 1 ? 'question mapped' : 'questions mapped'} ✓
+                                      <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
+                                        {mappedCount} ✓
                                       </span>
                                     ) : (
-                                      <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                      <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
                                         Unmapped
                                       </span>
                                     )}
