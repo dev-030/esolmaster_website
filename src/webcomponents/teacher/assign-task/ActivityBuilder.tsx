@@ -1541,24 +1541,24 @@ const playSuccessSound = () => {
                     </div>
 
                     {requirePassMark && (
-                      <div className="flex items-center gap-2 pb-1 sm:pb-0 shrink-0">
-                        <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-lg border border-blue-200 shadow-2xs">
-                          <span className="text-[11px] font-medium text-slate-600">Pass Mark:</span>
+                      <div className="flex items-center gap-3 pb-1 sm:pb-0 shrink-0 pr-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-slate-600">Pass Mark:</span>
                           <Input 
                             type="number" 
                             value={passMark}
                             onChange={(e) => setPassMark(e.target.value)}
-                            className="w-12 h-6 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:ring-blue-500"
+                            className="w-14 h-7 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:ring-blue-500 bg-white shadow-sm rounded-md"
                             placeholder="18"
                             min="0"
                             max={totalCalculatedMarks || 100}
                           />
-                          <span className="text-[11px] text-slate-500 font-semibold">
+                          <span className="text-xs text-slate-500 font-semibold">
                             / {totalCalculatedMarks}
                           </span>
                         </div>
                         {totalCalculatedMarks > 0 && passMark && Number(passMark) > 0 && (
-                          <span className="text-[10px] font-semibold text-blue-700 bg-blue-100/70 px-1.5 py-0.5 rounded-md">
+                          <span className="text-[11px] font-bold text-blue-700 bg-blue-100/70 px-2 py-1 rounded-md">
                             {Math.round((Number(passMark) / totalCalculatedMarks) * 100)}%
                           </span>
                         )}
