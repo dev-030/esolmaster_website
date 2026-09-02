@@ -522,8 +522,38 @@ const playSuccessSound = () => {
         }
         setTaskSections(prev => [...prev.filter(s => s.title !== ""), ...processedSections]);
       }
+      // Process AI Criteria & Pass Mark
+      let newCriteria: { id: string; code: string; description: string }[] = [];
+      if (data.passMark !== undefined && data.passMark !== null) {
+        setRequirePassMark(true);
+        setPassMark(String(data.passMark));
+      }
+
+      if (data.paperCriteria && data.paperCriteria.length > 0) {
+        setMustPassAllSkills(true);
+        newCriteria = data.paperCriteria.map((c: any, idx: number) => ({
+          id: `ai_crit_${Date.now()}_${idx}`,
+          code: c.code,
+          description: c.description
+        }));
+        setTaskCriteria(prev => {
+          const existingCodes = new Set(prev.map(p => p.code.toLowerCase()));
+          const toAdd = newCriteria.filter(nc => !existingCodes.has(nc.code.toLowerCase()));
+          return [...prev, ...toAdd];
+        });
+      }
+
       if (data.questions?.length > 0) {
-        setQuestions(prev => [...prev, ...data.questions]);
+        const questionsWithCriteria = data.questions.map((q: any) => {
+          if (q.mappedCriterion) {
+            const matchedCrit = newCriteria.find(c => c.code.toLowerCase() === q.mappedCriterion.toLowerCase());
+            if (matchedCrit) {
+              q.criterionId = matchedCrit.id;
+            }
+          }
+          return q;
+        });
+        setQuestions(prev => [...prev, ...questionsWithCriteria]);
       }
 
       toast.success("Document analyzed and context crops generated!");
