@@ -63,16 +63,23 @@ export const LocalTaskPreview = ({
     return questions.reduce((sum: number, q: any) => sum + (q.marks || 1), 0);
   }, [questions]);
 
-  const criteriaCodesStr = taskCriteria && taskCriteria.length > 0 
-    ? taskCriteria.map((c: any) => c.code).join(", ") 
-    : "Checklist";
-
   const renderMarksBox = (val: string | number) => (
-    <span className="bg-amber-100/80 text-amber-900 px-1 rounded-[3px] border border-amber-300/60 shadow-xs mx-0.5 min-w-[1.25rem] text-center inline-block">{val}</span>
+    <span className="bg-amber-100/80 text-amber-900 px-1.5 rounded-[3px] border border-amber-300/60 shadow-xs mx-0.5 min-w-[1.25rem] text-center inline-block">{val}</span>
   );
 
+  const criteriaCodesNode = taskCriteria && taskCriteria.length > 0 ? (
+    <span className="inline-flex items-center flex-wrap gap-0.5 ml-1">
+      {taskCriteria.map((c: any, i: number) => (
+        <React.Fragment key={c.id || i}>
+          {renderMarksBox(c.code)}
+          {i < taskCriteria.length - 1 && <span className="text-amber-300/80 text-[10px] px-0.5">|</span>}
+        </React.Fragment>
+      ))}
+    </span>
+  ) : "Checklist";
+
   const renderMarksFraction = () => (
-    <span className="inline-flex items-center">
+    <span className="inline-flex items-center ml-1">
       {renderMarksBox(passMark ?? 0)}
       <span className="text-amber-400 font-black px-0.5">/</span>
       {renderMarksBox(totalCalculatedMarks)}
@@ -84,11 +91,11 @@ export const LocalTaskPreview = ({
   if (passLogic === "CRITERIA_AND_SCORE") {
     passRequirementNode = (
       <>
-        Pass: {renderMarksFraction()} Marks <span className="text-amber-300 mx-1">|</span> Fulfill Criteria: {criteriaCodesStr}
+        Pass: {renderMarksFraction()} Marks <span className="text-amber-300 mx-1.5">|</span> Fulfill Criteria: {criteriaCodesNode}
       </>
     );
   } else if (passLogic === "CRITERIA_ONLY") {
-    passRequirementNode = <>Fulfill Criteria: {criteriaCodesStr}</>;
+    passRequirementNode = <>Fulfill Criteria: {criteriaCodesNode}</>;
   } else if (passLogic === "SCORE_ONLY" && passMark !== null && passMark !== undefined) {
     passRequirementNode = <>Pass: {renderMarksFraction()} Marks</>;
   }
