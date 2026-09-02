@@ -152,25 +152,27 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
                           ? "bg-slate-50 text-slate-800 border-slate-300 font-bold px-2 shadow-2xs" 
                           : "bg-white text-slate-400 border-dashed border-slate-300 hover:border-slate-400 font-medium px-2"
                       )}>
-                        <SelectValue placeholder="+ Map Criterion">
+                        <SelectValue placeholder="+ Select Criterion">
                           {currentCriterion ? (
                             <span className="truncate flex items-center gap-1">
                               <span className="font-bold text-slate-800">{currentCriterion.code}</span>
-                              <span className="text-[10px] text-slate-500 font-normal truncate">({currentCriterion.description})</span>
+                              {currentCriterion.description && (
+                                <span className="text-[10px] text-slate-500 font-normal truncate">({currentCriterion.description})</span>
+                              )}
                             </span>
                           ) : (
-                            <span className="text-slate-400 font-normal">+ Map Criterion</span>
+                            <span className="text-slate-400 font-normal">+ Select Criterion</span>
                           )}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent className="max-h-56">
                         <SelectItem value="unmapped" className="text-xs text-slate-400 italic">
-                          Unmap Criterion
+                          Clear Selection
                         </SelectItem>
                         {criteriaList?.map((crit: any) => (
                           <SelectItem key={crit.id} value={crit.id} className="text-xs">
                             <span className="font-bold text-slate-800 mr-1.5">{crit.code}</span>
-                            <span className="text-slate-600">{crit.description}</span>
+                            {crit.description && <span className="text-slate-600">{crit.description}</span>}
                           </SelectItem>
                         ))}
                       </SelectContent>
