@@ -1403,22 +1403,22 @@ const playSuccessSound = () => {
             variant="outline" 
             onClick={() => fileInputRef.current?.click()}
             disabled={isImporting || !!pdfFileForSnipping}
-            className={`border-blue-200 text-blue-500 min-w-[140px] transition-all duration-300 cursor-pointer ${
+            className={`border-blue-200 text-blue-500 min-w-[140px] transition-colors cursor-pointer ${
               isImporting 
                 ? "bg-blue-50 animate-pulse border-blue-300 shadow-inner cursor-not-allowed opacity-90" 
                 : !!pdfFileForSnipping 
                   ? "opacity-50 cursor-not-allowed bg-slate-50 border-slate-200 text-slate-500" 
-                  : "hover:bg-blue-50 hover:border-blue-300 hover:shadow-sm"
+                  : "hover:bg-blue-50"
             }`}
           >
             {isImporting ? (
               <div className="flex items-center space-x-2 animate-in fade-in zoom-in duration-300">
-                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="text-sm font-medium">{importProgressText}</span>
               </div>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
+                <Sparkles className="w-4 h-4 mr-2" />
                 Import Document
               </>
             )}
@@ -1430,7 +1430,7 @@ const playSuccessSound = () => {
             disabled={Boolean(isSaving)}
             onClick={handlePreview}
           >
-            <Eye className="w-4 h-4 mr-2 text-blue-500" />
+            <Eye className="w-4 h-4 mr-2" />
             Preview Assessment
           </Button>
           <Button 
@@ -1441,9 +1441,9 @@ const playSuccessSound = () => {
             onClick={() => handleSave("DRAFT", false)}
           >
             {isSaving === "DRAFT" ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin text-slate-500" />
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
-              <Save className="w-4 h-4 mr-2 text-slate-500" />
+              <Save className="w-4 h-4 mr-2" />
             )}
             {isSaving === "DRAFT" ? "Saving Draft..." : "Save Draft"}
           </Button>
