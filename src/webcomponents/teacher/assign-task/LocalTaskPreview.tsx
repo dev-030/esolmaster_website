@@ -70,7 +70,7 @@ export const LocalTaskPreview = ({
     : "Checklist";
 
   if (passLogic === "CRITERIA_AND_SCORE") {
-    passRequirementText = `${passMark}/${totalCalculatedMarks} Marks & Fulfill: ${criteriaCodesStr}`;
+    passRequirementText = `${passMark}/${totalCalculatedMarks} Marks & Fulfill Criteria: ${criteriaCodesStr}`;
   } else if (passLogic === "CRITERIA_ONLY") {
     passRequirementText = `Fulfill Criteria: ${criteriaCodesStr}`;
   } else if (passLogic === "SCORE_ONLY" && passMark !== null && passMark !== undefined) {
