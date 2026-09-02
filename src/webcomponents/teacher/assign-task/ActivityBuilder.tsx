@@ -1605,33 +1605,28 @@ const playSuccessSound = () => {
                       <div className="pl-6 pt-1 space-y-3">
                         {/* Inline Create Criterion Form */}
                         {isAddingCrit && (
-                          <div className="p-3 bg-white rounded-xl border border-blue-100 shadow-sm space-y-2 animate-in fade-in-50 duration-150">
-                            <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                              <Tag className="w-3.5 h-3.5 text-blue-500" /> Define Criterion for this Assessment
-                            </span>
-                            <div className="flex flex-col sm:flex-row gap-2">
-                              <Input 
-                                placeholder="Code (e.g. 1.1, Ra, S1)"
-                                value={newCritCode}
-                                onChange={(e) => setNewCritCode(e.target.value)}
-                                className="w-full sm:w-28 h-8 text-xs font-bold text-slate-800 border-slate-200 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20"
-                                autoFocus
-                              />
-                              <Input 
-                                placeholder="Description (Optional)"
-                                value={newCritDesc}
-                                onChange={(e) => setNewCritDesc(e.target.value)}
-                                className="flex-1 h-8 text-xs border-slate-200 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20"
-                              />
-                              <Button 
-                                type="button" 
-                                size="sm" 
-                                onClick={handleAddCriterion}
-                                className="h-8 text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white shadow-sm px-4"
-                              >
-                                Add
-                              </Button>
-                            </div>
+                          <div className="flex flex-col sm:flex-row gap-2 animate-in fade-in-50 duration-150 pb-1">
+                            <Input 
+                              placeholder="Code (e.g. 1.1, Ra, S1)"
+                              value={newCritCode}
+                              onChange={(e) => setNewCritCode(e.target.value)}
+                              className="w-full sm:w-[130px] h-8 text-xs font-medium text-slate-800 border-slate-200 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 shadow-none bg-white"
+                              autoFocus
+                            />
+                            <Input 
+                              placeholder="Description (Optional)"
+                              value={newCritDesc}
+                              onChange={(e) => setNewCritDesc(e.target.value)}
+                              className="flex-1 h-8 text-xs border-slate-200 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 shadow-none bg-white"
+                            />
+                            <Button 
+                              type="button" 
+                              size="sm" 
+                              onClick={handleAddCriterion}
+                              className="h-8 text-xs font-semibold bg-blue-500 hover:bg-blue-600 text-white shadow-none px-4"
+                            >
+                              Add
+                            </Button>
                           </div>
                         )}
 
