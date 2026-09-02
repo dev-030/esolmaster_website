@@ -1401,31 +1401,31 @@ const playSuccessSound = () => {
             <Button 
               variant="outline" 
               disabled={isImporting || !!pdfFileForSnipping}
-              className={`border-indigo-200 text-indigo-700 min-w-[140px] transition-all duration-300 ${
+              className={`border-blue-200 text-blue-500 min-w-[140px] transition-all duration-300 ${
                 isImporting 
-                  ? "bg-indigo-50 animate-pulse border-indigo-300 shadow-inner cursor-not-allowed opacity-90" 
+                  ? "bg-blue-50 animate-pulse border-blue-300 shadow-inner cursor-not-allowed opacity-90" 
                   : !!pdfFileForSnipping 
-                    ? "opacity-50 cursor-not-allowed bg-gray-50 border-gray-200 text-gray-500" 
-                    : "hover:bg-indigo-50 hover:shadow-sm cursor-pointer"
+                    ? "opacity-50 cursor-not-allowed bg-slate-50 border-slate-200 text-slate-500" 
+                    : "hover:bg-blue-50 hover:border-blue-300 hover:shadow-sm cursor-pointer"
               }`}
             >
               {isImporting ? (
                 <div className="flex items-center space-x-2 animate-in fade-in zoom-in duration-300">
-                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
                   <span className="text-sm font-medium">{importProgressText}</span>
                 </div>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 mr-2 text-indigo-600" />
+                  <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
                   Import Document
                 </>
               )}
             </Button>
           </div>
 
-<Button 
+          <Button 
             variant="outline" 
-            className="border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" 
+            className="border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
             disabled={Boolean(isSaving)}
             onClick={handlePreview}
           >
@@ -1435,7 +1435,7 @@ const playSuccessSound = () => {
           <Button 
             type="button" 
             variant="outline" 
-            className="font-medium border-slate-200 hover:bg-slate-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" 
+            className="font-medium border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
             disabled={Boolean(isSaving)}
             onClick={() => handleSave("DRAFT", false)}
           >
@@ -1448,7 +1448,7 @@ const playSuccessSound = () => {
           </Button>
           <Button 
             type="button" 
-            className="font-medium bg-blue-500 hover:bg-blue-500 text-white shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" 
+            className="font-medium bg-blue-500 hover:bg-blue-600 text-white shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
             disabled={Boolean(isSaving)}
             onClick={() => handleSave("PUBLISHED")}
           >
