@@ -1497,7 +1497,7 @@ const playSuccessSound = () => {
                     <SelectTrigger 
                       id="field-taskType"
                       className={cn(
-                        "w-full text-xs shadow-sm transition-all bg-white",
+                        "w-full text-xs shadow-none transition-all bg-white",
                         invalidFieldKeys.taskType ? "border-red-400 ring-2 ring-red-400/20" : "border-slate-200"
                       )} 
                       style={{ height: '40px' }}
