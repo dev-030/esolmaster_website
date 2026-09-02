@@ -64,7 +64,7 @@ export const LocalTaskPreview = ({
   }, [questions]);
 
   const renderMarkText = (val: string | number) => (
-    <span className="font-black text-amber-900">{val}</span>
+    <span className="font-black text-slate-700">{val}</span>
   );
 
   const criteriaCodesNode = taskCriteria && taskCriteria.length > 0 ? (
@@ -72,7 +72,7 @@ export const LocalTaskPreview = ({
       {taskCriteria.map((c: any, i: number) => (
         <React.Fragment key={c.id || i}>
           {renderMarkText(c.code)}
-          {i < taskCriteria.length - 1 && <span className="text-amber-300/80 font-bold mx-1">|</span>}
+          {i < taskCriteria.length - 1 && <span className="text-slate-300 font-bold mx-1">|</span>}
         </React.Fragment>
       ))}
     </span>
@@ -81,7 +81,7 @@ export const LocalTaskPreview = ({
   const renderMarksFraction = () => (
     <span className="inline-flex items-center ml-1">
       {renderMarkText(passMark ?? 0)}
-      <span className="text-amber-400 font-black px-1">/</span>
+      <span className="text-slate-400 font-black px-1">/</span>
       {renderMarkText(totalCalculatedMarks)}
     </span>
   );
@@ -91,7 +91,7 @@ export const LocalTaskPreview = ({
   if (passLogic === "CRITERIA_AND_SCORE") {
     passRequirementNode = (
       <>
-        Pass: {renderMarksFraction()} Marks <span className="text-amber-300 mx-1.5">|</span> Fulfill Criteria: {criteriaCodesNode}
+        Pass: {renderMarksFraction()} Marks <span className="text-slate-300 mx-1.5">|</span> Fulfill Criteria: {criteriaCodesNode}
       </>
     );
   } else if (passLogic === "CRITERIA_ONLY") {
@@ -178,7 +178,7 @@ export const LocalTaskPreview = ({
             </span>
           )}
           {passRequirementNode !== "N/A (Ungraded)" && (
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-2xs ml-2">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-50 text-slate-600 border border-slate-200 flex items-center gap-1.5 shadow-2xs ml-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
               {passRequirementNode}
             </span>
