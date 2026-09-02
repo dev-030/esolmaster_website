@@ -249,10 +249,10 @@ export const LocalTaskPreview = ({
               ) : (
                 <>
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-                        Question {currentIndex + 1}
-                      </span>
+                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                      Question {currentIndex + 1}
+                    </span>
+                    <div className="flex items-center gap-2">
                       {currentQuestion?.criterionId && taskCriteria && (
                         <span 
                           className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1" 
@@ -262,11 +262,11 @@ export const LocalTaskPreview = ({
                           {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                         </span>
                       )}
+                      <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+                        {currentQuestion?.marks ?? 1}{" "}
+                        {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
+                      </span>
                     </div>
-                    <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
-                      {currentQuestion?.marks ?? 1}{" "}
-                      {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
-                    </span>
                   </div>
 
                   <QuestionRenderer
@@ -355,10 +355,10 @@ export const LocalTaskPreview = ({
             ) : (
               <>
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-                      Question {currentIndex + 1}
-                    </span>
+                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                    Question {currentIndex + 1}
+                  </span>
+                  <div className="flex items-center gap-2">
                     {currentQuestion?.criterionId && taskCriteria && (
                       <span 
                         className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1" 
@@ -368,11 +368,11 @@ export const LocalTaskPreview = ({
                         {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                       </span>
                     )}
+                    <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">
+                      {currentQuestion?.marks ?? 1}{" "}
+                      {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
+                    </span>
                   </div>
-                  <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">
-                    {currentQuestion?.marks ?? 1}{" "}
-                    {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
-                  </span>
                 </div>
 
                 <QuestionRenderer
