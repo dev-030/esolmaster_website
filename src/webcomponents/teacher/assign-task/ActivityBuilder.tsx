@@ -1601,7 +1601,7 @@ const playSuccessSound = () => {
                       )}
                     </div>
 
-                    {mustPassAllSkills && (
+                    {mustPassAllSkills && (isAddingCrit || taskCriteria.length > 0) && (
                       <div className="pl-6 pt-1 space-y-3">
                         {/* Inline Create Criterion Form */}
                         {isAddingCrit && (
@@ -1626,8 +1626,8 @@ const playSuccessSound = () => {
                               <Button 
                                 type="button" 
                                 size="sm" 
-                                onClick={() => handleAddCriterion()}
-                                className="h-8 text-xs bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 cursor-pointer"
+                                onClick={handleAddCriterion}
+                                className="h-8 text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white shadow-sm px-4"
                               >
                                 Add
                               </Button>
