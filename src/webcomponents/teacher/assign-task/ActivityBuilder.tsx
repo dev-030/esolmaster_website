@@ -1322,7 +1322,7 @@ const playSuccessSound = () => {
   if (taskId ? (!isLoaded || isLoadingTask) : !isLoaded) {
     return (
       <div className="w-full min-h-screen flex flex-col items-center justify-center bg-slate-50/50 gap-3">
-        <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
         <p className="text-xs text-slate-500 font-medium animate-pulse">Loading assessment...</p>
       </div>
     );
@@ -1349,7 +1349,7 @@ const playSuccessSound = () => {
         </Button>
 
         <div className="flex items-center gap-2 overflow-x-auto text-xs text-slate-500 font-medium py-1">
-          <Link href="/content-library" className="hover:text-slate-900 transition-colors flex items-center gap-1.5">
+          <Link href="/content-library" className="hover:text-slate-800 transition-colors flex items-center gap-1.5">
             <School className="w-3.5 h-3.5 text-slate-400" />
             <span>Content Library</span>
           </Link>
@@ -1357,7 +1357,7 @@ const playSuccessSound = () => {
           {currentFolder?.ancestors?.map((anc) => (
             <div key={anc.id} className="flex items-center gap-2">
               <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <Link href={`/content-library?folderId=${anc.id}`} className="hover:text-slate-900 transition-colors">
+              <Link href={`/content-library?folderId=${anc.id}`} className="hover:text-slate-800 transition-colors">
                 {anc.name}
               </Link>
             </div>
@@ -1366,13 +1366,13 @@ const playSuccessSound = () => {
           {currentFolder && (
             <div key={currentFolder.id} className="flex items-center gap-2">
               <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <Link href={`/content-library?folderId=${currentFolder.id}`} className="hover:text-slate-900 transition-colors">
+              <Link href={`/content-library?folderId=${currentFolder.id}`} className="hover:text-slate-800 transition-colors">
                 {currentFolder.name}
               </Link>
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-slate-900 font-bold">
+          <div className="flex items-center gap-2 text-slate-800 font-bold">
             <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span className="truncate max-w-[240px]">{taskId ? (title || "Edit Assessment") : "New Assessment"}</span>
           </div>
@@ -1383,7 +1383,7 @@ const playSuccessSound = () => {
       <div className="flex items-center justify-between pb-4 border-b border-slate-200/60 flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-800">
               {taskId ? "Edit ESOL Assessment" : "ESOL Activity Builder"}
             </h1>
           </div>
@@ -1429,7 +1429,7 @@ const playSuccessSound = () => {
             disabled={Boolean(isSaving)}
             onClick={handlePreview}
           >
-            <Eye className="w-4 h-4 mr-2 text-blue-600" />
+            <Eye className="w-4 h-4 mr-2 text-blue-500" />
             Preview Assessment
           </Button>
           <Button 
@@ -1448,7 +1448,7 @@ const playSuccessSound = () => {
           </Button>
           <Button 
             type="button" 
-            className="font-medium bg-blue-500 hover:bg-blue-600 text-white shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" 
+            className="font-medium bg-blue-500 hover:bg-blue-500 text-white shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed" 
             disabled={Boolean(isSaving)}
             onClick={() => handleSave("PUBLISHED")}
           >
@@ -1474,7 +1474,7 @@ const playSuccessSound = () => {
                 </CardTitle>
               </div>
               <div className="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md border border-slate-200">
-                Total Marks: <span className="text-blue-600 font-bold">{totalCalculatedMarks}</span>
+                Total Marks: <span className="text-blue-500 font-bold">{totalCalculatedMarks}</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-3 px-6 py-6">
@@ -1579,7 +1579,7 @@ const playSuccessSound = () => {
                             type="number" 
                             value={passMark}
                             onChange={(e) => setPassMark(e.target.value)}
-                            className="w-14 h-7 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 bg-white rounded-md shadow-none"
+                            className="w-14 h-7 text-xs font-bold text-blue-500 border-slate-200 text-center px-1 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 bg-white rounded-md shadow-none"
                             placeholder="18"
                             min="0"
                             max={totalCalculatedMarks || 100}
@@ -1589,7 +1589,7 @@ const playSuccessSound = () => {
                           </span>
                         </div>
                         {totalCalculatedMarks > 0 && passMark && Number(passMark) > 0 && (
-                          <span className="text-[11px] font-bold text-blue-700 bg-blue-100/70 px-2 py-1 rounded-md">
+                          <span className="text-[11px] font-bold text-blue-500 bg-blue-100/70 px-2 py-1 rounded-md">
                             {Math.round((Number(passMark) / totalCalculatedMarks) * 100)}%
                           </span>
                         )}
@@ -1653,7 +1653,7 @@ const playSuccessSound = () => {
                               type="button" 
                               size="sm" 
                               onClick={handleAddCriterion}
-                              className="h-8 text-xs font-semibold bg-blue-500 hover:bg-blue-600 text-white shadow-none px-4"
+                              className="h-8 text-xs font-semibold bg-blue-500 hover:bg-blue-500 text-white shadow-none px-4"
                             >
                               Add
                             </Button>
@@ -1688,7 +1688,7 @@ const playSuccessSound = () => {
                                   </div>
                                   <div className="flex items-center gap-2 shrink-0">
                                     {isCovered ? (
-                                      <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
+                                      <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">
                                         {mappedCount} ✓
                                       </span>
                                     ) : (
@@ -1720,7 +1720,7 @@ const playSuccessSound = () => {
                 <div className="space-y-2 pt-2 pb-2 p-4 mt-2 bg-white border border-slate-200 rounded-lg shadow-none">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                      <Sparkles className="w-3.5 h-3.5 text-blue-500" />
                       Custom Skill Area Name
                     </Label>
                   </div>
@@ -1743,17 +1743,17 @@ const playSuccessSound = () => {
         {/* PDF SNIPPING TOOL INTEGRATION                                             */}
         {/* ========================================================================= */}
         {pdfFileForSnipping && (
-          <div className="mb-6 w-full mx-auto flex items-center justify-between bg-indigo-50 border border-indigo-200 p-4 rounded-xl shadow-sm">
+          <div className="mb-6 w-full mx-auto flex items-center justify-between bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+              <div className="p-2 bg-blue-100 rounded-lg text-blue-500">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-indigo-900">Original PDF Available</h4>
-                <p className="text-xs text-indigo-700">Open the snipping tool to capture images from the PDF for task contexts.</p>
+                <h4 className="text-sm font-semibold text-slate-800">Original PDF Available</h4>
+                <p className="text-xs text-slate-500">Open the snipping tool to capture images from the PDF for task contexts.</p>
               </div>
             </div>
-            <Button onClick={() => setShowSnippingOverlay(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+            <Button onClick={() => setShowSnippingOverlay(true)} className="bg-blue-500 hover:bg-blue-500 text-white shadow-sm">
               <Scissors className="w-4 h-4 mr-2" /> Open Snipping Tool
             </Button>
           </div>
@@ -1861,7 +1861,7 @@ const playSuccessSound = () => {
                                   className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-md transition-all ${
                                     section.stimulusType === "IMAGE" 
                                       ? "bg-blue-500 text-white shadow-2xs" 
-                                      : "text-slate-600 hover:text-slate-900"
+                                      : "text-slate-600 hover:text-slate-800"
                                   }`}
                                 >
                                   🖼️ Image / Poster Scan
@@ -1872,7 +1872,7 @@ const playSuccessSound = () => {
                                   className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-md transition-all ${
                                     section.stimulusType === "RICH_TEXT" 
                                       ? "bg-blue-500 text-white shadow-2xs" 
-                                      : "text-slate-600 hover:text-slate-900"
+                                      : "text-slate-600 hover:text-slate-800"
                                   }`}
                                 >
                                   📝 Formatted Text & Tables
@@ -1961,7 +1961,7 @@ const playSuccessSound = () => {
                                     </div>
 
                                     <div className="pt-1">
-                                      <label className="inline-flex items-center justify-center rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 cursor-pointer h-8 px-4 transition-colors shadow-2xs">
+                                      <label className="inline-flex items-center justify-center rounded-md text-xs font-semibold bg-blue-50 text-blue-500 border border-blue-200 hover:bg-blue-100 cursor-pointer h-8 px-4 transition-colors shadow-2xs">
                                         📁 Choose Image File
                                         <input 
                                           type="file" 
@@ -2050,7 +2050,7 @@ const playSuccessSound = () => {
                             </span>
 
                             <div className="flex flex-wrap items-center gap-1.5">
-                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-blue-200 hover:border-blue-300 hover:bg-blue-50/40 text-blue-700 font-semibold" onClick={() => addQuestion("INSTRUCTION", section.id)}>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-blue-200 hover:border-blue-300 hover:bg-blue-50/40 text-blue-500 font-semibold" onClick={() => addQuestion("INSTRUCTION", section.id)}>
                                 + Instruction Line
                               </Button>
                               <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("MCQ", section.id)}>
@@ -2092,7 +2092,7 @@ const playSuccessSound = () => {
                   <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
                     Click below to create a task section and attach reading stimulus materials and questions.
                   </p>
-                  <Button type="button" onClick={addTaskSection} className="bg-blue-500 hover:bg-blue-600 text-white text-xs mt-1">
+                  <Button type="button" onClick={addTaskSection} className="bg-blue-500 hover:bg-blue-500 text-white text-xs mt-1">
                     <PlusCircle className="w-4 h-4 mr-1.5" /> Add Task 1 Section
                   </Button>
                 </div>
@@ -2102,7 +2102,7 @@ const playSuccessSound = () => {
                 <button
                   type="button"
                   onClick={addTaskSection}
-                  className="w-full py-3.5 border-2 border-dashed border-slate-200 hover:border-blue-300 rounded-xl bg-slate-50 hover:bg-blue-50/30 transition-all flex items-center justify-center gap-2 text-slate-700 hover:text-blue-600 font-semibold text-xs group cursor-pointer"
+                  className="w-full py-3.5 border-2 border-dashed border-slate-200 hover:border-blue-300 rounded-xl bg-slate-50 hover:bg-blue-50/30 transition-all flex items-center justify-center gap-2 text-slate-700 hover:text-blue-500 font-semibold text-xs group cursor-pointer"
                 >
                   <PlusCircle className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" />
                   Add Another Task Section (Task {taskSections.length + 1})
@@ -2120,7 +2120,7 @@ const playSuccessSound = () => {
             <div className="p-4 space-y-4">
               <div className="text-xs font-bold text-slate-800 uppercase flex items-start justify-between border-b border-slate-100 pb-3 gap-2">
                 <span className="flex items-center gap-1.5 leading-snug">
-                  <Award className="w-4 h-4 text-blue-600 shrink-0" />
+                  <Award className="w-4 h-4 text-blue-500 shrink-0" />
                   Assessment Summary
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold shrink-0">
@@ -2130,19 +2130,19 @@ const playSuccessSound = () => {
               <div className="space-y-2.5 text-xs text-slate-600">
                 <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                   <span className="font-medium">Awarding Board:</span>
-                  <span className="font-semibold text-slate-900">{awardingBody}</span>
+                  <span className="font-semibold text-slate-800">{awardingBody}</span>
                 </div>
                 <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                   <span className="font-medium">Regulated Level:</span>
-                  <span className="font-semibold text-slate-900">{entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}</span>
+                  <span className="font-semibold text-slate-800">{entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}</span>
                 </div>
                 <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                   <span className="font-medium">Task Sections:</span>
-                  <span className="font-semibold text-slate-900">{taskSections.length} {taskSections.length === 1 ? 'Task' : 'Tasks'}</span>
+                  <span className="font-semibold text-slate-800">{taskSections.length} {taskSections.length === 1 ? 'Task' : 'Tasks'}</span>
                 </div>
                 <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                   <span className="font-medium">Skill Focus:</span>
-                  <span className="font-semibold text-slate-900 truncate max-w-[120px] text-right" title={taskType === "GRAMMAR" && customSkillName.trim() ? customSkillName : taskType === "GRAMMAR" ? "Custom Practice" : taskType}>
+                  <span className="font-semibold text-slate-800 truncate max-w-[120px] text-right" title={taskType === "GRAMMAR" && customSkillName.trim() ? customSkillName : taskType === "GRAMMAR" ? "Custom Practice" : taskType}>
                     {taskType === "GRAMMAR" && customSkillName.trim()
                       ? customSkillName
                       : taskType === "GRAMMAR"
@@ -2152,7 +2152,7 @@ const playSuccessSound = () => {
                 </div>
                 <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
                   <span className="font-medium">Pass Criteria:</span>
-                  <span className="font-semibold text-blue-700 text-right text-xs">
+                  <span className="font-semibold text-blue-500 text-right text-xs">
                     {requirePassMark && mustPassAllSkills
                       ? `${passMark}/${totalCalculatedMarks} & Checklist`
                       : requirePassMark
@@ -2174,7 +2174,7 @@ const playSuccessSound = () => {
           <Card className="border-slate-200 shadow-none rounded-xl bg-white overflow-hidden">
             <CardHeader className="py-3 px-4 bg-slate-50/70 border-b border-slate-100">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
                 Quick Question Palette
               </CardTitle>
             </CardHeader>
@@ -2185,7 +2185,7 @@ const playSuccessSound = () => {
                 className="w-full flex items-center justify-between p-2.5 rounded-lg border border-blue-100 bg-blue-50/20 hover:border-blue-300 hover:bg-blue-50/50 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-blue-100 text-blue-500 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
                     📄
                   </div>
                   <div>
@@ -2193,7 +2193,7 @@ const playSuccessSound = () => {
                     <div className="text-[10px] text-slate-500">e.g. Questions 1–8</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-blue-400 group-hover:text-blue-600" />
+                <PlusCircle className="w-4 h-4 text-blue-400 group-hover:text-blue-500" />
               </button>
 
               <button
@@ -2202,7 +2202,7 @@ const playSuccessSound = () => {
                 className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
                     M
                   </div>
                   <div>
@@ -2210,7 +2210,7 @@ const playSuccessSound = () => {
                     <div className="text-[10px] text-slate-400">Single or multi-select</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
               </button>
 
               <button
@@ -2219,7 +2219,7 @@ const playSuccessSound = () => {
                 className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
                     TF
                   </div>
                   <div>
@@ -2227,7 +2227,7 @@ const playSuccessSound = () => {
                     <div className="text-[10px] text-slate-400">Statement verification</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
               </button>
 
               <button
@@ -2236,7 +2236,7 @@ const playSuccessSound = () => {
                 className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
                     G
                   </div>
                   <div>
@@ -2244,7 +2244,7 @@ const playSuccessSound = () => {
                     <div className="text-[10px] text-slate-400">Grammar & verb drills</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
               </button>
 
               <button
@@ -2253,7 +2253,7 @@ const playSuccessSound = () => {
                 className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
                     W
                   </div>
                   <div>
@@ -2261,7 +2261,7 @@ const playSuccessSound = () => {
                     <div className="text-[10px] text-slate-400">Word bank selection</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
               </button>
 
               <button
@@ -2270,7 +2270,7 @@ const playSuccessSound = () => {
                 className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
                     M
                   </div>
                   <div>
@@ -2278,7 +2278,7 @@ const playSuccessSound = () => {
                     <div className="text-[10px] text-slate-400">Headings & text types</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
               </button>
 
               <button
@@ -2287,7 +2287,7 @@ const playSuccessSound = () => {
                 className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
                     Q
                   </div>
                   <div>
@@ -2295,7 +2295,7 @@ const playSuccessSound = () => {
                     <div className="text-[10px] text-slate-400">Dates, prices, postcodes</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
               </button>
 
               <button
@@ -2304,7 +2304,7 @@ const playSuccessSound = () => {
                 className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
                     O
                   </div>
                   <div>
@@ -2312,7 +2312,7 @@ const playSuccessSound = () => {
                     <div className="text-[10px] text-slate-400">Chronological sequencing</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-600" />
+                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
               </button>
             </CardContent>
           </Card>
@@ -2325,11 +2325,11 @@ const playSuccessSound = () => {
           {/* Top Sticky Bar with Title and Exit Preview Button */}
           <div className="sticky top-0 z-40 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-2xs">
             <div className="flex items-center gap-3">
-              <span className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+              <span className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500">
                 <Eye className="w-4 h-4" />
               </span>
               <div>
-                <h2 className="text-sm font-bold text-slate-900 leading-tight">Student Examination Preview</h2>
+                <h2 className="text-sm font-bold text-slate-800 leading-tight">Student Examination Preview</h2>
                 <p className="text-[11px] text-slate-500">Live interactive split-screen simulation</p>
               </div>
             </div>
