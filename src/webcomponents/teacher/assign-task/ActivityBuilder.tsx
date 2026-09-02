@@ -1476,7 +1476,7 @@ const playSuccessSound = () => {
                 />
               </div>
 
-              {/* Row 2: Skill Selection */}
+              {/* Row 2: Skill Selection & Minimum Mark Threshold */}
               <div className="flex flex-col sm:flex-row gap-4 pt-1">
                 {/* 1. Skill Mode Selector */}
                 <div className="flex flex-col gap-1.5 w-full sm:w-[240px] shrink-0">
@@ -1517,23 +1517,17 @@ const playSuccessSound = () => {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
 
-              {/* Row 3: Passing Criteria Rules */}
-              <div className="pt-3 border-t border-slate-100 space-y-3">
-                <div className="flex items-center">
-                  <Label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                    Passing Criteria Rules
-                  </Label>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Option 1: Minimum Mark Threshold */}
+                {/* 2. Minimum Mark Threshold */}
+                <div className="flex flex-col gap-1.5 w-full flex-1">
+                  <span className="text-xs font-semibold text-transparent h-4 leading-4 select-none hidden sm:block" aria-hidden="true">
+                    Threshold
+                  </span>
                   <div className={cn(
-                    "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3",
+                    "px-3.5 py-1 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 h-auto sm:h-[40px]",
                     requirePassMark ? "bg-blue-50/40 border-blue-200" : "bg-slate-50/60 border-slate-200"
                   )}>
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 shrink-0 py-1 sm:py-0">
                       <Checkbox 
                         id="requirePassMark" 
                         checked={requirePassMark}
@@ -1545,47 +1539,50 @@ const playSuccessSound = () => {
                     </div>
 
                     {requirePassMark && (
-                      <div className="flex items-center gap-2 pl-6 pt-1">
-                        <div className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-lg border border-blue-200 shadow-2xs">
-                          <span className="text-xs font-medium text-slate-600">Pass Mark:</span>
+                      <div className="flex items-center gap-2 pb-1 sm:pb-0 shrink-0">
+                        <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-lg border border-blue-200 shadow-2xs">
+                          <span className="text-[11px] font-medium text-slate-600">Pass Mark:</span>
                           <Input 
                             type="number" 
                             value={passMark}
                             onChange={(e) => setPassMark(e.target.value)}
-                            className="w-16 h-7 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:ring-blue-500"
+                            className="w-12 h-6 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:ring-blue-500"
                             placeholder="18"
                             min="0"
                             max={totalCalculatedMarks || 100}
                           />
-                          <span className="text-xs text-slate-500 font-semibold">
-                            / {totalCalculatedMarks} marks
+                          <span className="text-[11px] text-slate-500 font-semibold">
+                            / {totalCalculatedMarks}
                           </span>
                         </div>
                         {totalCalculatedMarks > 0 && passMark && Number(passMark) > 0 && (
-                          <span className="text-[11px] font-semibold text-blue-700 bg-blue-100/70 px-2 py-1 rounded-md">
+                          <span className="text-[10px] font-semibold text-blue-700 bg-blue-100/70 px-1.5 py-0.5 rounded-md">
                             {Math.round((Number(passMark) / totalCalculatedMarks) * 100)}%
                           </span>
                         )}
                       </div>
                     )}
                   </div>
+                </div>
+              </div>
 
-                  {/* Option 2: Skill Criteria Checklist */}
-                  <div className={cn(
-                    "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3 md:col-span-2",
-                    mustPassAllSkills ? "bg-slate-50 border-slate-300 shadow-sm" : "bg-slate-50/60 border-slate-200"
-                  )}>
-                    <div className="flex items-start justify-between flex-wrap gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <Checkbox 
-                          id="mustPassAllSkills" 
-                          checked={mustPassAllSkills}
-                          onCheckedChange={(checked) => setMustPassAllSkills(checked === true)}
-                        />
-                        <Label htmlFor="mustPassAllSkills" className="text-xs font-semibold text-slate-800 cursor-pointer">
-                          Skill Criteria Checklist
-                        </Label>
-                      </div>
+              {/* Row 3: Skill Criteria Checklist */}
+              <div className="pt-3 border-t border-slate-100 space-y-3">
+                <div className={cn(
+                  "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3",
+                  mustPassAllSkills ? "bg-slate-50 border-slate-300 shadow-sm" : "bg-slate-50/60 border-slate-200"
+                )}>
+                  <div className="flex items-start justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <Checkbox 
+                        id="mustPassAllSkills" 
+                        checked={mustPassAllSkills}
+                        onCheckedChange={(checked) => setMustPassAllSkills(checked === true)}
+                      />
+                      <Label htmlFor="mustPassAllSkills" className="text-xs font-semibold text-slate-800 cursor-pointer">
+                        Skill Criteria Checklist
+                      </Label>
+                    </div>
 
                       {mustPassAllSkills && (
                         <Button
@@ -1687,7 +1684,6 @@ const playSuccessSound = () => {
                     )}
                   </div>
                 </div>
-              </div>
 
               {/* Custom Skill Input (when Custom / Non-Preset is selected) */}
               {taskType === "GRAMMAR" && (
