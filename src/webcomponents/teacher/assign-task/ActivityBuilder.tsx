@@ -1767,35 +1767,36 @@ const playSuccessSound = () => {
               <div key={section.id} className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-none">
                 
                 {/* Section Header (Grey Background) */}
-                <div className="bg-slate-50/80 border-b border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex-1 max-w-xl">
-                    <div className="flex items-center gap-2 mb-1.5">
+                <div className="bg-slate-50/80 border-b border-slate-200 p-3 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                  <div className="flex-1 w-full max-w-2xl flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <Folder className="w-4 h-4 text-slate-400" />
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Task {secIdx + 1}</span>
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Task {secIdx + 1}</span>
                     </div>
+                    <div className="w-px h-4 bg-slate-200 shrink-0 hidden sm:block"></div>
                     <Input
-                              value={section.title}
-                              onChange={(e) => updateTaskSection(section.id, { title: e.target.value })}
-                              placeholder={`Task ${secIdx + 1} Title`}
-                              className="bg-white border-slate-200 text-slate-800 font-semibold text-xs h-8 focus-visible:border-blue-400 focus-visible:ring-[3px] focus-visible:ring-blue-400/20 placeholder:text-slate-400"
-                            />
+                      value={section.title}
+                      onChange={(e) => updateTaskSection(section.id, { title: e.target.value })}
+                      placeholder="Title (Optional)"
+                      className="bg-white border-slate-200 text-slate-800 font-semibold text-xs h-8 focus-visible:border-blue-400 focus-visible:ring-[3px] focus-visible:ring-blue-400/20 placeholder:text-slate-400 flex-1 min-w-0"
+                    />
                   </div>
 
-                        <div className="flex items-center gap-2.5 self-end sm:self-auto">
-                          <span className="text-xs font-medium text-slate-600 bg-white px-2.5 py-1 rounded-md border border-slate-200">
-                            {sectionQuestions.length} {sectionQuestions.length === 1 ? 'Question' : 'Questions'} ({sectionMarks} {sectionMarks === 1 ? 'Mark' : 'Marks'})
-                          </span>
-                          <Button 
-                            type="button" 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 px-2.5 text-xs font-medium"
-                            onClick={() => removeTaskSection(section.id)}
-                          >
-                            <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete Task
-                          </Button>
-                        </div>
-                      </div>
+                  <div className="flex items-center justify-between xl:justify-end gap-2.5 w-full xl:w-auto shrink-0">
+                    <span className="text-[11px] font-medium text-slate-600 bg-white px-2 py-1 rounded-md border border-slate-200 whitespace-nowrap">
+                      {sectionQuestions.length} {sectionQuestions.length === 1 ? 'Question' : 'Questions'} ({sectionMarks} {sectionMarks === 1 ? 'Mark' : 'Marks'})
+                    </span>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 px-2.5 text-xs font-medium whitespace-nowrap"
+                      onClick={() => removeTaskSection(section.id)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete Task
+                    </Button>
+                  </div>
+                </div>
 
                       <div className="p-5 space-y-5">
                         {/* Section Instruction Field */}
