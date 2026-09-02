@@ -21,6 +21,8 @@ export default function PreviewTaskPage() {
     questions: any[];
     taskSections: any[];
     taskCriteria?: any[];
+    passMark?: number | null;
+    passLogic?: string;
     awardingBody?: string;
     entryLevel?: string;
   } | null>(null);
@@ -143,6 +145,8 @@ export default function PreviewTaskPage() {
             questions: loadedQuestions,
             taskSections: loadedSections,
             taskCriteria: loadedCriteria,
+            passMark: task.passMark ?? null,
+            passLogic: task.readingContent?.passLogic || task.passLogic || undefined,
             awardingBody: task.readingContent?.awardingBody || undefined,
             entryLevel: task.readingContent?.entryType?.[0] || undefined,
           });
@@ -220,6 +224,8 @@ export default function PreviewTaskPage() {
           questions={taskData.questions}
           taskSections={taskData.taskSections}
           taskCriteria={taskData.taskCriteria}
+          passMark={taskData.passMark}
+          passLogic={taskData.passLogic}
           awardingBody={taskData.awardingBody}
           entryLevel={taskData.entryLevel}
         />

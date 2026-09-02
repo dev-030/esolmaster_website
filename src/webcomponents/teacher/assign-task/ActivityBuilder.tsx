@@ -2353,6 +2353,8 @@ const playSuccessSound = () => {
               questions={questions}
               taskSections={taskSections}
               taskCriteria={taskCriteria}
+              passMark={requirePassMark && passMark ? Number(passMark) : null}
+              passLogic={mustPassAllSkills && requirePassMark ? 'CRITERIA_AND_SCORE' : mustPassAllSkills ? 'CRITERIA_ONLY' : 'SCORE_ONLY'}
               awardingBody={awardingBody}
               entryLevel={entryLevel}
             />

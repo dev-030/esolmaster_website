@@ -10,6 +10,8 @@ export interface LocalTaskPreviewProps {
   questions?: any[];
   taskSections?: any[];
   taskCriteria?: any[];
+  passMark?: number | null;
+  passLogic?: string;
   awardingBody?: string;
   entryLevel?: string;
 }
@@ -20,6 +22,8 @@ export const LocalTaskPreview = ({
   questions = [],
   taskSections = [],
   taskCriteria = [],
+  passMark,
+  passLogic,
   awardingBody,
   entryLevel,
 }: LocalTaskPreviewProps) => {
@@ -54,6 +58,19 @@ export const LocalTaskPreview = ({
     GRAMMAR: { label: "Grammar", emoji: "📝" },
     VOCABULARY: { label: "Vocabulary", emoji: "💬" },
   };
+
+  const totalCalculatedMarks = React.useMemo(() => {
+    return questions.reduce((sum: number, q: any) => sum + (q.marks || 1), 0);
+  }, [questions]);
+
+  let passRequirementText = "N/A (Ungraded)";
+  if (passLogic === "CRITERIA_AND_SCORE") {
+    passRequirementText = `${passMark}/${totalCalculatedMarks} Marks & Checklist`;
+  } else if (passLogic === "CRITERIA_ONLY") {
+    passRequirementText = "Checklist Only";
+  } else if (passLogic === "SCORE_ONLY" && passMark !== null && passMark !== undefined) {
+    passRequirementText = `${passMark}/${totalCalculatedMarks} Marks`;
+  }
 
   const currentSkill = skillMeta[taskType] || { label: taskType, emoji: "📄" };
 
@@ -130,6 +147,12 @@ export const LocalTaskPreview = ({
           {entryLevel && (
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
               {entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}
+            </span>
+          )}
+          {passRequirementText !== "N/A (Ungraded)" && (
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-2xs ml-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              Pass: {passRequirementText}
             </span>
           )}
         </div>
