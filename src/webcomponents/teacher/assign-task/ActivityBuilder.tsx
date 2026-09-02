@@ -225,7 +225,7 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
                   updateQuestion(q.id, { content: val, config: { ...q.config, heading: val } });
                 }}
                 placeholder="e.g. Questions 1–8: Choose the correct answer."
-                className="h-8 text-xs bg-white border-slate-200 font-medium text-slate-800 focus-visible:ring-blue-400"
+                className="h-8 text-xs bg-white border-slate-200 font-medium text-slate-800 focus-visible:border-blue-400 focus-visible:ring-[3px] focus-visible:ring-blue-400/20"
               />
             </CardContent>
           ) : (
@@ -1463,7 +1463,7 @@ const playSuccessSound = () => {
                 <Textarea 
                   id="field-title"
                   className={cn(
-                    "min-h-9 resize-none focus-visible:ring-blue-500 shadow-none py-1.5 transition-all",
+                    "min-h-9 resize-none focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 shadow-none py-1.5 transition-all",
                     invalidFieldKeys.title ? "border-red-400 ring-2 ring-red-400/20 bg-red-50/20" : "border-slate-200"
                   )}
                   placeholder="e.g. Ascentis Entry 1 Reading Practice Paper A" 
@@ -1548,7 +1548,7 @@ const playSuccessSound = () => {
                             type="number" 
                             value={passMark}
                             onChange={(e) => setPassMark(e.target.value)}
-                            className="w-14 h-7 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:ring-blue-500 bg-white shadow-sm rounded-md"
+                            className="w-14 h-7 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 bg-white shadow-sm rounded-md"
                             placeholder="18"
                             min="0"
                             max={totalCalculatedMarks || 100}
@@ -1613,14 +1613,14 @@ const playSuccessSound = () => {
                                 placeholder="Code (e.g. 1.1, Ra, S1)"
                                 value={newCritCode}
                                 onChange={(e) => setNewCritCode(e.target.value)}
-                                className="w-full sm:w-28 h-8 text-xs font-bold text-slate-800 border-slate-200 focus-visible:ring-blue-500"
+                                className="w-full sm:w-28 h-8 text-xs font-bold text-slate-800 border-slate-200 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20"
                                 autoFocus
                               />
                               <Input 
                                 placeholder="Description (Optional)"
                                 value={newCritDesc}
                                 onChange={(e) => setNewCritDesc(e.target.value)}
-                                className="flex-1 h-8 text-xs border-slate-200 focus-visible:ring-blue-500"
+                                className="flex-1 h-8 text-xs border-slate-200 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20"
                               />
                               <Button 
                                 type="button" 
@@ -1702,7 +1702,7 @@ const playSuccessSound = () => {
                     value={customSkillName}
                     onChange={(e) => setCustomSkillName(e.target.value)}
                     placeholder="e.g. Pronunciation & Phonics, Spelling & Punctuation..."
-                    className="h-10 text-xs border-slate-200 bg-white shadow-2xs focus-visible:ring-blue-500"
+                    className="h-10 text-xs border-slate-200 bg-white shadow-2xs focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20"
                   />
                   <p className="text-[11px] text-slate-500 font-medium pt-1">
                     Define a custom skill area outside the standard four UK ESOL skill presets.
@@ -1781,7 +1781,7 @@ const playSuccessSound = () => {
                               value={section.title}
                               onChange={(e) => updateTaskSection(section.id, { title: e.target.value })}
                               placeholder={`Task ${secIdx + 1} Title`}
-                              className="bg-white border-slate-200 text-slate-800 font-semibold text-xs h-8 focus-visible:ring-blue-400 placeholder:text-slate-400"
+                              className="bg-white border-slate-200 text-slate-800 font-semibold text-xs h-8 focus-visible:border-blue-400 focus-visible:ring-[3px] focus-visible:ring-blue-400/20 placeholder:text-slate-400"
                             />
                   </div>
 
@@ -1811,7 +1811,7 @@ const playSuccessSound = () => {
                             value={section.instruction}
                             onChange={(e) => updateTaskSection(section.id, { instruction: e.target.value })}
                             placeholder="e.g. Read the text and answer questions."
-                            className="text-xs border-slate-200 h-9 bg-slate-50/50 font-medium text-slate-800 focus-visible:ring-blue-400"
+                            className="text-xs border-slate-200 h-9 bg-slate-50/50 font-medium text-slate-800 focus-visible:border-blue-400 focus-visible:ring-[3px] focus-visible:ring-blue-400/20"
                           />
                         </div>
 
