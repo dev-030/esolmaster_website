@@ -36,7 +36,13 @@ export async function handleRefresh(request: NextRequest) {
       throw new Error("Backend did not return new cookies");
     }
 
-    const nextResponse = NextResponse.next();
+    const { pathname } = request.nextUrl;
+    const isRoot = pathname === "/";
+    const isAuthPage = ["/login", "/register", "/signup", "/forgot-password"].includes(pathname);
+
+    const nextResponse = isRoot || isAuthPage
+      ? NextResponse.redirect(new URL("/dashboard", request.url))
+      : NextResponse.next();
     const isProd = process.env.NODE_ENV === "production";
 
     // Parse and forward new accessToken
