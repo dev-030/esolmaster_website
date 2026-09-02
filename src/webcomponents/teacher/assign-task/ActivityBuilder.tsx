@@ -1527,8 +1527,8 @@ const playSuccessSound = () => {
                 {/* 2. Minimum Mark Threshold */}
                 <div className="flex flex-col w-full flex-1">
                   <div className={cn(
-                    "px-3.5 py-1 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 h-auto sm:h-[40px]",
-                    requirePassMark ? "bg-blue-50/40 border-blue-200" : "bg-slate-50/60 border-slate-200"
+                    "px-3.5 py-1 rounded-lg border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 h-auto sm:h-[40px]",
+                    requirePassMark ? "bg-blue-50/40 border-blue-200" : "bg-white border-slate-200"
                   )}>
                     <div className="flex items-center gap-2.5 shrink-0 py-1 sm:py-0">
                       <Checkbox 
@@ -1572,8 +1572,8 @@ const playSuccessSound = () => {
               {/* Row 3: Skill Criteria Checklist */}
               <div className="pt-2 space-y-3">
                 <div className={cn(
-                  "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3",
-                  mustPassAllSkills ? "bg-blue-50/40 border-blue-200" : "bg-slate-50/60 border-slate-200"
+                  "p-3.5 rounded-lg border transition-all flex flex-col justify-between gap-3",
+                  mustPassAllSkills ? "bg-blue-50/40 border-blue-200" : "bg-white border-slate-200"
                 )}>
                   <div className="flex items-start justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2.5">
@@ -1692,7 +1692,7 @@ const playSuccessSound = () => {
 
               {/* Custom Skill Input (when Custom / Non-Preset is selected) */}
               {taskType === "GRAMMAR" && (
-                <div className="space-y-2 pt-2 pb-2 p-4 mt-2 bg-slate-50 border border-slate-200 rounded-xl shadow-2xs">
+                <div className="space-y-2 pt-2 pb-2 p-4 mt-2 bg-white border border-slate-200 rounded-lg shadow-none">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-blue-600" />
