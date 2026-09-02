@@ -1548,7 +1548,7 @@ const playSuccessSound = () => {
                             type="number" 
                             value={passMark}
                             onChange={(e) => setPassMark(e.target.value)}
-                            className="w-14 h-7 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 bg-white shadow-sm rounded-md"
+                            className="w-14 h-7 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 bg-white rounded-md shadow-none"
                             placeholder="18"
                             min="0"
                             max={totalCalculatedMarks || 100}
