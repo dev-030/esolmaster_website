@@ -63,16 +63,16 @@ export const LocalTaskPreview = ({
     return questions.reduce((sum: number, q: any) => sum + (q.marks || 1), 0);
   }, [questions]);
 
-  const renderMarksBox = (val: string | number) => (
-    <span className="bg-amber-100/80 text-amber-900 px-1.5 rounded-[3px] border border-amber-300/60 shadow-xs mx-0.5 min-w-[1.25rem] text-center inline-block">{val}</span>
+  const renderMarkText = (val: string | number) => (
+    <span className="font-black text-amber-900">{val}</span>
   );
 
   const criteriaCodesNode = taskCriteria && taskCriteria.length > 0 ? (
-    <span className="inline-flex items-center flex-wrap gap-0.5 ml-1">
+    <span className="inline-flex items-center flex-wrap ml-1">
       {taskCriteria.map((c: any, i: number) => (
         <React.Fragment key={c.id || i}>
-          {renderMarksBox(c.code)}
-          {i < taskCriteria.length - 1 && <span className="text-amber-300/80 text-[10px] px-0.5">|</span>}
+          {renderMarkText(c.code)}
+          {i < taskCriteria.length - 1 && <span className="text-amber-300/80 font-bold mx-1">|</span>}
         </React.Fragment>
       ))}
     </span>
@@ -80,9 +80,9 @@ export const LocalTaskPreview = ({
 
   const renderMarksFraction = () => (
     <span className="inline-flex items-center ml-1">
-      {renderMarksBox(passMark ?? 0)}
-      <span className="text-amber-400 font-black px-0.5">/</span>
-      {renderMarksBox(totalCalculatedMarks)}
+      {renderMarkText(passMark ?? 0)}
+      <span className="text-amber-400 font-black px-1">/</span>
+      {renderMarkText(totalCalculatedMarks)}
     </span>
   );
 
@@ -313,8 +313,8 @@ export const LocalTaskPreview = ({
                           {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                         </span>
                       )}
-                      <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 pl-0.5 pr-1.5 py-0.5 rounded flex items-center gap-1">
-                        <span className="bg-slate-200/80 text-slate-700 px-1 rounded-[3px] border border-slate-300/50 shadow-xs min-w-[1rem] text-center inline-block">
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
+                        <span className="font-black text-slate-700">
                           {currentQuestion?.marks ?? 1}
                         </span>
                         {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
@@ -421,8 +421,8 @@ export const LocalTaskPreview = ({
                         {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                       </span>
                     )}
-                    <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 pl-0.5 pr-1.5 py-0.5 rounded flex items-center gap-1">
-                      <span className="bg-slate-200/80 text-slate-700 px-1 rounded-[3px] border border-slate-300/50 shadow-xs min-w-[1rem] text-center inline-block">
+                    <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <span className="font-black text-slate-700">
                         {currentQuestion?.marks ?? 1}
                       </span>
                       {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
