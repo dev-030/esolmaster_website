@@ -4,7 +4,7 @@ import { axios } from "@/lib/axios";
 import dynamic from "next/dynamic";
 const PdfSnippingTool = dynamic(() => import("./PdfSnippingTool"), { ssr: false });
 import { cropPdfContext } from "@/lib/pdfCropper";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -330,6 +330,7 @@ export default function ActivityBuilder() {
   const { data: currentFolder } = useGetFolderById(selectedFolderId || folderId || "");
 
   const [title, setTitle] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [taskType, setTaskType] = useState<TaskType>("READING");
   const [customSkillName, setCustomSkillName] = useState<string>("");
   const [awardingBody, setAwardingBody] = useState<AwardingBodyType>("ASCENTIS");
@@ -1390,39 +1391,38 @@ const playSuccessSound = () => {
         </div>
         <div className="flex items-center gap-3">
           
-          <div className="relative group">
-            <input 
-              type="file" 
-              accept=".pdf,.doc,.docx,.rtf,.txt" 
-              onChange={handleImportPdf} 
-              className="absolute inset-0 z-10 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-              disabled={isImporting || !!pdfFileForSnipping}
-              title=""
-            />
-            <Button 
-              variant="outline" 
-              disabled={isImporting || !!pdfFileForSnipping}
-              className={`border-blue-200 text-blue-500 min-w-[140px] transition-all duration-300 pointer-events-none ${
-                isImporting 
-                  ? "bg-blue-50 animate-pulse border-blue-300 shadow-inner cursor-not-allowed opacity-90" 
-                  : !!pdfFileForSnipping 
-                    ? "opacity-50 cursor-not-allowed bg-slate-50 border-slate-200 text-slate-500" 
-                    : "group-hover:bg-blue-50 group-hover:border-blue-300 group-hover:shadow-sm"
-              }`}
-            >
-              {isImporting ? (
-                <div className="flex items-center space-x-2 animate-in fade-in zoom-in duration-300">
-                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                  <span className="text-sm font-medium">{importProgressText}</span>
-                </div>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
-                  Import Document
-                </>
-              )}
-            </Button>
-          </div>
+          <input 
+            type="file" 
+            ref={fileInputRef}
+            accept=".pdf,.doc,.docx,.rtf,.txt" 
+            onChange={handleImportPdf} 
+            className="hidden"
+            disabled={isImporting || !!pdfFileForSnipping}
+          />
+          <Button 
+            variant="outline" 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting || !!pdfFileForSnipping}
+            className={`border-blue-200 text-blue-500 min-w-[140px] transition-all duration-300 cursor-pointer ${
+              isImporting 
+                ? "bg-blue-50 animate-pulse border-blue-300 shadow-inner cursor-not-allowed opacity-90" 
+                : !!pdfFileForSnipping 
+                  ? "opacity-50 cursor-not-allowed bg-slate-50 border-slate-200 text-slate-500" 
+                  : "hover:bg-blue-50 hover:border-blue-300 hover:shadow-sm"
+            }`}
+          >
+            {isImporting ? (
+              <div className="flex items-center space-x-2 animate-in fade-in zoom-in duration-300">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                <span className="text-sm font-medium">{importProgressText}</span>
+              </div>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
+                Import Document
+              </>
+            )}
+          </Button>
 
           <Button 
             variant="outline" 
