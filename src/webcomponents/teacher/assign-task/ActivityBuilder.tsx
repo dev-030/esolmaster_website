@@ -1447,26 +1447,21 @@ const playSuccessSound = () => {
                 Total Marks: <span className="text-blue-600 font-bold">{totalCalculatedMarks}</span>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6 px-6 py-6">
+            <CardContent className="space-y-3 px-6 py-6">
               {/* Row 1: Title */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium text-slate-700">
-                    Assessment / Activity Title <span className="text-red-500">*</span>
-                  </Label>
-                  {invalidFieldKeys.title && (
-                    <span className="text-xs text-red-600 font-semibold flex items-center gap-1">
-                      <AlertCircle className="w-3.5 h-3.5" /> Title is required
-                    </span>
-                  )}
-                </div>
+              <div className="relative">
+                {invalidFieldKeys.title && (
+                  <span className="absolute -top-5 right-0 text-xs text-red-600 font-semibold flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" /> Title is required
+                  </span>
+                )}
                 <Textarea 
                   id="field-title"
                   className={cn(
-                    "min-h-9 resize-none focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 shadow-none py-1.5 transition-all",
+                    "min-h-9 resize-none focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 shadow-none py-2 transition-all font-medium",
                     invalidFieldKeys.title ? "border-red-400 ring-2 ring-red-400/20 bg-red-50/20" : "border-slate-200"
                   )}
-                  placeholder="e.g. Ascentis Entry 1 Reading Practice Paper A" 
+                  placeholder="Assessment / Activity Title * (e.g. Ascentis Entry 1 Reading)" 
                   value={title} 
                   onChange={(e) => {
                     setTitle(e.target.value);
@@ -1481,10 +1476,12 @@ const playSuccessSound = () => {
               {/* Row 2: Skill Selection & Minimum Mark Threshold */}
               <div className="flex flex-col sm:flex-row gap-4 pt-1">
                 {/* 1. Skill Mode Selector */}
-                <div className="flex flex-col gap-1.5 w-full sm:w-[240px] shrink-0">
-                  <span className="text-xs font-semibold text-slate-700 h-4 leading-4">
-                    Primary Skill Area <span className="text-red-500">*</span>
-                  </span>
+                <div className="flex flex-col gap-1.5 w-full sm:w-[240px] shrink-0 relative">
+                  {invalidFieldKeys.taskType && (
+                    <span className="absolute -top-5 left-0 text-xs text-red-600 font-semibold flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" /> Required
+                    </span>
+                  )}
                   <Select 
                     value={taskType} 
                     onValueChange={(val) => { 
@@ -1497,17 +1494,24 @@ const playSuccessSound = () => {
                     <SelectTrigger 
                       id="field-taskType"
                       className={cn(
-                        "w-full text-xs shadow-none transition-all bg-white",
+                        "w-full text-xs shadow-none transition-all bg-white font-medium",
                         invalidFieldKeys.taskType ? "border-red-400 ring-2 ring-red-400/20" : "border-slate-200"
                       )} 
                       style={{ height: '40px' }}
                     >
-                      <SelectValue placeholder="Select skill">
-                        {taskType === "READING" ? "📖 Reading" :
-                         taskType === "WRITING" ? "✍️ Writing" :
-                         taskType === "SPEAKING" ? "🗣️ Speaking" :
-                         taskType === "LISTENING" ? "🎧 Listening" :
-                         taskType === "GRAMMAR" ? "⚙️ Custom / Non-Preset" : "Select skill"}
+                      <SelectValue placeholder="Primary Skill Area *">
+                        {taskType ? (
+                          <span className="flex items-center gap-1.5">
+                            <span className="text-slate-400 font-normal mr-1 border-r border-slate-200 pr-2">Skill Area</span>
+                            {taskType === "READING" ? "📖 Reading" :
+                             taskType === "WRITING" ? "✍️ Writing" :
+                             taskType === "SPEAKING" ? "🗣️ Speaking" :
+                             taskType === "LISTENING" ? "🎧 Listening" :
+                             taskType === "GRAMMAR" ? "⚙️ Custom / Non-Preset" : "Select skill"}
+                          </span>
+                        ) : (
+                          <span className="text-slate-500">Primary Skill Area <span className="text-red-400">*</span></span>
+                        )}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="min-w-[200px]">
@@ -1521,10 +1525,7 @@ const playSuccessSound = () => {
                 </div>
 
                 {/* 2. Minimum Mark Threshold */}
-                <div className="flex flex-col gap-1.5 w-full flex-1">
-                  <span className="text-xs font-semibold text-transparent h-4 leading-4 select-none hidden sm:block" aria-hidden="true">
-                    Threshold
-                  </span>
+                <div className="flex flex-col w-full flex-1">
                   <div className={cn(
                     "px-3.5 py-1 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 h-auto sm:h-[40px]",
                     requirePassMark ? "bg-blue-50/40 border-blue-200" : "bg-slate-50/60 border-slate-200"
