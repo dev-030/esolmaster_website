@@ -138,19 +138,19 @@ export const LocalTaskPreview = ({
       {/* Header Bar */}
       <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-slate-200">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">
             {title || "Untitled Activity"}
           </h1>
-          <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1.5 shadow-2xs">
+          <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-500 border border-blue-200 flex items-center gap-1.5 shadow-2xs">
             <span>{currentSkill.emoji}</span> {currentSkill.label}
           </span>
           {awardingBody && awardingBody !== "CUSTOM" && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-500 border border-blue-200">
               {awardingBody}
             </span>
           )}
           {entryLevel && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 border border-slate-200">
               {entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}
             </span>
           )}
@@ -161,16 +161,16 @@ export const LocalTaskPreview = ({
             </span>
           )}
         </div>
-        <div className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+        <div className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
           Question {currentIndex + 1} of {totalQuestions}
         </div>
       </div>
 
       {/* Progress Bar */}
       <div className="flex items-center gap-4">
-        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner">
+        <div className="flex-1 h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-200 shadow-inner">
           <div
-            className="h-full bg-blue-600 transition-all duration-300 ease-out"
+            className="h-full bg-blue-500 transition-all duration-300 ease-out"
             style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
           />
         </div>
@@ -269,7 +269,7 @@ export const LocalTaskPreview = ({
                     <span>📄 Instruction Line</span>
                   </div>
                   <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-800">
-                    <p className="text-sm font-semibold text-slate-900 leading-snug">
+                    <p className="text-sm font-semibold text-slate-800 leading-snug">
                       {currentQuestion.content || currentQuestion.config?.heading || "Instruction"}
                     </p>
                   </div>
@@ -277,7 +277,7 @@ export const LocalTaskPreview = ({
               ) : (
                 <>
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">
                       Question {currentIndex + 1}
                     </span>
                     <div className="flex items-center gap-2">
@@ -290,7 +290,7 @@ export const LocalTaskPreview = ({
                           {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                         </span>
                       )}
-                      <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
                         {currentQuestion?.marks ?? 1}{" "}
                         {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
                       </span>
@@ -315,19 +315,19 @@ export const LocalTaskPreview = ({
                 variant="outline"
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
-                className="border-slate-200"
+                className="border-slate-200 text-slate-500 hover:text-slate-700"
               >
                 Previous
               </Button>
 
               {currentIndex < totalQuestions - 1 ? (
-                <Button onClick={handleNext} className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button onClick={handleNext} className="bg-blue-500 hover:bg-blue-600 text-white">
                   Next Question
                 </Button>
               ) : (
                 <Button
                   onClick={() => setSubmitted(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold"
                 >
                   Submit Assessment
                 </Button>
@@ -342,7 +342,7 @@ export const LocalTaskPreview = ({
             {/* Task Banner */}
             {activeSection?.title && (
               <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                <span className="bg-blue-50 text-blue-500 border border-blue-200 text-xs font-bold px-2.5 py-0.5 rounded-full">
                   {activeSection.title}
                 </span>
                 {activeSection.instruction && (
@@ -375,7 +375,7 @@ export const LocalTaskPreview = ({
                   <span>📄 Instruction Line</span>
                 </div>
                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-800">
-                  <p className="text-sm font-semibold text-slate-900 leading-snug">
+                  <p className="text-sm font-semibold text-slate-800 leading-snug">
                     {currentQuestion.content || currentQuestion.config?.heading || "Instruction"}
                   </p>
                 </div>
@@ -383,7 +383,7 @@ export const LocalTaskPreview = ({
             ) : (
               <>
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">
                     Question {currentIndex + 1}
                   </span>
                   <div className="flex items-center gap-2">
@@ -396,7 +396,7 @@ export const LocalTaskPreview = ({
                         {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                       </span>
                     )}
-                    <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
                       {currentQuestion?.marks ?? 1}{" "}
                       {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
                     </span>
@@ -420,19 +420,19 @@ export const LocalTaskPreview = ({
               variant="outline"
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className="border-slate-200"
+              className="border-slate-200 text-slate-500 hover:text-slate-700"
             >
               Previous
             </Button>
 
             {currentIndex < totalQuestions - 1 ? (
-              <Button onClick={handleNext} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button onClick={handleNext} className="bg-blue-500 hover:bg-blue-600 text-white">
                 Next Question
               </Button>
             ) : (
               <Button
                 onClick={() => setSubmitted(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold"
               >
                 Submit Assessment
               </Button>
