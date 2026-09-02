@@ -17,12 +17,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Send, Trash2, GripVertical, Save, Eye, Award, CheckCircle2, AlertCircle, Sparkles, Folder, BookOpen, X, Loader2, ArrowLeft, ChevronRight, School, Scissors, FileText } from "lucide-react";
+import { PlusCircle, Send, Trash2, GripVertical, Save, Eye, Award, CheckCircle2, AlertCircle, Sparkles, Folder, BookOpen, X, Loader2, ArrowLeft, ChevronRight, School, Scissors, FileText, Plus, Check, Tag } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { createTask, getTaskById, updateTask } from "@/api/task/api";
 import { useGetCriteria } from "@/api/criteria/criteria";
+import { CriteriaModal } from "../criteria-card/CriteriaModal";
 import { useGetFolders, useGetFolderById } from "@/api/folder";
 import { 
   MCQConfigUI, 
@@ -104,7 +105,7 @@ const getAnswerText = (q: any) => {
   return q.config?.answer || '';
 };
 
-const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, updateQuestion, removeQuestion, criteriaList, isInvalid, errorMsg }: any) => {
+const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, updateQuestion, removeQuestion, criteriaList, mustPassAllSkills, isInvalid, errorMsg }: any) => {
   const isExpanded = q.isExpanded !== false;
   const currentCriterion = criteriaList?.find((c: any) => c.id === q.criterionId);
 
@@ -135,59 +136,66 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
               {q.type === "INSTRUCTION" ? "Instruction Line" : `${questionNumber ?? (index + 1)}. ${q.type.replace(/_/g, " ")}`}
             </CardTitle>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 flex-wrap">
             {q.type !== "INSTRUCTION" && (
-              isExpanded ? (
-                <div className="flex items-center gap-3 mr-2">
-                  {criteriaList && criteriaList.length > 0 && (
-                    <div className="flex items-center gap-1.5">
-                      <Label className="text-xs font-medium text-slate-500">Criterion</Label>
-                      <Select
-                        value={q.criterionId || "none"}
-                        onValueChange={(val) => updateQuestion(q.id, { criterionId: val === "none" ? undefined : val })}
-                      >
-                        <SelectTrigger className="h-7 text-xs bg-white border-slate-200 min-w-[100px] max-w-[150px]">
-                          <SelectValue placeholder="Criterion" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none" className="text-xs text-slate-400">None</SelectItem>
-                          {criteriaList.map((crit: any) => (
-                            <SelectItem key={crit.id} value={crit.id} className="text-xs">
-                              {crit.code} - {crit.description}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+              <>
+                {/* 1. Criterion Selector Dropdown (Active when Skill Criteria Checklist is enabled) */}
+                {mustPassAllSkills && (
+                  <div className="flex items-center gap-1">
+                    <Select
+                      value={q.criterionId || "none"}
+                      onValueChange={(val) => updateQuestion(q.id, { criterionId: val === "none" ? undefined : val })}
+                    >
+                      <SelectTrigger className={cn(
+                        "h-7 text-xs border transition-all rounded-md max-w-[170px]",
+                        q.criterionId 
+                          ? "bg-purple-50 text-purple-900 border-purple-200 font-bold px-2 shadow-2xs" 
+                          : "bg-white text-slate-400 border-dashed border-slate-300 hover:border-slate-400 font-medium px-2"
+                      )}>
+                        <SelectValue placeholder="+ Map Criterion">
+                          {currentCriterion ? (
+                            <span className="truncate flex items-center gap-1">
+                              <span className="font-bold text-purple-900">{currentCriterion.code}</span>
+                              <span className="text-[10px] text-purple-700 font-normal">({currentCriterion.description})</span>
+                            </span>
+                          ) : (
+                            <span className="text-slate-400 font-normal">+ Map Criterion</span>
+                          )}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="max-h-56">
+                        <SelectItem value="none" className="text-xs text-slate-400">
+                          None (No Criterion)
+                        </SelectItem>
+                        {criteriaList?.map((crit: any) => (
+                          <SelectItem key={crit.id} value={crit.id} className="text-xs">
+                            <span className="font-bold text-purple-900 mr-1.5">{crit.code}</span>
+                            <span className="text-slate-600">{crit.description}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* 2. Marks Input/Badge */}
+                {isExpanded ? (
                   <div className="flex items-center gap-1.5">
                     <Label className="text-xs font-medium text-slate-500">Marks</Label>
                     <Input 
                       type="number" 
                       min="0" 
-                      className="w-16 h-7 text-xs text-center px-1 py-0 bg-white" 
+                      className="w-14 h-7 text-xs text-center px-1 py-0 bg-white" 
                       value={q.marks ?? 1} 
                       onChange={(e) => updateQuestion(q.id, { marks: parseInt(e.target.value) || 0 })}
                     />
                   </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1.5">
-                  {q.criterionId && criteriaList && (
-                    (() => {
-                      const matched = criteriaList.find((c: any) => c.id === q.criterionId);
-                      return matched ? (
-                        <div className="text-[11px] font-semibold bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md border border-purple-200">
-                          {matched.code}
-                        </div>
-                      ) : null;
-                    })()
-                  )}
+                ) : (
                   <div className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
                     {q.marks ?? 1} {q.marks === 1 ? 'Mark' : 'Marks'}
                   </div>
-                </div>
-              )
+                )}
+              </>
             )}
             <div className="flex items-center gap-1">
               <Button type="button" 
@@ -326,11 +334,30 @@ export default function ActivityBuilder() {
   const [requirePassMark, setRequirePassMark] = useState<boolean>(true);
   const [passMark, setPassMark] = useState<string>("18");
   const [mustPassAllSkills, setMustPassAllSkills] = useState<boolean>(true);
+  const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState<boolean>(false);
   
   // Multi-Task Sections state
   const [taskSections, setTaskSections] = useState<TaskSection[]>([]);
   
   const [questions, setQuestions] = useState<QuestionConfig[]>([]);
+
+  // Criteria mapping statistics
+  const criteriaCoverage = React.useMemo(() => {
+    if (!criteriaList || criteriaList.length === 0) {
+      return { coveredCount: 0, total: 0, percentage: 0, map: {} as Record<string, number> };
+    }
+    const map: Record<string, number> = {};
+    criteriaList.forEach((c: any) => { map[c.id] = 0; });
+    questions.forEach((q) => {
+      if (q.criterionId && map[q.criterionId] !== undefined) {
+        map[q.criterionId] += 1;
+      }
+    });
+    const coveredCount = Object.values(map).filter(count => count > 0).length;
+    const total = criteriaList.length;
+    const percentage = total > 0 ? Math.round((coveredCount / total) * 100) : 0;
+    return { coveredCount, total, percentage, map };
+  }, [criteriaList, questions]);
   const [activeSectionId, setActiveSectionId] = useState<string>("");
   const [initialQuestionIds, setInitialQuestionIds] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -1505,30 +1532,107 @@ const playSuccessSound = () => {
 
                   {/* Option 2: Skill Criteria Checklist */}
                   <div className={cn(
-                    "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3",
+                    "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3 md:col-span-2",
                     mustPassAllSkills ? "bg-purple-50/40 border-purple-200" : "bg-slate-50/60 border-slate-200"
                   )}>
-                    <div className="flex items-start gap-2.5">
-                      <Checkbox 
-                        id="mustPassAllSkills" 
-                        checked={mustPassAllSkills}
-                        onCheckedChange={(checked) => setMustPassAllSkills(checked === true)}
-                        className="mt-0.5"
-                      />
-                      <div className="flex flex-col gap-0.5">
-                        <Label htmlFor="mustPassAllSkills" className="text-xs font-semibold text-slate-800 cursor-pointer">
-                          Skill Criteria Checklist
-                        </Label>
-                        <p className="text-[11px] text-slate-500">
-                          Learner must satisfy all assessed skill criteria checklist items (e.g. ESB, Ascentis).
-                        </p>
+                    <div className="flex items-start justify-between flex-wrap gap-2">
+                      <div className="flex items-start gap-2.5">
+                        <Checkbox 
+                          id="mustPassAllSkills" 
+                          checked={mustPassAllSkills}
+                          onCheckedChange={(checked) => setMustPassAllSkills(checked === true)}
+                          className="mt-0.5"
+                        />
+                        <div className="flex flex-col gap-0.5">
+                          <Label htmlFor="mustPassAllSkills" className="text-xs font-semibold text-slate-800 cursor-pointer">
+                            Skill Criteria Checklist
+                          </Label>
+                          <p className="text-[11px] text-slate-500">
+                            Learner must satisfy all assessed skill criteria checklist items (e.g. ESB, Ascentis).
+                          </p>
+                        </div>
                       </div>
+
+                      {mustPassAllSkills && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsCriteriaModalOpen(true)}
+                          className="h-7 text-xs bg-white text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800 font-semibold cursor-pointer shadow-2xs"
+                        >
+                          <Plus className="w-3.5 h-3.5 mr-1 text-purple-600" /> Manage / Add Criteria
+                        </Button>
+                      )}
                     </div>
 
                     {mustPassAllSkills && (
-                      <div className="pl-6 text-[11px] text-purple-700 bg-purple-100/50 px-2.5 py-1.5 rounded-lg border border-purple-200/60 font-medium flex items-center gap-1.5">
-                        <span className="text-purple-600 font-bold">✓</span>
-                        Requires 100% criteria checklist coverage across questions
+                      <div className="pl-6 pt-1 space-y-2.5">
+                        {/* Live Coverage Bar */}
+                        <div className="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-purple-200/80 shadow-2xs">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-purple-900">Criteria Coverage:</span>
+                            <span className={cn(
+                              "text-xs font-bold px-2 py-0.5 rounded-full border",
+                              criteriaCoverage.percentage === 100 && criteriaCoverage.total > 0
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                                : "bg-purple-100 text-purple-800 border-purple-200"
+                            )}>
+                              {criteriaCoverage.coveredCount} of {criteriaCoverage.total} Covered ({criteriaCoverage.percentage}%)
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-slate-400 font-medium">
+                            {criteriaCoverage.percentage === 100 && criteriaCoverage.total > 0
+                              ? "✓ Ready for qualification assessment"
+                              : "⚠️ Assign criteria to question cards below"}
+                          </span>
+                        </div>
+
+                        {/* Criteria Grid Chips */}
+                        {criteriaList.length === 0 ? (
+                          <div className="bg-white/80 rounded-lg p-3 border border-purple-200/60 text-center space-y-1">
+                            <p className="text-xs text-slate-600 font-medium">No skill criteria defined in the system yet.</p>
+                            <p className="text-[11px] text-slate-400">Click &quot;Manage / Add Criteria&quot; above to create criteria codes (e.g. 1.1, 1.2, 2.1).</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                            {criteriaList.map((crit: any) => {
+                              const mappedCount = criteriaCoverage.map[crit.id] || 0;
+                              const isCovered = mappedCount > 0;
+                              return (
+                                <div 
+                                  key={crit.id} 
+                                  className={cn(
+                                    "p-2 rounded-lg border text-xs flex items-center justify-between gap-2 transition-all",
+                                    isCovered 
+                                      ? "bg-white border-purple-200 shadow-2xs" 
+                                      : "bg-purple-50/50 border-purple-200/60 opacity-80"
+                                  )}
+                                >
+                                  <div className="flex flex-col min-w-0">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="font-bold text-purple-900">{crit.code}</span>
+                                      <span className="text-[11px] text-slate-500 truncate" title={crit.description}>
+                                        {crit.description}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="shrink-0">
+                                    {isCovered ? (
+                                      <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                        {mappedCount} {mappedCount === 1 ? 'q' : 'qs'} ✓
+                                      </span>
+                                    ) : (
+                                      <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                        Unmapped ⚠️
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1845,6 +1949,7 @@ const playSuccessSound = () => {
                                                 updateQuestion={updateQuestion} 
                                                 removeQuestion={removeQuestion}
                                                 criteriaList={criteriaList}
+                                                mustPassAllSkills={mustPassAllSkills}
                                                 isInvalid={Boolean(invalidFieldKeys[`q_${q.id}`])}
                                                 errorMsg={invalidFieldKeys[`q_${q.id}_msg`]}
                                               />
@@ -2176,6 +2281,12 @@ const playSuccessSound = () => {
           </div>
         </div>
       )}
+
+      {/* Criteria Creation Modal */}
+      <CriteriaModal 
+        open={isCriteriaModalOpen} 
+        onClose={() => setIsCriteriaModalOpen(false)} 
+      />
     </div>
   );
 }
