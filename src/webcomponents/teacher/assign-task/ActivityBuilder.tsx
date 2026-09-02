@@ -143,20 +143,20 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
                 {mustPassAllSkills && (
                   <div className="flex items-center gap-1">
                     <Select
-                      value={q.criterionId || "none"}
-                      onValueChange={(val) => updateQuestion(q.id, { criterionId: val === "none" ? undefined : val })}
+                      value={q.criterionId || "unmapped"}
+                      onValueChange={(val) => updateQuestion(q.id, { criterionId: val === "unmapped" ? undefined : val })}
                     >
                       <SelectTrigger className={cn(
                         "h-7 text-xs border transition-all rounded-md max-w-[170px]",
                         q.criterionId 
-                          ? "bg-purple-50 text-purple-900 border-purple-200 font-bold px-2 shadow-2xs" 
+                          ? "bg-slate-50 text-slate-800 border-slate-300 font-bold px-2 shadow-2xs" 
                           : "bg-white text-slate-400 border-dashed border-slate-300 hover:border-slate-400 font-medium px-2"
                       )}>
                         <SelectValue placeholder="+ Map Criterion">
                           {currentCriterion ? (
                             <span className="truncate flex items-center gap-1">
-                              <span className="font-bold text-purple-900">{currentCriterion.code}</span>
-                              <span className="text-[10px] text-purple-700 font-normal">({currentCriterion.description})</span>
+                              <span className="font-bold text-slate-800">{currentCriterion.code}</span>
+                              <span className="text-[10px] text-slate-500 font-normal truncate">({currentCriterion.description})</span>
                             </span>
                           ) : (
                             <span className="text-slate-400 font-normal">+ Map Criterion</span>
@@ -164,12 +164,12 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent className="max-h-56">
-                        <SelectItem value="none" className="text-xs text-slate-400">
-                          None (No Criterion)
+                        <SelectItem value="unmapped" className="text-xs text-slate-400 italic">
+                          Unmap Criterion
                         </SelectItem>
                         {criteriaList?.map((crit: any) => (
                           <SelectItem key={crit.id} value={crit.id} className="text-xs">
-                            <span className="font-bold text-purple-900 mr-1.5">{crit.code}</span>
+                            <span className="font-bold text-slate-800 mr-1.5">{crit.code}</span>
                             <span className="text-slate-600">{crit.description}</span>
                           </SelectItem>
                         ))}
@@ -395,7 +395,7 @@ export default function ActivityBuilder() {
     try {
       const res = await createCriteriaMutation.mutateAsync({
         code,
-        description: description || code,
+        description: description,
       });
       const created = res?.data || res;
       setTaskCriteria(prev => [...prev, { id: created.id, code: created.code, description: created.description }]);
@@ -405,7 +405,7 @@ export default function ActivityBuilder() {
       toast.success(`Created & added ${code} to checklist`);
     } catch (err: any) {
       const localId = `crit_${Date.now()}`;
-      setTaskCriteria(prev => [...prev, { id: localId, code, description: description || code }]);
+      setTaskCriteria(prev => [...prev, { id: localId, code, description: description }]);
       setNewCritCode("");
       setNewCritDesc("");
       setIsAddingCrit(false);
@@ -1598,7 +1598,7 @@ const playSuccessSound = () => {
                   {/* Option 2: Skill Criteria Checklist */}
                   <div className={cn(
                     "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3 md:col-span-2",
-                    mustPassAllSkills ? "bg-purple-50/40 border-purple-200" : "bg-slate-50/60 border-slate-200"
+                    mustPassAllSkills ? "bg-slate-50 border-slate-300 shadow-sm" : "bg-slate-50/60 border-slate-200"
                   )}>
                     <div className="flex items-start justify-between flex-wrap gap-2">
                       <div className="flex items-start gap-2.5">
@@ -1622,8 +1622,9 @@ const playSuccessSound = () => {
                         <Button
                           type="button"
                           size="sm"
+                          variant="outline"
                           onClick={() => setIsAddingCrit(prev => !prev)}
-                          className="h-7 text-xs bg-purple-700 hover:bg-purple-800 text-white font-semibold cursor-pointer shadow-2xs"
+                          className="h-7 text-xs font-semibold cursor-pointer shadow-2xs bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                         >
                           <Plus className="w-3.5 h-3.5 mr-1" />
                           {isAddingCrit ? "Cancel" : "Create Criterion"}
@@ -1635,31 +1636,31 @@ const playSuccessSound = () => {
                       <div className="pl-6 pt-1 space-y-3">
                         {/* Inline Create Criterion Form */}
                         {isAddingCrit && (
-                          <div className="p-3 bg-white rounded-xl border border-purple-200 shadow-sm space-y-2 animate-in fade-in-50 duration-150">
-                            <span className="text-xs font-bold text-purple-900 flex items-center gap-1.5">
-                              <Tag className="w-3.5 h-3.5 text-purple-600" /> Define Criterion for this Assessment
+                          <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm space-y-2 animate-in fade-in-50 duration-150">
+                            <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                              <Tag className="w-3.5 h-3.5 text-slate-500" /> Define Criterion for this Assessment
                             </span>
                             <div className="flex flex-col sm:flex-row gap-2">
                               <Input 
                                 placeholder="Code (e.g. 1.1, Ra, S1)"
                                 value={newCritCode}
                                 onChange={(e) => setNewCritCode(e.target.value)}
-                                className="w-full sm:w-28 h-8 text-xs font-bold text-purple-900 border-purple-200 focus-visible:ring-purple-500"
+                                className="w-full sm:w-28 h-8 text-xs font-bold text-slate-800 border-slate-200 focus-visible:ring-slate-400"
                                 autoFocus
                               />
                               <Input 
-                                placeholder="Description (e.g. Follow chronological sequence of text)"
+                                placeholder="Description (Optional)"
                                 value={newCritDesc}
                                 onChange={(e) => setNewCritDesc(e.target.value)}
-                                className="flex-1 h-8 text-xs border-purple-200 focus-visible:ring-purple-500"
+                                className="flex-1 h-8 text-xs border-slate-200 focus-visible:ring-slate-400"
                               />
                               <Button 
                                 type="button" 
                                 size="sm" 
                                 onClick={() => handleAddCriterion()}
-                                className="h-8 text-xs bg-purple-700 hover:bg-purple-800 text-white font-semibold px-4 cursor-pointer"
+                                className="h-8 text-xs bg-slate-800 hover:bg-slate-900 text-white font-semibold px-4 cursor-pointer"
                               >
-                                Add to Paper
+                                Add
                               </Button>
                             </div>
                           </div>
@@ -1677,13 +1678,13 @@ const playSuccessSound = () => {
                                   className={cn(
                                     "p-2.5 rounded-lg border text-xs flex items-center justify-between gap-2 transition-all group",
                                     isCovered 
-                                      ? "bg-white border-purple-200 shadow-2xs" 
-                                      : "bg-purple-50/50 border-purple-200/60"
+                                      ? "bg-white border-slate-200 shadow-2xs" 
+                                      : "bg-slate-50 border-slate-200 border-dashed"
                                   )}
                                 >
                                   <div className="flex flex-col min-w-0">
                                     <div className="flex items-center gap-1.5">
-                                      <span className="font-bold text-purple-900">{crit.code}</span>
+                                      <span className="font-bold text-slate-800">{crit.code}</span>
                                       <span className="text-[11px] text-slate-500 truncate" title={crit.description}>
                                         {crit.description}
                                       </span>
