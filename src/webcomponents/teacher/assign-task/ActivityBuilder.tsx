@@ -1408,7 +1408,7 @@ const playSuccessSound = () => {
                 ? "bg-blue-50 animate-pulse border-blue-300 shadow-inner cursor-not-allowed opacity-90" 
                 : !!pdfFileForSnipping 
                   ? "opacity-50 cursor-not-allowed bg-slate-50 border-slate-200 text-slate-500" 
-                  : "hover:bg-blue-50"
+                  : "hover:bg-blue-50 hover:text-blue-600"
             }`}
           >
             {isImporting ? (
@@ -1426,7 +1426,7 @@ const playSuccessSound = () => {
 
           <Button 
             variant="outline" 
-            className="border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
+            className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
             disabled={Boolean(isSaving)}
             onClick={handlePreview}
           >
@@ -1436,7 +1436,7 @@ const playSuccessSound = () => {
           <Button 
             type="button" 
             variant="outline" 
-            className="font-medium border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
+            className="font-medium border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
             disabled={Boolean(isSaving)}
             onClick={() => handleSave("DRAFT", false)}
           >
