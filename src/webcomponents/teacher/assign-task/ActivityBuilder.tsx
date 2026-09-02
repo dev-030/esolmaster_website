@@ -1570,7 +1570,7 @@ const playSuccessSound = () => {
               <div className="pt-2 space-y-3">
                 <div className={cn(
                   "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3",
-                  mustPassAllSkills ? "bg-slate-50 border-slate-300 shadow-sm" : "bg-slate-50/60 border-slate-200"
+                  mustPassAllSkills ? "bg-blue-50/40 border-blue-200" : "bg-slate-50/60 border-slate-200"
                 )}>
                   <div className="flex items-start justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2.5">
@@ -1602,29 +1602,29 @@ const playSuccessSound = () => {
                       <div className="pl-6 pt-1 space-y-3">
                         {/* Inline Create Criterion Form */}
                         {isAddingCrit && (
-                          <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-sm space-y-2 animate-in fade-in-50 duration-150">
+                          <div className="p-3 bg-white rounded-xl border border-blue-100 shadow-sm space-y-2 animate-in fade-in-50 duration-150">
                             <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                              <Tag className="w-3.5 h-3.5 text-slate-500" /> Define Criterion for this Assessment
+                              <Tag className="w-3.5 h-3.5 text-blue-500" /> Define Criterion for this Assessment
                             </span>
                             <div className="flex flex-col sm:flex-row gap-2">
                               <Input 
                                 placeholder="Code (e.g. 1.1, Ra, S1)"
                                 value={newCritCode}
                                 onChange={(e) => setNewCritCode(e.target.value)}
-                                className="w-full sm:w-28 h-8 text-xs font-bold text-slate-800 border-slate-200 focus-visible:ring-slate-400"
+                                className="w-full sm:w-28 h-8 text-xs font-bold text-slate-800 border-slate-200 focus-visible:ring-blue-500"
                                 autoFocus
                               />
                               <Input 
                                 placeholder="Description (Optional)"
                                 value={newCritDesc}
                                 onChange={(e) => setNewCritDesc(e.target.value)}
-                                className="flex-1 h-8 text-xs border-slate-200 focus-visible:ring-slate-400"
+                                className="flex-1 h-8 text-xs border-slate-200 focus-visible:ring-blue-500"
                               />
                               <Button 
                                 type="button" 
                                 size="sm" 
                                 onClick={() => handleAddCriterion()}
-                                className="h-8 text-xs bg-slate-800 hover:bg-slate-900 text-white font-semibold px-4 cursor-pointer"
+                                className="h-8 text-xs bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 cursor-pointer"
                               >
                                 Add
                               </Button>
@@ -1644,7 +1644,7 @@ const playSuccessSound = () => {
                                   className={cn(
                                     "p-2.5 rounded-lg border text-xs flex items-center justify-between gap-2 transition-all group",
                                     isCovered 
-                                      ? "bg-white border-slate-200 shadow-2xs" 
+                                      ? "bg-white border-blue-200 shadow-2xs" 
                                       : "bg-slate-50 border-slate-200 border-dashed"
                                   )}
                                 >
