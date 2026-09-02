@@ -1521,13 +1521,10 @@ const playSuccessSound = () => {
 
               {/* Row 3: Passing Criteria Rules */}
               <div className="pt-3 border-t border-slate-100 space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center">
                   <Label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                     Passing Criteria Rules
                   </Label>
-                  <span className="text-[11px] text-slate-400">
-                    Select the rules learners must satisfy to pass this assessment
-                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
