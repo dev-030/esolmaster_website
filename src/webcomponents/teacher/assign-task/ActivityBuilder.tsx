@@ -138,19 +138,54 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
           <div className="flex items-center gap-3">
             {q.type !== "INSTRUCTION" && (
               isExpanded ? (
-                <div className="flex items-center gap-2 mr-2">
-                  <Label className="text-xs font-medium text-slate-500">Marks</Label>
-                  <Input 
-                    type="number" 
-                    min="0" 
-                    className="w-16 h-7 text-xs text-center px-1 py-0 bg-white" 
-                    value={q.marks ?? 1} 
-                    onChange={(e) => updateQuestion(q.id, { marks: parseInt(e.target.value) || 0 })}
-                  />
+                <div className="flex items-center gap-3 mr-2">
+                  {criteriaList && criteriaList.length > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <Label className="text-xs font-medium text-slate-500">Criterion</Label>
+                      <Select
+                        value={q.criterionId || "none"}
+                        onValueChange={(val) => updateQuestion(q.id, { criterionId: val === "none" ? undefined : val })}
+                      >
+                        <SelectTrigger className="h-7 text-xs bg-white border-slate-200 min-w-[100px] max-w-[150px]">
+                          <SelectValue placeholder="Criterion" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none" className="text-xs text-slate-400">None</SelectItem>
+                          {criteriaList.map((crit: any) => (
+                            <SelectItem key={crit.id} value={crit.id} className="text-xs">
+                              {crit.code} - {crit.description}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1.5">
+                    <Label className="text-xs font-medium text-slate-500">Marks</Label>
+                    <Input 
+                      type="number" 
+                      min="0" 
+                      className="w-16 h-7 text-xs text-center px-1 py-0 bg-white" 
+                      value={q.marks ?? 1} 
+                      onChange={(e) => updateQuestion(q.id, { marks: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
                 </div>
               ) : (
-                <div className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
-                  {q.marks ?? 1} {q.marks === 1 ? 'Mark' : 'Marks'}
+                <div className="flex items-center gap-1.5">
+                  {q.criterionId && criteriaList && (
+                    (() => {
+                      const matched = criteriaList.find((c: any) => c.id === q.criterionId);
+                      return matched ? (
+                        <div className="text-[11px] font-semibold bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md border border-purple-200">
+                          {matched.code}
+                        </div>
+                      ) : null;
+                    })()
+                  )}
+                  <div className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                    {q.marks ?? 1} {q.marks === 1 ? 'Mark' : 'Marks'}
+                  </div>
                 </div>
               )
             )}
@@ -288,8 +323,9 @@ export default function ActivityBuilder() {
   const [customSkillName, setCustomSkillName] = useState<string>("");
   const [awardingBody, setAwardingBody] = useState<AwardingBodyType>("ASCENTIS");
   const [entryLevel, setEntryLevel] = useState<EntryLevelType>("ENTRY1");
-  const [passingScore, setPassingScore] = useState<string>("75");
-  const [mustPassAllSkills, setMustPassAllSkills] = useState(true);
+  const [requirePassMark, setRequirePassMark] = useState<boolean>(true);
+  const [passMark, setPassMark] = useState<string>("18");
+  const [mustPassAllSkills, setMustPassAllSkills] = useState<boolean>(true);
   
   // Multi-Task Sections state
   const [taskSections, setTaskSections] = useState<TaskSection[]>([]);
@@ -424,8 +460,19 @@ const playSuccessSound = () => {
     setEntryLevel(newLevel);
     const matrixInfo = UK_ESOL_MATRIX[newBoard]?.[newLevel];
     if (matrixInfo) {
-      setPassingScore(matrixInfo.defaultPassPercentage.toString());
-      setMustPassAllSkills(matrixInfo.passLogic === "CRITERIA_ONLY" || matrixInfo.passLogic === "CRITERIA_AND_SCORE");
+      if (matrixInfo.passLogic === "SCORE_ONLY") {
+        setRequirePassMark(true);
+        setPassMark(matrixInfo.passMark.toString());
+        setMustPassAllSkills(false);
+      } else if (matrixInfo.passLogic === "CRITERIA_ONLY") {
+        setRequirePassMark(false);
+        setPassMark("0");
+        setMustPassAllSkills(true);
+      } else if (matrixInfo.passLogic === "CRITERIA_AND_SCORE") {
+        setRequirePassMark(true);
+        setPassMark(matrixInfo.passMark.toString());
+        setMustPassAllSkills(true);
+      }
     }
   };
 
@@ -463,8 +510,19 @@ const playSuccessSound = () => {
 
       const matrixInfo = UK_ESOL_MATRIX[targetBoard]?.[targetLevel];
       if (matrixInfo) {
-        setPassingScore(matrixInfo.defaultPassPercentage.toString());
-        setMustPassAllSkills(matrixInfo.passLogic === "CRITERIA_ONLY" || matrixInfo.passLogic === "CRITERIA_AND_SCORE");
+        if (matrixInfo.passLogic === "SCORE_ONLY") {
+          setRequirePassMark(true);
+          setPassMark(matrixInfo.passMark.toString());
+          setMustPassAllSkills(false);
+        } else if (matrixInfo.passLogic === "CRITERIA_ONLY") {
+          setRequirePassMark(false);
+          setPassMark("0");
+          setMustPassAllSkills(true);
+        } else if (matrixInfo.passLogic === "CRITERIA_AND_SCORE") {
+          setRequirePassMark(true);
+          setPassMark(matrixInfo.passMark.toString());
+          setMustPassAllSkills(true);
+        }
       }
     }
   }, [currentFolder, taskId]);
@@ -476,9 +534,14 @@ const playSuccessSound = () => {
       getTaskById(taskId).then(task => {
         setTitle(task.title || "");
         setTaskType((task.type as TaskType) || "READING");
-        setPassingScore(task.passMark !== null && task.passMark !== undefined ? task.passMark.toString() : "75");
+        const loadedPassMark = task.passMark !== null && task.passMark !== undefined ? task.passMark.toString() : "18";
+        setPassMark(loadedPassMark);
         if (task.readingContent?.passLogic) {
-          setMustPassAllSkills(task.readingContent.passLogic === "CRITERIA_ONLY" || task.readingContent.passLogic === "CRITERIA_AND_SCORE");
+          const logic = task.readingContent.passLogic;
+          setMustPassAllSkills(logic === "CRITERIA_ONLY" || logic === "CRITERIA_AND_SCORE");
+          setRequirePassMark(logic === "SCORE_ONLY" || logic === "CRITERIA_AND_SCORE");
+        } else {
+          setRequirePassMark(task.passMark !== null && task.passMark !== undefined && task.passMark > 0);
         }
         
         // Parse multi-task sections or fallback to legacy single passage
@@ -879,10 +942,11 @@ const playSuccessSound = () => {
 
     try {
       let response: any;
-      const parsedPassMark = passingScore === "" ? 0 : (parseInt(passingScore) || 0);
-      const computedPassLogic = mustPassAllSkills 
-        ? (parsedPassMark === 0 ? "CRITERIA_ONLY" : "CRITERIA_AND_SCORE") 
-        : "SCORE_ONLY";
+      const parsedPassMark = requirePassMark && passMark !== "" ? (parseInt(passMark, 10) || 0) : null;
+      const computedPassLogic = 
+        requirePassMark && mustPassAllSkills ? "CRITERIA_AND_SCORE" :
+        mustPassAllSkills ? "CRITERIA_ONLY" :
+        "SCORE_ONLY";
 
       const serializedContent = JSON.stringify({
         version: 2,
@@ -1336,10 +1400,10 @@ const playSuccessSound = () => {
                 />
               </div>
 
-              {/* Row 2: Skill Selection & Parameters */}
+              {/* Row 2: Skill Selection */}
               <div className="flex flex-col sm:flex-row gap-4 pt-1">
                 {/* 1. Skill Mode Selector */}
-                <div className="flex flex-col gap-1.5 w-full sm:w-[200px] shrink-0">
+                <div className="flex flex-col gap-1.5 w-full sm:w-[240px] shrink-0">
                   <span className="text-xs font-semibold text-slate-700 h-4 leading-4">
                     Primary Skill Area <span className="text-red-500">*</span>
                   </span>
@@ -1355,7 +1419,7 @@ const playSuccessSound = () => {
                     <SelectTrigger 
                       id="field-taskType"
                       className={cn(
-                        "w-full text-xs shadow-sm transition-all",
+                        "w-full text-xs shadow-sm transition-all bg-white",
                         invalidFieldKeys.taskType ? "border-red-400 ring-2 ring-red-400/20" : "border-slate-200"
                       )} 
                       style={{ height: '40px' }}
@@ -1377,37 +1441,96 @@ const playSuccessSound = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                {/* 2. Passing Score Threshold */}
-                <div className="flex flex-col gap-1.5 flex-1">
-                  <div className="flex items-center justify-between h-4">
-                    <span className="text-xs font-semibold text-slate-700 whitespace-nowrap leading-4">Passing Score Threshold (%)</span>
-                    <span className="text-[10px] text-slate-400 whitespace-nowrap ml-2 leading-4">0 or empty for no pass mark</span>
-                  </div>
-                  <Input 
-                    type="number" 
-                    value={passingScore}
-                    onChange={(e) => setPassingScore(e.target.value)}
-                    className="text-xs border-slate-200 shadow-sm focus-visible:ring-blue-500"
-                    style={{ height: '40px' }}
-                    placeholder="e.g. 75 (Leave empty for no pass mark)"
-                    min="0"
-                    max="100"
-                  />
+              {/* Row 3: Passing Criteria Rules */}
+              <div className="pt-3 border-t border-slate-100 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    Passing Criteria Rules
+                  </Label>
+                  <span className="text-[11px] text-slate-400">
+                    Select the rules learners must satisfy to pass this assessment
+                  </span>
                 </div>
 
-                {/* 3. Must Pass All Skills Toggle */}
-                <div className="flex flex-col gap-1.5 shrink-0">
-                  <span className="h-4 block" aria-hidden="true" />
-                  <div className="flex items-center gap-2 bg-slate-50 px-3 rounded-lg border border-slate-100 shadow-sm" style={{ height: '40px' }}>
-                    <Checkbox 
-                      id="mustPassAllSkills" 
-                      checked={mustPassAllSkills}
-                      onCheckedChange={(checked) => setMustPassAllSkills(checked === true)}
-                    />
-                    <Label htmlFor="mustPassAllSkills" className="text-xs font-medium text-slate-700 cursor-pointer whitespace-nowrap">
-                      Must pass all skills (Checklist)
-                    </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Option 1: Minimum Mark Threshold */}
+                  <div className={cn(
+                    "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3",
+                    requirePassMark ? "bg-blue-50/40 border-blue-200" : "bg-slate-50/60 border-slate-200"
+                  )}>
+                    <div className="flex items-start gap-2.5">
+                      <Checkbox 
+                        id="requirePassMark" 
+                        checked={requirePassMark}
+                        onCheckedChange={(checked) => setRequirePassMark(checked === true)}
+                        className="mt-0.5"
+                      />
+                      <div className="flex flex-col gap-0.5">
+                        <Label htmlFor="requirePassMark" className="text-xs font-semibold text-slate-800 cursor-pointer">
+                          Minimum Mark Threshold
+                        </Label>
+                        <p className="text-[11px] text-slate-500">
+                          Learner must achieve a minimum raw score (e.g. Gateway, Ascentis, Trinity).
+                        </p>
+                      </div>
+                    </div>
+
+                    {requirePassMark && (
+                      <div className="flex items-center gap-2 pl-6 pt-1">
+                        <div className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-lg border border-blue-200 shadow-2xs">
+                          <span className="text-xs font-medium text-slate-600">Pass Mark:</span>
+                          <Input 
+                            type="number" 
+                            value={passMark}
+                            onChange={(e) => setPassMark(e.target.value)}
+                            className="w-16 h-7 text-xs font-bold text-blue-700 border-slate-200 text-center px-1 focus-visible:ring-blue-500"
+                            placeholder="18"
+                            min="0"
+                            max={totalCalculatedMarks || 100}
+                          />
+                          <span className="text-xs text-slate-500 font-semibold">
+                            / {totalCalculatedMarks} marks
+                          </span>
+                        </div>
+                        {totalCalculatedMarks > 0 && passMark && Number(passMark) > 0 && (
+                          <span className="text-[11px] font-semibold text-blue-700 bg-blue-100/70 px-2 py-1 rounded-md">
+                            {Math.round((Number(passMark) / totalCalculatedMarks) * 100)}%
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Option 2: Skill Criteria Checklist */}
+                  <div className={cn(
+                    "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3",
+                    mustPassAllSkills ? "bg-purple-50/40 border-purple-200" : "bg-slate-50/60 border-slate-200"
+                  )}>
+                    <div className="flex items-start gap-2.5">
+                      <Checkbox 
+                        id="mustPassAllSkills" 
+                        checked={mustPassAllSkills}
+                        onCheckedChange={(checked) => setMustPassAllSkills(checked === true)}
+                        className="mt-0.5"
+                      />
+                      <div className="flex flex-col gap-0.5">
+                        <Label htmlFor="mustPassAllSkills" className="text-xs font-semibold text-slate-800 cursor-pointer">
+                          Skill Criteria Checklist
+                        </Label>
+                        <p className="text-[11px] text-slate-500">
+                          Learner must satisfy all assessed skill criteria checklist items (e.g. ESB, Ascentis).
+                        </p>
+                      </div>
+                    </div>
+
+                    {mustPassAllSkills && (
+                      <div className="pl-6 text-[11px] text-purple-700 bg-purple-100/50 px-2.5 py-1.5 rounded-lg border border-purple-200/60 font-medium flex items-center gap-1.5">
+                        <span className="text-purple-600 font-bold">✓</span>
+                        Requires 100% criteria checklist coverage across questions
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1846,9 +1969,15 @@ const playSuccessSound = () => {
                   </span>
                 </div>
                 <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
-                  <span className="font-medium">Pass Threshold:</span>
-                  <span className="font-semibold text-blue-700">
-                    {passingScore === "" || passingScore === "0" ? 'N/A (No pass mark)' : `${passingScore}%`}
+                  <span className="font-medium">Pass Criteria:</span>
+                  <span className="font-semibold text-blue-700 text-right text-xs">
+                    {requirePassMark && mustPassAllSkills
+                      ? `${passMark}/${totalCalculatedMarks} & Checklist`
+                      : requirePassMark
+                      ? `${passMark}/${totalCalculatedMarks} Marks`
+                      : mustPassAllSkills
+                      ? 'Checklist Only'
+                      : 'N/A (Ungraded)'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center bg-blue-500 p-2.5 rounded-lg text-white mt-1">
