@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { createTask, getTaskById, updateTask } from "@/api/task/api";
-import { useGetCriteria } from "@/api/criteria/criteria";
+import { useGetCriteria, useCreateCriteria } from "@/api/criteria/criteria";
 import { CriteriaModal } from "../criteria-card/CriteriaModal";
 import { useGetFolders, useGetFolderById } from "@/api/folder";
 import { 
@@ -321,6 +321,7 @@ export default function ActivityBuilder() {
   // Fetch criteria & folder details from backend
   const { data: criteriaData } = useGetCriteria();
   const criteriaList = criteriaData?.data || [];
+  const createCriteriaMutation = useCreateCriteria();
   const { data: allFoldersData } = useGetFolders(undefined);
   const rootFolders = allFoldersData || [];
   const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>(folderId || undefined);
@@ -333,31 +334,99 @@ export default function ActivityBuilder() {
   const [entryLevel, setEntryLevel] = useState<EntryLevelType>("ENTRY1");
   const [requirePassMark, setRequirePassMark] = useState<boolean>(true);
   const [passMark, setPassMark] = useState<string>("18");
-  const [mustPassAllSkills, setMustPassAllSkills] = useState<boolean>(true);
+  const [mustPassAllSkills, setMustPassAllSkills] = useState<boolean>(false);
   const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState<boolean>(false);
+
+  // Paper-specific criteria checklist (empty by default)
+  const [taskCriteria, setTaskCriteria] = useState<{ id: string; code: string; description: string }[]>([]);
+  const [newCritCode, setNewCritCode] = useState("");
+  const [newCritDesc, setNewCritDesc] = useState("");
+  const [isAddingCrit, setIsAddingCrit] = useState(false);
   
   // Multi-Task Sections state
   const [taskSections, setTaskSections] = useState<TaskSection[]>([]);
   
   const [questions, setQuestions] = useState<QuestionConfig[]>([]);
 
-  // Criteria mapping statistics
+  // Criteria mapping statistics for this specific assessment paper
   const criteriaCoverage = React.useMemo(() => {
-    if (!criteriaList || criteriaList.length === 0) {
+    if (!taskCriteria || taskCriteria.length === 0) {
       return { coveredCount: 0, total: 0, percentage: 0, map: {} as Record<string, number> };
     }
     const map: Record<string, number> = {};
-    criteriaList.forEach((c: any) => { map[c.id] = 0; });
+    taskCriteria.forEach((c) => { map[c.id] = 0; });
     questions.forEach((q) => {
       if (q.criterionId && map[q.criterionId] !== undefined) {
         map[q.criterionId] += 1;
       }
     });
     const coveredCount = Object.values(map).filter(count => count > 0).length;
-    const total = criteriaList.length;
+    const total = taskCriteria.length;
     const percentage = total > 0 ? Math.round((coveredCount / total) * 100) : 0;
     return { coveredCount, total, percentage, map };
-  }, [criteriaList, questions]);
+  }, [taskCriteria, questions]);
+
+  const handleAddCriterion = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const code = newCritCode.trim();
+    const description = newCritDesc.trim();
+    if (!code) {
+      toast.error("Please enter a criterion code (e.g. 1.1)");
+      return;
+    }
+
+    // Check if already in this paper's checklist
+    if (taskCriteria.some(c => c.code.toLowerCase() === code.toLowerCase())) {
+      toast.error(`Criterion ${code} is already in this checklist`);
+      return;
+    }
+
+    // Check if already in global DB
+    const existing = criteriaList.find((c: any) => c.code.toLowerCase() === code.toLowerCase());
+    if (existing) {
+      setTaskCriteria(prev => [...prev, { id: existing.id, code: existing.code, description: existing.description }]);
+      setNewCritCode("");
+      setNewCritDesc("");
+      setIsAddingCrit(false);
+      toast.success(`Added ${existing.code} to checklist`);
+      return;
+    }
+
+    try {
+      const res = await createCriteriaMutation.mutateAsync({
+        code,
+        description: description || code,
+      });
+      const created = res?.data || res;
+      setTaskCriteria(prev => [...prev, { id: created.id, code: created.code, description: created.description }]);
+      setNewCritCode("");
+      setNewCritDesc("");
+      setIsAddingCrit(false);
+      toast.success(`Created & added ${code} to checklist`);
+    } catch (err: any) {
+      const localId = `crit_${Date.now()}`;
+      setTaskCriteria(prev => [...prev, { id: localId, code, description: description || code }]);
+      setNewCritCode("");
+      setNewCritDesc("");
+      setIsAddingCrit(false);
+      toast.success(`Added ${code} to checklist`);
+    }
+  };
+
+  const handleSelectExistingCrit = (critId: string | null) => {
+    if (!critId || critId === "none") return;
+    const item = criteriaList.find((c: any) => c.id === critId);
+    if (item && !taskCriteria.some(c => c.id === item.id)) {
+      setTaskCriteria(prev => [...prev, { id: item.id, code: item.code, description: item.description }]);
+      toast.success(`Added ${item.code} to checklist`);
+    }
+  };
+
+  const handleRemoveCriterion = (id: string) => {
+    setTaskCriteria(prev => prev.filter(c => c.id !== id));
+    setQuestions(prev => prev.map(q => q.criterionId === id ? { ...q, criterionId: undefined } : q));
+    toast.info("Criterion removed from assessment");
+  };
   const [activeSectionId, setActiveSectionId] = useState<string>("");
   const [initialQuestionIds, setInitialQuestionIds] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -578,6 +647,9 @@ const playSuccessSound = () => {
             const parsed = JSON.parse(task.content);
             if (parsed && Array.isArray(parsed.sections) && parsed.sections.length > 0) {
               loadedSections = parsed.sections;
+            }
+            if (parsed && Array.isArray(parsed.criteria)) {
+              setTaskCriteria(parsed.criteria);
             }
           } catch (e) {
             // Legacy single string content
@@ -977,7 +1049,8 @@ const playSuccessSound = () => {
 
       const serializedContent = JSON.stringify({
         version: 2,
-        sections: taskSections
+        sections: taskSections,
+        criteria: taskCriteria,
       });
 
       if (taskId) {
@@ -1554,59 +1627,119 @@ const playSuccessSound = () => {
                       </div>
 
                       {mustPassAllSkills && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsCriteriaModalOpen(true)}
-                          className="h-7 text-xs bg-white text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800 font-semibold cursor-pointer shadow-2xs"
-                        >
-                          <Plus className="w-3.5 h-3.5 mr-1 text-purple-600" /> Manage / Add Criteria
-                        </Button>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {/* Library selector if global criteria exist */}
+                          {criteriaList.length > 0 && (
+                            <Select value="none" onValueChange={handleSelectExistingCrit}>
+                              <SelectTrigger className="h-7 text-xs bg-white text-slate-700 border-purple-200 hover:bg-purple-50/50 w-[160px] shadow-2xs">
+                                <SelectValue placeholder="Add from library..." />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-56">
+                                <SelectItem value="none" disabled className="text-xs text-slate-400">
+                                  Select existing criterion...
+                                </SelectItem>
+                                {criteriaList
+                                  .filter((c: any) => !taskCriteria.some(tc => tc.id === c.id))
+                                  .map((crit: any) => (
+                                    <SelectItem key={crit.id} value={crit.id} className="text-xs">
+                                      <span className="font-bold text-purple-900 mr-1.5">{crit.code}</span>
+                                      <span className="text-slate-600">{crit.description}</span>
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => setIsAddingCrit(prev => !prev)}
+                            className="h-7 text-xs bg-purple-700 hover:bg-purple-800 text-white font-semibold cursor-pointer shadow-2xs"
+                          >
+                            <Plus className="w-3.5 h-3.5 mr-1" />
+                            {isAddingCrit ? "Cancel" : "Create Criterion"}
+                          </Button>
+                        </div>
                       )}
                     </div>
 
                     {mustPassAllSkills && (
-                      <div className="pl-6 pt-1 space-y-2.5">
+                      <div className="pl-6 pt-1 space-y-3">
+                        {/* Inline Create Criterion Form */}
+                        {isAddingCrit && (
+                          <div className="p-3 bg-white rounded-xl border border-purple-200 shadow-sm space-y-2 animate-in fade-in-50 duration-150">
+                            <span className="text-xs font-bold text-purple-900 flex items-center gap-1.5">
+                              <Tag className="w-3.5 h-3.5 text-purple-600" /> Define Criterion for this Assessment
+                            </span>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <Input 
+                                placeholder="Code (e.g. 1.1, Ra, S1)"
+                                value={newCritCode}
+                                onChange={(e) => setNewCritCode(e.target.value)}
+                                className="w-full sm:w-28 h-8 text-xs font-bold text-purple-900 border-purple-200 focus-visible:ring-purple-500"
+                                autoFocus
+                              />
+                              <Input 
+                                placeholder="Description (e.g. Follow chronological sequence of text)"
+                                value={newCritDesc}
+                                onChange={(e) => setNewCritDesc(e.target.value)}
+                                className="flex-1 h-8 text-xs border-purple-200 focus-visible:ring-purple-500"
+                              />
+                              <Button 
+                                type="button" 
+                                size="sm" 
+                                onClick={() => handleAddCriterion()}
+                                className="h-8 text-xs bg-purple-700 hover:bg-purple-800 text-white font-semibold px-4 cursor-pointer"
+                              >
+                                Add to Paper
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Live Coverage Bar */}
                         <div className="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-purple-200/80 shadow-2xs">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-purple-900">Criteria Coverage:</span>
+                            <span className="text-xs font-bold text-purple-900">Criteria Checklist:</span>
                             <span className={cn(
                               "text-xs font-bold px-2 py-0.5 rounded-full border",
-                              criteriaCoverage.percentage === 100 && criteriaCoverage.total > 0
+                              taskCriteria.length > 0 && criteriaCoverage.percentage === 100
                                 ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
                                 : "bg-purple-100 text-purple-800 border-purple-200"
                             )}>
                               {criteriaCoverage.coveredCount} of {criteriaCoverage.total} Covered ({criteriaCoverage.percentage}%)
                             </span>
                           </div>
-                          <span className="text-[11px] text-slate-400 font-medium">
-                            {criteriaCoverage.percentage === 100 && criteriaCoverage.total > 0
-                              ? "✓ Ready for qualification assessment"
+                          <span className="text-[11px] text-slate-500 font-medium">
+                            {taskCriteria.length === 0 
+                              ? "Create criteria specifically for this assessment paper"
+                              : criteriaCoverage.percentage === 100 
+                              ? "✓ All paper criteria mapped to questions"
                               : "⚠️ Assign criteria to question cards below"}
                           </span>
                         </div>
 
                         {/* Criteria Grid Chips */}
-                        {criteriaList.length === 0 ? (
-                          <div className="bg-white/80 rounded-lg p-3 border border-purple-200/60 text-center space-y-1">
-                            <p className="text-xs text-slate-600 font-medium">No skill criteria defined in the system yet.</p>
-                            <p className="text-[11px] text-slate-400">Click &quot;Manage / Add Criteria&quot; above to create criteria codes (e.g. 1.1, 1.2, 2.1).</p>
+                        {taskCriteria.length === 0 ? (
+                          <div className="bg-white/80 rounded-lg p-4 border border-dashed border-purple-300 text-center space-y-1">
+                            <p className="text-xs text-purple-900 font-semibold">No criteria added to this paper yet.</p>
+                            <p className="text-[11px] text-slate-500 max-w-md mx-auto">
+                              Click &quot;Create Criterion&quot; above to add the skill criteria (e.g. 1.1, 1.2) needed for this specific exam paper.
+                            </p>
                           </div>
                         ) : (
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                            {criteriaList.map((crit: any) => {
+                            {taskCriteria.map((crit) => {
                               const mappedCount = criteriaCoverage.map[crit.id] || 0;
                               const isCovered = mappedCount > 0;
                               return (
                                 <div 
                                   key={crit.id} 
                                   className={cn(
-                                    "p-2 rounded-lg border text-xs flex items-center justify-between gap-2 transition-all",
+                                    "p-2 rounded-lg border text-xs flex items-center justify-between gap-2 transition-all group",
                                     isCovered 
                                       ? "bg-white border-purple-200 shadow-2xs" 
-                                      : "bg-purple-50/50 border-purple-200/60 opacity-80"
+                                      : "bg-purple-50/50 border-purple-200/60"
                                   )}
                                 >
                                   <div className="flex flex-col min-w-0">
@@ -1617,7 +1750,7 @@ const playSuccessSound = () => {
                                       </span>
                                     </div>
                                   </div>
-                                  <div className="shrink-0">
+                                  <div className="flex items-center gap-1.5 shrink-0">
                                     {isCovered ? (
                                       <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                                         {mappedCount} {mappedCount === 1 ? 'q' : 'qs'} ✓
@@ -1627,6 +1760,14 @@ const playSuccessSound = () => {
                                         Unmapped ⚠️
                                       </span>
                                     )}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveCriterion(crit.id)}
+                                      className="text-slate-400 hover:text-red-600 p-0.5 rounded hover:bg-red-50 transition-colors cursor-pointer"
+                                      title="Remove from this paper"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
                                   </div>
                                 </div>
                               );
@@ -1948,7 +2089,7 @@ const playSuccessSound = () => {
                                                 dragHandleProps={dragProvided.dragHandleProps} 
                                                 updateQuestion={updateQuestion} 
                                                 removeQuestion={removeQuestion}
-                                                criteriaList={criteriaList}
+                                                criteriaList={taskCriteria}
                                                 mustPassAllSkills={mustPassAllSkills}
                                                 isInvalid={Boolean(invalidFieldKeys[`q_${q.id}`])}
                                                 errorMsg={invalidFieldKeys[`q_${q.id}_msg`]}
