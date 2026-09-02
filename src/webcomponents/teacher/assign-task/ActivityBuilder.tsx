@@ -332,7 +332,7 @@ export default function ActivityBuilder() {
   const [customSkillName, setCustomSkillName] = useState<string>("");
   const [awardingBody, setAwardingBody] = useState<AwardingBodyType>("ASCENTIS");
   const [entryLevel, setEntryLevel] = useState<EntryLevelType>("ENTRY1");
-  const [requirePassMark, setRequirePassMark] = useState<boolean>(true);
+  const [requirePassMark, setRequirePassMark] = useState<boolean>(false);
   const [passMark, setPassMark] = useState<string>("18");
   const [mustPassAllSkills, setMustPassAllSkills] = useState<boolean>(false);
   const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState<boolean>(false);
@@ -548,18 +548,10 @@ const playSuccessSound = () => {
     setEntryLevel(newLevel);
     const matrixInfo = UK_ESOL_MATRIX[newBoard]?.[newLevel];
     if (matrixInfo) {
-      if (matrixInfo.passLogic === "SCORE_ONLY") {
-        setRequirePassMark(true);
+      if (matrixInfo.passLogic === "SCORE_ONLY" || matrixInfo.passLogic === "CRITERIA_AND_SCORE") {
         setPassMark(matrixInfo.passMark.toString());
-        setMustPassAllSkills(false);
       } else if (matrixInfo.passLogic === "CRITERIA_ONLY") {
-        setRequirePassMark(false);
         setPassMark("0");
-        setMustPassAllSkills(true);
-      } else if (matrixInfo.passLogic === "CRITERIA_AND_SCORE") {
-        setRequirePassMark(true);
-        setPassMark(matrixInfo.passMark.toString());
-        setMustPassAllSkills(true);
       }
     }
   };
@@ -598,18 +590,10 @@ const playSuccessSound = () => {
 
       const matrixInfo = UK_ESOL_MATRIX[targetBoard]?.[targetLevel];
       if (matrixInfo) {
-        if (matrixInfo.passLogic === "SCORE_ONLY") {
-          setRequirePassMark(true);
+        if (matrixInfo.passLogic === "SCORE_ONLY" || matrixInfo.passLogic === "CRITERIA_AND_SCORE") {
           setPassMark(matrixInfo.passMark.toString());
-          setMustPassAllSkills(false);
         } else if (matrixInfo.passLogic === "CRITERIA_ONLY") {
-          setRequirePassMark(false);
           setPassMark("0");
-          setMustPassAllSkills(true);
-        } else if (matrixInfo.passLogic === "CRITERIA_AND_SCORE") {
-          setRequirePassMark(true);
-          setPassMark(matrixInfo.passMark.toString());
-          setMustPassAllSkills(true);
         }
       }
     }
@@ -1552,21 +1536,15 @@ const playSuccessSound = () => {
                     "p-3.5 rounded-xl border transition-all flex flex-col justify-between gap-3",
                     requirePassMark ? "bg-blue-50/40 border-blue-200" : "bg-slate-50/60 border-slate-200"
                   )}>
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-center gap-2.5">
                       <Checkbox 
                         id="requirePassMark" 
                         checked={requirePassMark}
                         onCheckedChange={(checked) => setRequirePassMark(checked === true)}
-                        className="mt-0.5"
                       />
-                      <div className="flex flex-col gap-0.5">
-                        <Label htmlFor="requirePassMark" className="text-xs font-semibold text-slate-800 cursor-pointer">
-                          Minimum Mark Threshold
-                        </Label>
-                        <p className="text-[11px] text-slate-500">
-                          Learner must achieve a minimum raw score (e.g. Gateway, Ascentis, Trinity).
-                        </p>
-                      </div>
+                      <Label htmlFor="requirePassMark" className="text-xs font-semibold text-slate-800 cursor-pointer">
+                        Minimum Mark Threshold
+                      </Label>
                     </div>
 
                     {requirePassMark && (
@@ -1601,21 +1579,15 @@ const playSuccessSound = () => {
                     mustPassAllSkills ? "bg-slate-50 border-slate-300 shadow-sm" : "bg-slate-50/60 border-slate-200"
                   )}>
                     <div className="flex items-start justify-between flex-wrap gap-2">
-                      <div className="flex items-start gap-2.5">
+                      <div className="flex items-center gap-2.5">
                         <Checkbox 
                           id="mustPassAllSkills" 
                           checked={mustPassAllSkills}
                           onCheckedChange={(checked) => setMustPassAllSkills(checked === true)}
-                          className="mt-0.5"
                         />
-                        <div className="flex flex-col gap-0.5">
-                          <Label htmlFor="mustPassAllSkills" className="text-xs font-semibold text-slate-800 cursor-pointer">
-                            Skill Criteria Checklist
-                          </Label>
-                          <p className="text-[11px] text-slate-500">
-                            Learner must satisfy all assessed skill criteria checklist items (e.g. ESB, Ascentis).
-                          </p>
-                        </div>
+                        <Label htmlFor="mustPassAllSkills" className="text-xs font-semibold text-slate-800 cursor-pointer">
+                          Skill Criteria Checklist
+                        </Label>
                       </div>
 
                       {mustPassAllSkills && (
