@@ -6,7 +6,7 @@ import {
   LayoutDashboard,
   CheckSquare,
   Users,
-  BarChart,
+  BarChart2,
   User,
   LogOut,
   Package,
@@ -14,25 +14,31 @@ import {
   GraduationCap,
   Trophy,
   Folder,
+  Settings,
+  HelpCircle,
   Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { useRole } from "@/provider/RoleProvider";
 import { useGetMyProfileQuery, useSignOutMutation } from "@/api/auth";
 import { toast } from "sonner";
-type Role = "admin" | "student" | "teacher"; // Extendable for future roles
+
+type Role = "admin" | "student" | "teacher";
 
 const MENU_CONFIG = {
   student: {
     main: [
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { name: "Browse Task", href: "/tasks", icon: CheckSquare },
+      { name: "Browse Tasks", href: "/tasks", icon: CheckSquare },
       { name: "Classes", href: "/classes", icon: Users },
-      { name: "My Progress", href: "/progress", icon: BarChart },
+      { name: "My Progress", href: "/progress", icon: BarChart2 },
       { name: "Badges", href: "/badges", icon: Trophy },
     ],
-    account: [{ name: "Profile", href: "/profile", icon: User }],
+    bottom: [
+      { name: "Profile", href: "/profile", icon: User },
+    ],
   },
   teacher: {
     main: [
@@ -40,38 +46,39 @@ const MENU_CONFIG = {
       { name: "Activity Library", href: "/content-library", icon: CheckSquare },
       { name: "Classes", href: "/classes", icon: Users },
       { name: "Students", href: "/students", icon: GraduationCap },
-      { name: "Reports", href: "/report", icon: BarChart },
+      { name: "Reports", href: "/report", icon: BarChart2 },
     ],
-    account: [{ name: "Profile", href: "/profile_teacher", icon: User }],
+    bottom: [
+      { name: "Profile", href: "/profile_teacher", icon: User },
+    ],
   },
   admin: {
     main: [
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { name: "User Management", href: "/users", icon: Users },
       { name: "Content Library", href: "/content-library", icon: Folder },
-      { name: "Performance", href: "/perfomance", icon: BarChart },
+      { name: "Performance", href: "/perfomance", icon: BarChart2 },
       { name: "Packages", href: "/billing", icon: Package },
-      { name: "Analytics", href: "/analysis", icon: BarChart },
+      { name: "Analytics", href: "/analysis", icon: BarChart2 },
       { name: "Reports", href: "/admin_reports", icon: ClipboardList },
       { name: "Badges", href: "/badges", icon: Trophy },
     ],
-    account: [
+    bottom: [
       { name: "Profile", href: "/admin_profile", icon: User },
     ],
   },
 };
 
 export const Sidebar = () => {
-  const {role} = useRole();
+  const { role } = useRole();
   const pathname = usePathname();
-  const config = MENU_CONFIG[role as Role] || MENU_CONFIG["student"]; // Fallback to student config
+  const config = MENU_CONFIG[role as Role] || MENU_CONFIG["student"];
   const { data: myProfile } = useGetMyProfileQuery();
   const { mutateAsync: signOut, isPending: isSignOutPending } = useSignOutMutation();
   const router = useRouter();
 
-  const isActive = (href: string) => {
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
 
   const handleLogout = async () => {
     try {
@@ -79,123 +86,116 @@ export const Sidebar = () => {
       toast.success("Logged out successfully");
       router.push("/login");
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error("Failed to logout");
     }
   };
 
   return (
-    <aside
-      className={cn(
-        "w-64 h-screen sticky left-0 top-0 flex flex-col border-r border-slate-200 bg-white text-slate-900 transition-colors",
-      )}
-    >
-      {/* Top Brand */}
-      <div className="border-b border-slate-100 px-5 py-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2F7EDA] shadow-sm shadow-blue-200">
-            <Book className="h-5 w-5 text-white" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-bold tracking-tight text-slate-900">ESOL Master</p>
-            <p className="text-[11px] font-medium text-slate-400">Learning workspace</p>
-          </div>
+    <aside className="w-[220px] h-screen sticky left-0 top-0 flex flex-col bg-white border-r border-slate-100">
+      {/* Brand Logo */}
+      <div className="flex items-center gap-2.5 px-6 py-[22px]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3454FB]">
+          <Book className="h-4 w-4 text-white" />
         </div>
+        <span className="text-[17px] font-bold tracking-tight text-slate-900">
+          ESOL Master
+        </span>
       </div>
 
-      <nav className="flex-1 space-y-8 overflow-y-auto px-3 py-6">
-        {/* Main Menu */}
-        <div>
-          <p
-            className={cn(
-              "mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400",
-            )}
-          >
-            Main Menu
-          </p>
-          <div className="space-y-1">
-            {config.main.map((item) => (
-              <div key={item.name} className="flex flex-col">
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-                    isActive(item.href)
-                      ? "bg-[#EAF2FF] font-semibold text-[#2F7EDA] shadow-sm"
-                      : "hover:bg-slate-100",
-                  )}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.name}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Account Menu */}
-        <div>
-          <p
-            className={cn(
-              "mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400",
-            )}
-          >
-            Account
-          </p>
-          <div className="space-y-1">
-            {config.account.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-                    isActive(item.href)
-                      ? "bg-[#EAF2FF] font-semibold text-[#2F7EDA] shadow-sm"
-                    : "hover:bg-slate-100",
+      {/* Main Navigation */}
+      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
+        {config.main.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={cn(
+                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition-all duration-150 relative",
+                active
+                  ? "bg-blue-50 text-[#3454FB]"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+              )}
+            >
+              {/* Active indicator bar */}
+              {active && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-[#3454FB]" />
+              )}
+              <item.icon
+                className={cn(
+                  "h-[18px] w-[18px] shrink-0",
+                  active ? "text-[#3454FB]" : "text-slate-400 group-hover:text-slate-600"
                 )}
-              >
-                <item.icon className="w-4 h-4" />
-                {item.name}
-              </Link>
-            ))}
-          </div>
-        </div>
+              />
+              {item.name}
+            </Link>
+          );
+        })}
       </nav>
 
-      {/* Footer Section */}
-      <div className="border-t border-slate-100 p-4">
-        {role === "student" && (
-          <div className="mb-4 space-y-3 rounded-xl border border-blue-100 bg-blue-50 p-4">
-            <div className="flex justify-between text-xs font-bold">
+      {/* Bottom Section */}
+      <div className="px-3 py-4 space-y-1">
+        {/* Separator */}
+        <div className="h-px bg-slate-100 mx-2 mb-3" />
+
+        {/* Upgrade / XP Card */}
+        {role === "student" ? (
+          <div className="mb-3 mx-1 space-y-2.5 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+            <div className="flex justify-between text-xs font-bold text-slate-700">
               <span>Next Level</span>
-              <span>{myProfile?.level+1 || 1}</span>
+              <span>{(myProfile?.level ?? 0) + 1}</span>
             </div>
-            <Progress value={myProfile?.progressPercentage || 0} className="h-2" />
-            <div className="flex justify-between text-[10px] text-slate-500">
+            <Progress value={myProfile?.progressPercentage || 0} className="h-1.5" />
+            <div className="flex justify-between text-[11px] text-slate-400 font-medium">
               <span>{myProfile?.totalXp || 0} XP</span>
-              <span>{myProfile?.xpNeededForNextLevel+myProfile?.totalXp || 0} XP</span>
+              <span>{(myProfile?.xpNeededForNextLevel ?? 0) + (myProfile?.totalXp ?? 0)} XP</span>
             </div>
           </div>
-        )}
-
-        {role !== "student" && (
-          <div className="mb-4 rounded-xl bg-gradient-to-br from-[#2F7EDA] to-[#1D5EAE] p-4 text-white shadow-sm">
-            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-white/15">
-              <Sparkles className="h-4 w-4" />
+        ) : (
+          <div className="mb-3 mx-1 rounded-2xl bg-gradient-to-br from-[#3454FB] to-[#2140E0] p-4 text-white shadow-sm shadow-blue-200">
+            <div className="mb-2.5 flex h-8 w-8 items-center justify-center rounded-xl bg-white/20">
+              <Sparkles className="h-4 w-4 text-white" />
             </div>
-            <p className="text-sm font-semibold">Keep your workspace moving</p>
-            <p className="mt-1 text-[11px] leading-relaxed text-blue-100">
-              {role === "admin" ? "Review content and platform activity." : "Manage classes and support your learners."}
+            <p className="text-[13px] font-bold leading-tight">
+              {role === "admin" ? "Upgrade to Premium!" : "Keep your workspace moving"}
             </p>
+            <p className="mt-1 text-[11px] leading-relaxed text-blue-100">
+              {role === "admin"
+                ? "Unlock all admin features."
+                : "Manage classes and support your learners."}
+            </p>
+            {role === "admin" && (
+              <button className="mt-3 w-full rounded-xl bg-white py-1.5 text-[12px] font-bold text-[#3454FB] transition hover:bg-blue-50">
+                Upgrade now
+              </button>
+            )}
           </div>
         )}
 
-        <button 
+        {/* Settings & Help */}
+        <Link
+          href="/settings"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
+        >
+          <Settings className="h-[18px] w-[18px] text-slate-400" />
+          Settings
+        </Link>
+        <Link
+          href="/help"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
+        >
+          <HelpCircle className="h-[18px] w-[18px] text-slate-400" />
+          Help &amp; Support
+        </Link>
+
+        {/* Logout */}
+        <button
           onClick={handleLogout}
           disabled={isSignOutPending}
-          className="flex items-center gap-2 text-sm text-red-500 font-medium mt-4 w-full px-2 hover:bg-red-50 py-2 rounded-md transition-colors disabled:opacity-50"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-red-500 hover:bg-red-50 transition-all disabled:opacity-50"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="h-[18px] w-[18px]" />
           {isSignOutPending ? "Logging out..." : "Logout"}
         </button>
       </div>
