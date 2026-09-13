@@ -10,13 +10,13 @@ export default async function MainLayout({
   return (
     <TranstackProvider>
       <RoleProvider>
-        <div className="flex min-h-screen bg-slate-50 font-inter">
+        <div className="flex min-h-screen bg-[#F7F9FC] font-inter">
           <Sidebar />
 
-          <div className="flex-1 flex flex-col h-screen overflow-hidden">
+          <div className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
             <Navbar />
 
-            <main className="flex-1 overflow-y-auto p-6">
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6">
               {children}
             </main>
           </div>

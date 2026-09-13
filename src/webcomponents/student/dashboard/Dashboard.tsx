@@ -234,7 +234,7 @@ export const StudentDashboard = () => {
   // Error State
   if (isTasksError || isDashboardError) {
     return (
-      <div className="flex flex-col space-y-6">
+      <div className="min-h-screen space-y-6 bg-[#F7F9FC]">
         <SectionHeading
           heading="Student Dashboard"
           subheading="Welcome back! Here's your learning overview for this month."
@@ -270,19 +270,19 @@ export const StudentDashboard = () => {
         </div>
 
         {/* Loading Active Tasks and Level */}
-        <div className="flex gap-4 items-stretch">
-          <div className="flex-3 bg-card border border-border rounded-2xl p-5 space-y-3">
+        <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,.75fr)]">
+          <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
             <Skeleton className="h-6 w-32" />
             <ActiveTasksSkeleton />
           </div>
-          <div className="flex-1 bg-card border border-border rounded-2xl p-5">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
             <Skeleton className="h-6 w-32 mb-4" />
             <LevelSkeleton />
           </div>
         </div>
 
         {/* Loading Recent Activity */}
-        <div className="bg-card border border-border rounded-2xl p-5">
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
           <Skeleton className="h-6 w-40 mb-4" />
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
@@ -301,17 +301,17 @@ export const StudentDashboard = () => {
   }
 
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="min-h-screen space-y-8 bg-[#F7F9FC]">
       {/* Heading with animation */}
       <div className="animate-fade-in-up">
         <SectionHeading
           heading="Student Dashboard"
-          subheading="Welcome back! Here's your learning overview for this month."
+          subheading="Keep learning at your pace and stay on top of your progress."
         />
       </div>
 
       {/* 4 stat cards with staggered animation */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {DASHBOARD_CARDS.map((card, index) => (
           <div 
             key={index} 
@@ -324,9 +324,9 @@ export const StudentDashboard = () => {
       </div>
 
       {/* Middle row: Active Tasks (75%) + Current Level (25%) */}
-      <div className="flex gap-4 items-stretch">
+      <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,.75fr)]">
         {/* Active Tasks – 75% */}
-        <div className="flex-3 bg-card border border-border rounded-2xl p-5 space-y-3 animate-slide-in-left">
+        <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm animate-slide-in-left">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-base text-foreground">
               Active Tasks
@@ -416,7 +416,7 @@ export const StudentDashboard = () => {
         </div>
 
         {/* Current Level – 25% */}
-        <div className="flex-1 bg-card border border-border rounded-2xl p-5 flex flex-col items-center justify-center gap-4 animate-slide-in-right">
+        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm animate-slide-in-right">
           <h3 className="font-semibold text-base text-foreground self-start">
             Current Level
           </h3>
@@ -443,7 +443,7 @@ export const StudentDashboard = () => {
                 ? "Advanced Learner" 
                 : "Active Learner"}
             </p>
-            <div className="w-full">
+        <div className="w-full">
               <div className="flex justify-center text-xs text-muted-foreground mb-1">
                 {dashboardData?.level?.totalXp ?? 0} XP
               </div>
@@ -461,7 +461,7 @@ export const StudentDashboard = () => {
       </div>
 
       {/* Recent Activity – full width */}
-      <div className="animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
+      <div className="animate-fade-in-up">
         <RecentActivity items={dashboardData?.recentActivity ?? []} />
       </div>
     </div>

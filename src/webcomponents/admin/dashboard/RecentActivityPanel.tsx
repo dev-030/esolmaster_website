@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import { ActivityType, RecentActivity } from "@/types/admin";
-import { Award, CheckCircle2, Clock, TrendingUp } from "lucide-react";
+import { Award, CheckCircle2, Clock, Inbox, TrendingUp } from "lucide-react";
 
 export interface Activity {
   id: number;
@@ -41,11 +41,11 @@ export const RecentActivityPanel = ({
 }) => {
   console.log("RecentActivityPanel received activities:", activities);
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4 h-full">
+    <div className="flex h-full flex-col gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Clock size={18} className="text-gray-400" />
-        <h3 className="text-base font-semibold text-gray-800">
+        <Clock size={18} className="text-[#2F7EDA]" />
+        <h3 className="text-base font-semibold text-slate-900">
           Recent Activity
         </h3>
       </div>
@@ -54,6 +54,15 @@ export const RecentActivityPanel = ({
 
       {/* Activity list */}
       <div className="flex flex-col gap-4 flex-1">
+        {activities.length === 0 && (
+          <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-[#2F7EDA]">
+              <Inbox className="h-6 w-6" />
+            </div>
+            <p className="text-sm font-semibold text-slate-700">No recent activity</p>
+            <p className="text-xs text-slate-400">Platform updates will appear here.</p>
+          </div>
+        )}
         {activities.map((activity) => (
           <div key={activity.id} className="flex items-start gap-3">
           

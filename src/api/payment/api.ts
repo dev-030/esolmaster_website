@@ -30,6 +30,11 @@ export const getBillingInfo = async () => {
    return data;
 }
 
+export const createBillingPortalSession = async () => {
+   const { data } = await axios.post('/payment/portal');
+   return data;
+}
+
 export  const getAdminBillingOverview = async () => {
    const { data } = await axios.get(commonroute + 'overview');
    return data;

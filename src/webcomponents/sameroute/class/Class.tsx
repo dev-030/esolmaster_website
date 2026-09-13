@@ -2,7 +2,17 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Plus, BookOpen, ChevronLeft, ChevronRight, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { useRole } from "@/provider/RoleProvider";
 import { ClassCard, EmptyState } from "@/webcomponents/reusable";
@@ -11,6 +21,7 @@ import {
   useCreateClassMutation,
   useDeleteClassMutation,
   useGetClassesQuery,
+  useJoinClassMutation,
   useUpdateClassMutation,
 } from "@/api/class";
 import { Class as ClassRoom, CreateClassPayload } from "@/types/class";
@@ -18,6 +29,8 @@ import { Class as ClassRoom, CreateClassPayload } from "@/types/class";
 export const Class = () => {
   const { role } = useRole();
   const [page, setPage] = useState(1);
+  const [joinOpen, setJoinOpen] = useState(false);
+  const [joinCode, setJoinCode] = useState("");
   const limit = 10;
 
   const { mutateAsync: createClass } = useCreateClassMutation();
@@ -27,6 +40,7 @@ export const Class = () => {
     limit,
   });
   const { mutateAsync: deleteClassMutation } = useDeleteClassMutation();
+  const { mutateAsync: joinClass, isPending: isJoining } = useJoinClassMutation();
 
   const [classDialog, setClassDialog] = useState<{
     open: boolean;
@@ -75,6 +89,19 @@ export const Class = () => {
     }
   };
 
+  const handleJoinClass = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      await joinClass(joinCode.trim());
+      await refetch();
+      setJoinCode("");
+      setJoinOpen(false);
+      toast.success("You joined the class");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Unable to join class");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -87,13 +114,18 @@ export const Class = () => {
             {totalItems} class{totalItems !== 1 ? "es" : ""}
           </p>
         </div>
-        {isTeacher && (
+        {isTeacher ? (
           <Button
             onClick={() => setClassDialog({ open: true, initial: null })}
             className="gap-2"
           >
             <Plus className="w-4 h-4" />
             New Class
+          </Button>
+        ) : (
+          <Button onClick={() => setJoinOpen(true)} className="gap-2">
+            <LogIn className="w-4 h-4" />
+            Join Class
           </Button>
         )}
       </div>
@@ -120,7 +152,11 @@ export const Class = () => {
               >
                 <Plus className="w-4 h-4" /> New Class
               </Button>
-            ) : null
+            ) : (
+              <Button onClick={() => setJoinOpen(true)} className="gap-2">
+                <LogIn className="w-4 h-4" /> Join Class
+              </Button>
+            )
           }
         />
       ) : (
@@ -210,6 +246,39 @@ export const Class = () => {
           )}
         </>
       )}
+
+      <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Join a classroom</DialogTitle>
+            <DialogDescription>
+              Enter the code shared by your teacher.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleJoinClass} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="class-join-code">Class code</Label>
+              <Input
+                id="class-join-code"
+                value={joinCode}
+                onChange={(event) => setJoinCode(event.target.value.toUpperCase())}
+                placeholder="ABC123"
+                maxLength={8}
+                autoFocus
+                required
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setJoinOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isJoining || joinCode.trim().length < 6}>
+                {isJoining ? "Joining..." : "Join classroom"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialogs */}
       <ClassDialog

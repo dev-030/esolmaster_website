@@ -14,7 +14,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useCreateCheckoutSessionMutation, useGetBillingInfoQuery, useGetMySubscription, useGetSubscriptionPlans } from "@/api/payment";
+import { useCreateBillingPortalSessionMutation } from "@/api/payment";
 import { formatDate } from "date-fns";
+import { toast } from "sonner";
 ;
 
 type PlanStatus = "Active" | "Cancelled" | "Past Due" | "Trialing";
@@ -94,7 +96,7 @@ const getStatusLabel = (
   return "Active";
 };
 
-const SubscriptionCard = () => {
+const SubscriptionCard = ({ onManageBilling, isManagingBilling }: { onManageBilling: () => void; isManagingBilling: boolean }) => {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("MONTHLY");
 
   const { data: subscription, isLoading: isSubscriptionLoading } =
@@ -246,12 +248,17 @@ const SubscriptionCard = () => {
               : "No billing date"}
           </span>
         </p>
+        {currentPlan?.type !== "FREE" && (
+          <Button variant="outline" size="sm" onClick={onManageBilling} disabled={isManagingBilling} className="w-full">
+            Manage subscription
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
 };
 
-const PaymentMethodCard = ({ paymentMethod }: { paymentMethod: PaymentMethod | null }) => (
+const PaymentMethodCard = ({ paymentMethod, onManageBilling, isManagingBilling }: { paymentMethod: PaymentMethod | null; onManageBilling: () => void; isManagingBilling: boolean }) => (
   <Card className="flex-1">
     <CardContent className="p-6 space-y-4">
       <h3 className="font-semibold text-base">Payment Method</h3>
@@ -281,7 +288,7 @@ const PaymentMethodCard = ({ paymentMethod }: { paymentMethod: PaymentMethod | n
             </div>
           </div>
 
-          <Button variant="outline" size="sm" className="w-full">
+          <Button variant="outline" size="sm" className="w-full" onClick={onManageBilling} disabled={isManagingBilling}>
             Update Payment Method
           </Button>
         </>
@@ -295,7 +302,7 @@ const PaymentMethodCard = ({ paymentMethod }: { paymentMethod: PaymentMethod | n
             </p>
           </div>
 
-          <Button variant="outline" size="sm" className="w-full">
+          <Button variant="outline" size="sm" className="w-full" onClick={onManageBilling} disabled={isManagingBilling}>
             <PlusCircle className="h-4 w-4 mr-2" />
             Add Payment Method
           </Button>
@@ -408,12 +415,24 @@ const BillingHistoryCard = ({ billingHistory }: { billingHistory: BillingRecord[
 
 export const BillingInfo = () => {
   const { data: billingInfo } = useGetBillingInfoQuery();
+  const { mutate: createBillingPortal, isPending: isManagingBilling } = useCreateBillingPortalSessionMutation();
+
+  const handleManageBilling = () => {
+    createBillingPortal(undefined, {
+      onSuccess: (data) => {
+        if (data?.url) window.location.assign(data.url);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || "Unable to open Stripe billing portal");
+      },
+    });
+  };
   
   return (
     <div className="w-full space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SubscriptionCard />
-        <PaymentMethodCard paymentMethod={billingInfo?.paymentMethod || null} />
+        <SubscriptionCard onManageBilling={handleManageBilling} isManagingBilling={isManagingBilling} />
+        <PaymentMethodCard paymentMethod={billingInfo?.paymentMethod || null} onManageBilling={handleManageBilling} isManagingBilling={isManagingBilling} />
       </div>
 
       <BillingHistoryCard billingHistory={billingInfo?.billingHistory || []} />

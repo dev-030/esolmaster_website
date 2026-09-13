@@ -20,6 +20,24 @@ export const getClassById = async (id: string): Promise<ClassDetails> => {
   return data;
 };
 
+export const joinClassByCode = async (code: string) => {
+  const { data } = await axios.post("/classes/join", { code });
+  return data;
+};
+
+export const regenerateClassJoinCode = async (id: string) => {
+  const { data } = await axios.post(`/classes/${id}/join-code/regenerate`);
+  return data;
+};
+
+export const updateClassJoinStatus = async (
+  id: string,
+  status: "OPEN" | "PAUSED" | "CLOSED",
+) => {
+  const { data } = await axios.patch(`/classes/${id}/join-status`, { status });
+  return data;
+};
+
 export const updateClass = async (
   id: string,
   payload: Partial<CreateClassPayload>,
@@ -78,6 +96,11 @@ export const getStudentsInClass = async (id: string, params: StudentQuery):Promi
 
 export const scheduleClassTask = async (id: string, payload: ScheduleTaskDto) => {
   const { data } = await axios.post(`/classes/${id}/schedule`, payload);
+  return data;
+};
+
+export const addTasksToClass = async (id: string, taskIds: string[]) => {
+  const { data } = await axios.post(`/classes/${id}/tasks`, { taskIds });
   return data;
 };
 

@@ -69,6 +69,7 @@ export const MyTask = () => {
   };
 
   const isEmpty = foldersToDisplay.length === 0 && filteredTasks.length === 0;
+  const canManageLibrary = role === "admin";
 
   return (
     <div className="flex flex-col gap-6">
@@ -101,10 +102,10 @@ export const MyTask = () => {
         subheading={
           role === "admin"
             ? "View all tasks or filter by sections you've created."
-            : "Here's a list of tasks assigned to you for your classes."
+            : "Choose published activities to add to your classes."
         }
         action={
-          (!isEmpty || isLoading || isFoldersLoading) && (
+          canManageLibrary && (!isEmpty || isLoading || isFoldersLoading) && (
             <div className="flex items-center gap-3">
               <Button variant="outline" className="gap-2 px-3 h-9 text-sm font-semibold rounded-full hover:bg-slate-50 transition-all border-slate-300 shadow-sm" onClick={() => setIsCreateModalOpen(true)}>
                 <FolderPlus className="w-4 h-4" />
@@ -142,12 +143,12 @@ export const MyTask = () => {
             Content Library
           </h3>
           <p className="text-muted-foreground mt-2 max-w-sm mb-6">
-            Create a new section to organize your activities.
+            {canManageLibrary ? "Create a new section to organize your activities." : "Published activities will appear here when they are available."}
           </p>
-          <Button size="lg" className="gap-2" onClick={() => setIsCreateModalOpen(true)}>
+          {canManageLibrary && <Button size="lg" className="gap-2" onClick={() => setIsCreateModalOpen(true)}>
             <FolderPlus className="w-5 h-5" />
             Create New Section
-          </Button>
+          </Button>}
         </div>
       ) : (folderId && foldersToDisplay.length === 0 && filteredTasks.length === 0) ? (
         <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-border rounded-xl bg-slate-50/50">
@@ -158,9 +159,9 @@ export const MyTask = () => {
             This section is empty
           </h3>
           <p className="text-muted-foreground mt-2 max-w-sm mb-6">
-            Create a folder or add an activity to get started.
+            {canManageLibrary ? "Create a folder or add an activity to get started." : "No published activities are in this section yet."}
           </p>
-          <div className="flex items-center gap-3">
+          {canManageLibrary && <div className="flex items-center gap-3">
             <Button variant="outline" size="lg" className="gap-2" onClick={() => setIsCreateModalOpen(true)}>
               <FolderPlus className="w-5 h-5" />
               Create Section
@@ -172,7 +173,7 @@ export const MyTask = () => {
               <Plus className="w-5 h-5" />
               Add Activity
             </Link>
-          </div>
+          </div>}
         </div>
       ) : (
         <div className="flex flex-col gap-8">
@@ -209,7 +210,7 @@ export const MyTask = () => {
                       </div>
                     </Link>
 
-                    <div className="absolute top-4 right-4 z-20">
+                    {canManageLibrary && <div className="absolute top-4 right-4 z-20">
                       <DropdownMenu>
                         <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full" />}>
                           <MoreVertical className="h-4 w-4" />
@@ -241,7 +242,7 @@ export const MyTask = () => {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </div>
+                    </div>}
                   </div>
                 ))}
               </div>

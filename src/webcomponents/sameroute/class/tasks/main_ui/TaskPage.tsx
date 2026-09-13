@@ -1,19 +1,42 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useRole } from "@/provider/RoleProvider";
 import { ClipboardList, Plus } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { TaskRow } from "./TaskRow";
-import { useGetScheduledTasksForClassQuery } from "@/api/class";
+import { addTasksToClass, scheduleClassTask, useGetScheduledTasksForClassQuery } from "@/api/class";
+import { useGetTasks } from "@/api/task";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export const TaskMainPage = () => {
   const { classId } = useParams<{ classId: string }>();
   const { role } = useRole();
-  const router = useRouter();
-  const { data: scheduledTasks, isLoading } =
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [addingTaskId, setAddingTaskId] = useState<string | null>(null);
+  const { data: scheduledTasks, refetch } =
     useGetScheduledTasksForClassQuery(classId);
+  const { data: library } = useGetTasks({ page: 1, limit: 100 });
 
-  const isTeacher = role === "teacher" || role === "admin";
+  const isTeacher = role === "teacher";
+  const availableTasks = library?.data || [];
+
+  const addAndScheduleTask = async (taskId: string) => {
+    try {
+      setAddingTaskId(taskId);
+      const classTasks = await addTasksToClass(classId, [taskId]);
+      const classTask = classTasks.find((item: { task: { id: string } }) => item.task.id === taskId);
+      await scheduleClassTask(classId, { classTaskId: classTask.classTaskId, isActive: true });
+      await refetch();
+      setIsLibraryOpen(false);
+      toast.success("Activity assigned to this class");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Unable to assign activity");
+    } finally {
+      setAddingTaskId(null);
+    }
+  };
 
   return (
     <div className="space-y-6 ">
@@ -26,6 +49,7 @@ export const TaskMainPage = () => {
             {scheduledTasks?.length !== 1 ? "tasks" : "task"}
           </p>
         </div>
+        {isTeacher && <Button onClick={() => setIsLibraryOpen(true)} className="gap-2"><Plus className="w-4 h-4" />Assign activity</Button>}
       </div>
 
       {/* Task list */}
@@ -38,18 +62,10 @@ export const TaskMainPage = () => {
             <p className="font-semibold text-foreground">No tasks yet</p>
             <p className="text-sm text-muted-foreground mt-1">
               {isTeacher
-                ? "Create your first task to assign to students."
+                ? "Choose a published activity to assign to your students."
                 : "No tasks have been assigned yet."}
             </p>
           </div>
-          {isTeacher && (
-            <Button
-              className="gap-2"
-              onClick={() => router.push(`/assign-task/grammar`)}
-            >
-              <Plus className="w-4 h-4" /> Create Task
-            </Button>
-          )}
         </div>
       ) : (
         <div className="space-y-3">
@@ -67,6 +83,21 @@ export const TaskMainPage = () => {
           ))}
         </div>
       )}
+
+      <Dialog open={isLibraryOpen} onOpenChange={setIsLibraryOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>Assign an activity</DialogTitle></DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto space-y-2">
+            {availableTasks.map((task: { id: string; title: string; type: string }) => (
+              <div key={task.id} className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 p-3">
+                <div><p className="font-medium text-slate-800">{task.title}</p><p className="text-xs text-slate-500 capitalize">{task.type.toLowerCase()}</p></div>
+                <Button size="sm" onClick={() => addAndScheduleTask(task.id)} disabled={addingTaskId === task.id}>{addingTaskId === task.id ? "Assigning..." : "Assign"}</Button>
+              </div>
+            ))}
+            {!availableTasks.length && <p className="py-8 text-center text-sm text-slate-500">No published activities are available.</p>}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialogs */}
       {/* <TaskDialog

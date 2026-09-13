@@ -45,6 +45,8 @@ export interface Class {
   classTasks: ClassTask[];
 
   createdAt: string;
+  joinStatus?: "OPEN" | "PAUSED" | "CLOSED";
+  joinCode?: string;
 }
 
 export interface StudentQuery extends PaginationQuery {
@@ -83,6 +85,8 @@ export interface ClassDetails {
   tasks: ClassTask[];
 
   createdAt: string;
+  joinStatus?: "OPEN" | "PAUSED" | "CLOSED";
+  joinCode?: string;
 }
 
 export interface ScheduleTaskDto {

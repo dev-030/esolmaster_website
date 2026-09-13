@@ -13,23 +13,19 @@ export const StatCardItem = ({ card }: { card: StatCard }) => {
   const isPositive = card.direction === "increase";
 
   return (
-    <div
-      className="rounded-2xl p-5 flex flex-col gap-3 shadow-sm"
-      style={{ backgroundColor: card.bgColor }}
-    >
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
       {/* Top row: title + icon */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-500">{card.title}</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{card.title}</span>
         <div
-          className="p-2 rounded-md"
-          style={{ backgroundColor: card.iconBg }}
+          className="rounded-xl border border-blue-100 bg-blue-50 p-2"
         >
-          <span style={{ color: card.iconColor }}>{card.icon}</span>
+          <span className="text-[#2F7EDA]">{card.icon}</span>
         </div>
       </div>
 
       {/* Value */}
-      <div className="text-2xl font-bold" style={{ color: card.iconColor }}>
+      <div className="text-3xl font-bold tracking-tight text-slate-900">
         {card.value}
       </div>
 
@@ -44,7 +40,7 @@ export const StatCardItem = ({ card }: { card: StatCard }) => {
           {isPositive ? "+" : ""}
           {card.change}%
         </span>
-        <span className="text-gray-400 font-normal">from last month</span>
+        <span className="font-normal text-slate-400">from last month</span>
       </div>
     </div>
   );

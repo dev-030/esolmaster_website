@@ -4,6 +4,7 @@ import {
     cancelSubscription,
     changeUserPlan,
     createCheckoutSession,
+    createBillingPortalSession,
     createPlan,
     detachPremiumTask,
     getAdminBillingOverview,
@@ -36,6 +37,13 @@ export const useCreateCheckoutSessionMutation = () => {
     return useMutation({
         mutationKey: ['createCheckoutSession'],
         mutationFn: async (checkoutBody: CheckOutBody) => createCheckoutSession(checkoutBody),
+    })
+}
+
+export const useCreateBillingPortalSessionMutation = () => {
+    return useMutation({
+        mutationKey: ['createBillingPortalSession'],
+        mutationFn: createBillingPortalSession,
     })
 }
 

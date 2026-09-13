@@ -79,8 +79,9 @@ function getTaskLink(task: Task): string {
 export const TaskCard = ({ task }: { task: Task }) => {
   const cfg = TASK_TYPE_CONFIG[task.type] || TASK_TYPE_CONFIG[TaskType.GRAMMAR];
   const classes = task.classes ?? [];
-  const href = getTaskLink(task);
   const { role } = useRole();
+  const isAdmin = role === "admin";
+  const href = isAdmin ? getTaskLink(task) : undefined;
   const router = useRouter();
   const { mutate: approveTask, isPending } = useApproveTaskMutation();
   const { mutate: deleteTask, isPending: isDeleting } = useDeleteTaskMutation();
@@ -118,8 +119,8 @@ export const TaskCard = ({ task }: { task: Task }) => {
 
   return (
     <div 
-      onClick={() => router.push(href)}
-      className="relative group flex flex-col justify-between p-4.5 bg-white border border-slate-200 rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-200 transition-all duration-300 cursor-pointer h-full overflow-hidden gap-2.5 min-h-[120px]"
+      onClick={() => href && router.push(href)}
+      className={cn("relative group flex flex-col justify-between p-4.5 bg-white border border-slate-200 rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-200 transition-all duration-300 h-full overflow-hidden gap-2.5 min-h-[120px]", isAdmin ? "cursor-pointer" : "cursor-default")}
     >
       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50/50 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
@@ -169,7 +170,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
             </Button>
           )}
 
-          <Button
+          {isAdmin && <Button
             variant="ghost"
             size="icon"
             onClick={(e) => {
@@ -184,9 +185,9 @@ export const TaskCard = ({ task }: { task: Task }) => {
             className="h-7 w-7 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
           >
             <Eye className="w-3.5 h-3.5" />
-          </Button>
+          </Button>}
 
-          <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+          {isAdmin && <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
             <AlertDialogTrigger
               onClick={(e) => {
                 e.stopPropagation();
@@ -239,7 +240,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
                 </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
-          </AlertDialog>
+          </AlertDialog>}
         </div>
       </div>
 

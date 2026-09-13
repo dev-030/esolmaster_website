@@ -1,10 +1,11 @@
 'use client';
-import { Check, Clipboard, TrendingUp, Users, Calendar, Clock, Activity } from "lucide-react";
+import { Check, Clipboard, TrendingUp, Users, ArrowRight, Calendar, Download } from "lucide-react";
 import { SectionHeading, StateCard } from "../reusable";
 import { ActiveTaskCard } from "../student/dashboard/ActiveTaskCard";
 import { useGetAllScheduledTasksQuery } from "@/api/task";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   ChevronLeft,
   ChevronRight,
@@ -18,38 +19,10 @@ export const TeacherDashboard = () => {
   const { data: teacherAnalyticsSummary, isLoading: teacherAnalyticsLoading } = useGetTeacherAnalyticsSummaryQuery();
   
   const stats = [
-    { 
-      icon: Users, 
-      title: "Total Students", 
-      value: teacherAnalyticsSummary?.totalStudents || 0,
-      trend: "+12%",
-      trendUp: true,
-      color: "from-blue-500 to-blue-600"
-    },
-    { 
-      icon: Clipboard, 
-      title: "Total Tasks", 
-      value: teacherAnalyticsSummary?.totalTasks || 0,
-      trend: "+8%",
-      trendUp: true,
-      color: "from-purple-500 to-purple-600"
-    },
-    { 
-      icon: Check, 
-      title: "Active Classes", 
-      value: teacherAnalyticsSummary?.totalClasses || 0,
-      trend: "+5%",
-      trendUp: true,
-      color: "from-emerald-500 to-emerald-600"
-    },
-    { 
-      icon: TrendingUp, 
-      title: "Avg Score", 
-      value: `${teacherAnalyticsSummary?.overallAvgScore || 0}`,
-      trend: "+3%",
-      trendUp: true,
-      color: "from-orange-500 to-orange-600"
-    },
+    { icon: Users, title: "Total Students", value: teacherAnalyticsSummary?.totalStudents || 0, trend: 15.5, subtitle: "vs. 14,653 last period" },
+    { icon: Clipboard, title: "Assigned Tasks", value: teacherAnalyticsSummary?.totalTasks || 0, trend: 8.4, subtitle: "vs. 5,732 last period" },
+    { icon: Check, title: "Active Classes", value: teacherAnalyticsSummary?.totalClasses || 0, trend: -10.5, subtitle: "vs. 3,294 last period" },
+    { icon: TrendingUp, title: "Average Score", value: `${teacherAnalyticsSummary?.overallAvgScore || 0}%`, trend: 4.4, subtitle: "vs. 1,186 last period" },
   ];
 
   const [page, setPage] = useState(1);
@@ -72,31 +45,22 @@ export const TeacherDashboard = () => {
   const isLoading = teacherAnalyticsLoading || tasksLoading;
 
   return (
-    <div className="space-y-8 bg-linear-to-br from-background via-background to-muted/20 min-h-screen">
+    <div className="space-y-8">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="space-y-1">
-          <SectionHeading
-            heading="Dashboard"
-            subheading="Here's what's happening in your classes today."
-          />
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5" />
-              <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
-          </div>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="hidden sm:flex items-center gap-2 rounded-[10px] border-slate-200 text-slate-600 font-medium">
+            <Calendar className="h-4 w-4 text-slate-400" />
+            Jan 1, 2026 - Feb 1, 2026
+          </Button>
+          <Link
+            href="/classes"
+            className="inline-flex items-center gap-2 rounded-[10px] bg-[#3454FB] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#2B44C9]"
+          >
+            <Download className="h-4 w-4" /> Export
+          </Link>
         </div>
-        
-        {/* Quick Action Button */}
-        <Button className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300">
-          <Activity className="w-4 h-4" />
-          View Activity Log
-        </Button>
       </div>
 
       {/* Stats Grid with Animation */}
@@ -111,6 +75,8 @@ export const TeacherDashboard = () => {
               icon={item.icon}
               title={item.title}
               value={item.value}
+              trend={item.trend}
+              subtitle={item.subtitle}
             />
           </div>
         ))}
@@ -119,9 +85,9 @@ export const TeacherDashboard = () => {
       {/* Active Tasks Section */}
       <div className="space-y-5">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <h3 className="text-xl font-bold bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <h3 className="text-xl font-bold tracking-tight text-slate-900">
               Active Tasks
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -130,7 +96,7 @@ export const TeacherDashboard = () => {
           </div>
           {scheduledTasks?.meta && (
             <div className="flex items-center gap-2">
-              <div className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <div className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-[#3454FB]">
                 Total: {scheduledTasks.meta.total} tasks
               </div>
             </div>
@@ -138,7 +104,7 @@ export const TeacherDashboard = () => {
         </div>
 
         {/* Tasks List */}
-        <div className="rounded-xl border bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
+        <div className="overflow-hidden rounded-[20px] border border-slate-100 bg-white shadow-sm">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <div className="relative">
@@ -243,35 +209,6 @@ export const TeacherDashboard = () => {
         )}
       </div>
 
-      {/* Optional: Quick Stats Footer */}
-      {teacherAnalyticsSummary && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-          <div className="bg-linear-to-br from-primary/5 to-primary/10 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-primary">
-              {teacherAnalyticsSummary.totalClasses || 0}
-            </p>
-            <p className="text-xs text-muted-foreground">Total Classes</p>
-          </div>
-          <div className="bg-linear-to-br from-blue-500/5 to-blue-500/10 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {teacherAnalyticsSummary.totalStudents || 0}
-            </p>
-            <p className="text-xs text-muted-foreground">Enrolled Students</p>
-          </div>
-          <div className="bg-linear-to-br from-emerald-500/5 to-emerald-500/10 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              {teacherAnalyticsSummary.totalTasks || 0}
-            </p>
-            <p className="text-xs text-muted-foreground">Assigned Tasks</p>
-          </div>
-          <div className="bg-linear-to-br from-orange-500/5 to-orange-500/10 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-              {teacherAnalyticsSummary.overallAvgScore || 0}
-            </p>
-            <p className="text-xs text-muted-foreground">Average Score</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -14,9 +14,12 @@ import {
   getScheduledTaskAnalytics,
   getScheduledTasksForClass,
   getStudentsInClass,
+  joinClassByCode,
+  regenerateClassJoinCode,
   removeStudentsFromClass,
   scheduleClassTask,
   studentFinder,
+  updateClassJoinStatus,
   updateClass,
 } from "./api";
 
@@ -44,6 +47,31 @@ export const useGetClassByIdQuery = (id: string) => {
     queryKey: ["class", id],
     queryFn: async () => getClassById(id),
     enabled: !!id,
+  });
+};
+
+export const useJoinClassMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: joinClassByCode,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["classes"] }),
+  });
+};
+
+export const useRegenerateClassJoinCodeMutation = (id: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => regenerateClassJoinCode(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["class", id] }),
+  });
+};
+
+export const useUpdateClassJoinStatusMutation = (id: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (status: "OPEN" | "PAUSED" | "CLOSED") =>
+      updateClassJoinStatus(id, status),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["class", id] }),
   });
 };
 

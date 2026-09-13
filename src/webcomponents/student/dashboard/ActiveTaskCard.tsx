@@ -7,7 +7,7 @@ import { useRole } from "@/provider/RoleProvider";
 export const ActiveTaskCard = ({ task }: { task: ScheduledTaskOverview }) => {
   const { role } = useRole();
   return (
-    <div className="bg-background border border-border rounded-2xl p-4 flex flex-col gap-3 hover:shadow-md transition-shadow">
+    <div className="flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1 flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">

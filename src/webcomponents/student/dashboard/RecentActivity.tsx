@@ -13,8 +13,8 @@ export const RecentActivity = ({
 }: {
   items: RecentActivityInterface[];
 }) => (
-  <div className="bg-card border border-border rounded-2xl p-5">
-    <h3 className="font-semibold text-base text-foreground mb-2">
+  <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+    <h3 className="mb-2 text-base font-semibold text-slate-900">
       Recent Activity
     </h3>
 
@@ -26,7 +26,7 @@ export const RecentActivity = ({
           key={i}
           className="flex items-center gap-3 py-3 border-b border-border last:border-0"
         >
-          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 text-[#2F7EDA]">
             {item.taskType === "GRAMMAR" ? (
               <SpellCheck />
             ) : item.taskType === "READING" ? (

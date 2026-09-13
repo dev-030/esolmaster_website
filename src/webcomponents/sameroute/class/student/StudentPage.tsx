@@ -9,6 +9,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Copy,
+  RefreshCw,
+  Pause,
+  Play,
+  Ban,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,7 +23,10 @@ import { StudentRow } from "./StudentRow";
 import { InviteStudentDialog } from "./InviteStudent";
 import {
   useGetStudentsInClassQuery,
+  useGetClassByIdQuery,
+  useRegenerateClassJoinCodeMutation,
   useRemoveStudentsFromClassMutation,
+  useUpdateClassJoinStatusMutation,
 } from "@/api/class";
 
 export const StudentClassPage = () => {
@@ -35,6 +43,11 @@ export const StudentClassPage = () => {
     name?: string;
   }>({ open: false });
   const [isRemoving, setIsRemoving] = useState(false);
+  const { data: classDetails, refetch: refetchClass } = useGetClassByIdQuery(classId);
+  const { mutateAsync: regenerateJoinCode, isPending: isRegenerating } =
+    useRegenerateClassJoinCodeMutation(classId);
+  const { mutateAsync: updateJoinStatus, isPending: isUpdatingJoinStatus } =
+    useUpdateClassJoinStatusMutation(classId);
 
   const {
     data: studentsData,
@@ -71,6 +84,22 @@ export const StudentClassPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const copyJoinCode = async () => {
+    if (!classDetails?.joinCode) return;
+    await navigator.clipboard.writeText(classDetails.joinCode);
+    toast.success("Join code copied");
+  };
+
+  const changeJoinStatus = async (status: "OPEN" | "PAUSED" | "CLOSED") => {
+    try {
+      await updateJoinStatus(status);
+      await refetchClass();
+      toast.success(status === "OPEN" ? "New joins enabled" : "New joins stopped");
+    } catch {
+      toast.error("Unable to update classroom joining");
+    }
+  };
+
   const handleRemoveStudent = async (
     studentId: string,
     studentName: string,
@@ -105,6 +134,53 @@ export const StudentClassPage = () => {
           Invite Student
         </Button>
       </div>
+
+      <Card className="border-blue-200 bg-blue-50/50">
+        <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Class join code</p>
+            <p className="mt-1 text-xs text-slate-600">
+              Share this code with students. Joining is currently <span className="font-semibold">{classDetails?.joinStatus?.toLowerCase() || "open"}</span>.
+            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <span className="rounded-lg bg-white px-4 py-2 font-mono text-lg font-bold tracking-[0.2em] text-blue-700 shadow-sm">
+                {classDetails?.joinCode || "------"}
+              </span>
+              <Button variant="outline" size="icon" onClick={copyJoinCode} aria-label="Copy join code">
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 sm:justify-end">
+            {classDetails?.joinStatus === "OPEN" ? (
+              <>
+                <Button variant="outline" size="sm" onClick={() => changeJoinStatus("PAUSED")} disabled={isUpdatingJoinStatus}>
+                  <Pause className="mr-1.5 h-4 w-4" /> Pause joins
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => changeJoinStatus("CLOSED")} disabled={isUpdatingJoinStatus}>
+                  <Ban className="mr-1.5 h-4 w-4" /> Stop joins
+                </Button>
+              </>
+            ) : classDetails?.joinStatus === "PAUSED" ? (
+              <>
+                <Button size="sm" onClick={() => changeJoinStatus("OPEN")} disabled={isUpdatingJoinStatus}>
+                  <Play className="mr-1.5 h-4 w-4" /> Resume joins
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => changeJoinStatus("CLOSED")} disabled={isUpdatingJoinStatus}>
+                  <Ban className="mr-1.5 h-4 w-4" /> Stop joins
+                </Button>
+              </>
+            ) : (
+              <Button size="sm" onClick={() => changeJoinStatus("OPEN")} disabled={isUpdatingJoinStatus}>
+                <Play className="mr-1.5 h-4 w-4" /> Reopen joins
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={async () => { await regenerateJoinCode(); await refetchClass(); toast.success("Join code regenerated"); }} disabled={isRegenerating}>
+              <RefreshCw className="mr-1.5 h-4 w-4" /> Regenerate
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       {/* Stats row - Commented until data is available */}
       {/* 

@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Trophy,
   Folder,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
@@ -36,8 +37,7 @@ const MENU_CONFIG = {
   teacher: {
     main: [
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { name: "My Task", href: "/content-library", icon: CheckSquare },
-      { name: "Assign Task", href: "/assign-task", icon: ClipboardList },
+      { name: "Activity Library", href: "/content-library", icon: CheckSquare },
       { name: "Classes", href: "/classes", icon: Users },
       { name: "Students", href: "/students", icon: GraduationCap },
       { name: "Reports", href: "/report", icon: BarChart },
@@ -65,7 +65,6 @@ export const Sidebar = () => {
   const {role} = useRole();
   const pathname = usePathname();
   const config = MENU_CONFIG[role as Role] || MENU_CONFIG["student"]; // Fallback to student config
-  const isAdmin = role === "admin";
   const { data: myProfile } = useGetMyProfileQuery();
   const { mutateAsync: signOut, isPending: isSignOutPending } = useSignOutMutation();
   const router = useRouter();
@@ -88,26 +87,28 @@ export const Sidebar = () => {
   return (
     <aside
       className={cn(
-        "w-64 h-screen sticky left-0 top-0 flex flex-col border-r transition-colors",
-        isAdmin
-          ? "bg-[#1E2230] text-white border-none"
-          : "bg-white text-slate-900",
+        "w-64 h-screen sticky left-0 top-0 flex flex-col border-r border-slate-200 bg-white text-slate-900 transition-colors",
       )}
     >
       {/* Top Brand */}
-      <div className="p-6">
-        <div className="bg-primary w-10 h-10 rounded-lg flex items-center justify-center">
-          <Book className="text-white w-6 h-6" />
+      <div className="border-b border-slate-100 px-5 py-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2F7EDA] shadow-sm shadow-blue-200">
+            <Book className="h-5 w-5 text-white" />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold tracking-tight text-slate-900">ESOL Master</p>
+            <p className="text-[11px] font-medium text-slate-400">Learning workspace</p>
+          </div>
         </div>
       </div>
 
-      <nav className="flex-1 px-4 space-y-8 overflow-y-auto">
+      <nav className="flex-1 space-y-8 overflow-y-auto px-3 py-6">
         {/* Main Menu */}
         <div>
           <p
             className={cn(
-              "text-xs font-semibold uppercase tracking-wider mb-4 px-2",
-              isAdmin ? "text-slate-400" : "text-slate-500",
+              "mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400",
             )}
           >
             Main Menu
@@ -118,12 +119,10 @@ export const Sidebar = () => {
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-md transition-all text-sm font-medium",
+                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                     isActive(item.href)
-                      ? "bg-primary text-white"
-                      : isAdmin
-                        ? "hover:bg-slate-800"
-                        : "hover:bg-slate-100",
+                      ? "bg-[#EAF2FF] font-semibold text-[#2F7EDA] shadow-sm"
+                      : "hover:bg-slate-100",
                   )}
                 >
                   <item.icon className="w-4 h-4" />
@@ -138,8 +137,7 @@ export const Sidebar = () => {
         <div>
           <p
             className={cn(
-              "text-xs font-semibold uppercase tracking-wider mb-4 px-2",
-              isAdmin ? "text-slate-400" : "text-slate-500",
+              "mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400",
             )}
           >
             Account
@@ -149,13 +147,11 @@ export const Sidebar = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md transition-all text-sm font-medium",
-                  isActive(item.href)
-                    ? "bg-primary text-white"
-                    : isAdmin
-                      ? "hover:bg-slate-800"
-                      : "hover:bg-slate-100",
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                    isActive(item.href)
+                      ? "bg-[#EAF2FF] font-semibold text-[#2F7EDA] shadow-sm"
+                    : "hover:bg-slate-100",
                 )}
               >
                 <item.icon className="w-4 h-4" />
@@ -167,9 +163,9 @@ export const Sidebar = () => {
       </nav>
 
       {/* Footer Section */}
-      <div className="p-4 border-t border-slate-200/20">
+      <div className="border-t border-slate-100 p-4">
         {role === "student" && (
-          <div className="space-y-3 bg-linear-to-br from-[#8EC2FF99] to [#2475D396] p-4 rounded-lg mb-4">
+          <div className="mb-4 space-y-3 rounded-xl border border-blue-100 bg-blue-50 p-4">
             <div className="flex justify-between text-xs font-bold">
               <span>Next Level</span>
               <span>{myProfile?.level+1 || 1}</span>
@@ -179,6 +175,18 @@ export const Sidebar = () => {
               <span>{myProfile?.totalXp || 0} XP</span>
               <span>{myProfile?.xpNeededForNextLevel+myProfile?.totalXp || 0} XP</span>
             </div>
+          </div>
+        )}
+
+        {role !== "student" && (
+          <div className="mb-4 rounded-xl bg-gradient-to-br from-[#2F7EDA] to-[#1D5EAE] p-4 text-white shadow-sm">
+            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-lg bg-white/15">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <p className="text-sm font-semibold">Keep your workspace moving</p>
+            <p className="mt-1 text-[11px] leading-relaxed text-blue-100">
+              {role === "admin" ? "Review content and platform activity." : "Manage classes and support your learners."}
+            </p>
           </div>
         )}
 

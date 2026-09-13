@@ -1336,7 +1336,7 @@ const playSuccessSound = () => {
     : `/content-library`;
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto py-8 px-8 flex flex-col gap-6 bg-slate-50/50 min-h-screen">
+    <div className="w-full max-w-[1400px] mx-auto py-4 sm:py-8 px-3 sm:px-6 lg:px-8 flex flex-col gap-4 sm:gap-6 bg-slate-50/50 min-h-screen min-w-0">
       {/* Breadcrumbs & Back Navigation */}
       <div className="flex items-center gap-3 text-sm text-slate-500 flex-wrap">
         <Button
@@ -1381,15 +1381,15 @@ const playSuccessSound = () => {
       </div>
 
       {/* Page Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-200/60 flex-wrap gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between pb-4 border-b border-slate-200/60 gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-3xl font-bold tracking-tight text-slate-800">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800">
               {taskId ? "Edit ESOL Assessment" : "ESOL Activity Builder"}
             </h1>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
           
           <input 
             type="file" 
@@ -1403,7 +1403,7 @@ const playSuccessSound = () => {
             variant="outline" 
             onClick={() => fileInputRef.current?.click()}
             disabled={isImporting || !!pdfFileForSnipping}
-            className={`border-blue-200 text-blue-500 min-w-[140px] transition-colors cursor-pointer ${
+            className={`border-blue-200 text-blue-500 min-w-0 flex-1 sm:flex-none transition-colors cursor-pointer ${
               isImporting 
                 ? "bg-blue-50 animate-pulse border-blue-300 shadow-inner cursor-not-allowed opacity-90" 
                 : !!pdfFileForSnipping 
@@ -1424,9 +1424,9 @@ const playSuccessSound = () => {
             )}
           </Button>
 
-          <Button 
+          <Button
             variant="outline" 
-            className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
+            className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex-1 sm:flex-none" 
             disabled={Boolean(isSaving)}
             onClick={handlePreview}
           >
@@ -1436,7 +1436,7 @@ const playSuccessSound = () => {
           <Button 
             type="button" 
             variant="outline" 
-            className="font-medium border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
+            className="font-medium border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex-1 sm:flex-none" 
             disabled={Boolean(isSaving)}
             onClick={() => handleSave("DRAFT", false)}
           >
@@ -1449,7 +1449,7 @@ const playSuccessSound = () => {
           </Button>
           <Button 
             type="button" 
-            className="font-medium bg-blue-500 hover:bg-blue-600 text-white shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors" 
+            className="font-medium bg-blue-500 hover:bg-blue-600 text-white shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex-1 sm:flex-none" 
             disabled={Boolean(isSaving)}
             onClick={() => handleSave("PUBLISHED")}
           >
@@ -1463,9 +1463,9 @@ const playSuccessSound = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-start min-w-0">
         {/* Main Canvas Area */}
-        <div className="col-span-12 lg:col-span-9 flex flex-col gap-8">
+        <div className="col-span-1 lg:col-span-9 flex flex-col gap-6 lg:gap-8 min-w-0">
           {/* Activity Settings Card */}
           <Card className="border-slate-200 overflow-hidden shadow-none rounded-xl bg-white">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 px-6 pt-5 flex flex-row items-center justify-between">
@@ -1744,17 +1744,17 @@ const playSuccessSound = () => {
         {/* PDF SNIPPING TOOL INTEGRATION                                             */}
         {/* ========================================================================= */}
         {pdfFileForSnipping && (
-          <div className="mb-6 w-full mx-auto flex items-center justify-between bg-blue-50 border border-blue-200 p-4 rounded-xl shadow-sm">
-            <div className="flex items-center gap-3">
+          <div className="mb-6 w-full mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-blue-50 border border-blue-200 p-3 sm:p-4 rounded-xl shadow-sm">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="p-2 bg-blue-100 rounded-lg text-blue-500">
                 <FileText className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h4 className="text-sm font-semibold text-slate-800">Original PDF Available</h4>
                 <p className="text-xs text-slate-500">Open the snipping tool to capture images from the PDF for task contexts.</p>
               </div>
             </div>
-            <Button onClick={() => setShowSnippingOverlay(true)} className="bg-blue-500 hover:bg-blue-500 text-white shadow-sm">
+            <Button onClick={() => setShowSnippingOverlay(true)} className="w-full sm:w-auto shrink-0 bg-blue-500 hover:bg-blue-500 text-white shadow-sm">
               <Scissors className="w-4 h-4 mr-2" /> Open Snipping Tool
             </Button>
           </div>
@@ -2115,7 +2115,7 @@ const playSuccessSound = () => {
         </div>
 
         {/* Right Sticky Sidebar: Overview & Global Question Palette */}
-        <div className="col-span-12 lg:col-span-3 sticky top-6 flex flex-col gap-5">
+        <div className="col-span-1 lg:col-span-3 lg:sticky lg:top-6 flex flex-col gap-5 min-w-0">
           {/* 1. Quick Overview Summary Card (FIRST) */}
           <Card className="border-slate-200 shadow-none rounded-xl bg-white overflow-hidden">
             <div className="p-4 space-y-4">

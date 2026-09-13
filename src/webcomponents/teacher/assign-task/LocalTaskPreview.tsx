@@ -3,6 +3,21 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { QuestionRenderer } from "@/webcomponents/sameroute/class/tasks/QuestinRenderer";
+import { CheckCircle2, RotateCcw, XCircle } from "lucide-react";
+
+const htmlEntities: Record<string, string> = { nbsp: " ", amp: "&", quot: '"', apos: "'", lt: "<", gt: ">" };
+
+const toPlainText = (value: unknown) =>
+  String(value ?? "")
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&(nbsp|amp|quot|apos|lt|gt);|&#(x?[0-9a-f]+);/gi, (entity, named, numeric) => {
+      if (named) return htmlEntities[named.toLowerCase()] || entity;
+      const code = numeric.toLowerCase().startsWith("x") ? parseInt(numeric.slice(1), 16) : parseInt(numeric, 10);
+      return Number.isNaN(code) ? entity : String.fromCodePoint(code);
+    })
+    .replace(/\s+/g, " ")
+    .trim();
 
 export interface LocalTaskPreviewProps {
   title?: string;
@@ -148,13 +163,177 @@ export const LocalTaskPreview = ({
     };
   };
 
+  const isAnswered = (question: any) => {
+    const answer = answers[question.id];
+    if (Array.isArray(answer)) return answer.length > 0 && answer.every(Boolean);
+    return typeof answer === "string" && answer.trim().length > 0;
+  };
+
+  const correctAnswer = (question: any) => {
+    const config = question.config || {};
+    if (typeof config.correctIndex === "number" && Array.isArray(config.options)) {
+      return config.options[config.correctIndex] || "Not provided";
+    }
+    if (config.answer) return Array.isArray(config.answer) ? config.answer.join(", ") : config.answer;
+    if (question.type === "WORD_BOX_MATCH") {
+      return (config.sentences || []).map((sentence: any) => sentence.answer).filter(Boolean).join(", ") || "Not provided";
+    }
+    if (question.type === "MATCHING") {
+      if (Array.isArray(config.pairs)) return config.pairs.map((pair: any) => `${pair.left} → ${pair.right}`).join(", ") || "Not provided";
+      return (config.leftItems || []).map((left: string, index: number) => `${left} → ${config.rightItems?.[config.matches?.[String(index)] ?? index] || ""}`).join(", ") || "Not provided";
+    }
+    if (question.type === "ORDERING") return (config.correctOrder || config.items || []).join(" → ") || "Not provided";
+    return "Not provided";
+  };
+
+  const isCorrect = (question: any) => {
+    const answer = answers[question.id];
+    const config = question.config || {};
+    const normalize = (value: unknown) => toPlainText(value).toLowerCase();
+
+    if (typeof config.correctIndex === "number" && Array.isArray(config.options)) {
+      return normalize(answer) === normalize(config.options[config.correctIndex]);
+    }
+    if (question.type === "WORD_BOX_MATCH") {
+      const expected = (config.sentences || []).map((sentence: any) => normalize(sentence.answer));
+      return Array.isArray(answer) && expected.length > 0 && expected.every((value: string, index: number) => normalize(answer[index]) === value);
+    }
+    if (question.type === "MATCHING") {
+      const expected = Array.isArray(config.pairs) && config.pairs.length > 0
+        ? config.pairs.map((pair: any, index: number) => `${pair.id ?? index}::right-${index}`)
+        : (config.leftItems || []).map((_: string, index: number) => `${index}::right-${config.matches?.[String(index)] ?? index}`);
+      return Array.isArray(answer) && expected.length > 0 && expected.every((value: string) => answer.includes(value));
+    }
+    if (question.type === "ORDERING") {
+      const expected = config.correctOrder || config.items || [];
+      return Array.isArray(answer) && expected.length > 0 && answer.every((value: string, index: number) => normalize(value) === normalize(expected[index]));
+    }
+    return normalize(answer) === normalize(config.answer);
+  };
+
+  const resultRows = displayItems.map((question: any, index: number) => ({
+    question,
+    index,
+    correct: isCorrect(question),
+  }));
+  const earnedMarks = resultRows.reduce((sum, result) => sum + (result.correct ? result.question.marks || 1 : 0), 0);
+  const usesCriteria = passLogic === "CRITERIA_ONLY" || passLogic === "CRITERIA_AND_SCORE";
+  const usesScore = passLogic === "SCORE_ONLY" || passLogic === "CRITERIA_AND_SCORE";
+  const criteriaResults = usesCriteria
+    ? taskCriteria.map((criterion: any) => {
+        const mapped = resultRows.filter((result) => result.question.criterionId === criterion.id);
+        const correct = mapped.filter((result) => result.correct).length;
+        return { ...criterion, total: mapped.length, correct, fulfilled: mapped.length > 0 && correct === mapped.length };
+      })
+    : [];
+  const criteriaPassed = criteriaResults.length > 0 && criteriaResults.every((criterion: any) => criterion.fulfilled);
+  const scorePassed = !usesScore || passMark === null || passMark === undefined || earnedMarks >= passMark;
+  const assessmentPassed = scorePassed && (!usesCriteria || criteriaPassed);
+
   const handleNext = () => {
-    if (currentIndex < totalQuestions - 1) setCurrentIndex((c) => c + 1);
+    if (currentQuestion && isAnswered(currentQuestion) && currentIndex < totalQuestions - 1) {
+      setCurrentIndex((c) => c + 1);
+    }
   };
 
   const handlePrev = () => {
     if (currentIndex > 0) setCurrentIndex((c) => c - 1);
   };
+
+  const restart = () => {
+    setAnswers({});
+    setCurrentIndex(0);
+    setSubmitted(false);
+  };
+
+  if (submitted) {
+    const percentage = totalCalculatedMarks ? Math.round((earnedMarks / totalCalculatedMarks) * 100) : 0;
+    const correctCount = resultRows.filter((result) => result.correct).length;
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 pb-8">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="bg-[#2F7EDA] px-6 py-8 sm:px-10 sm:py-10 text-white">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+              <div className="space-y-2">
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-wider"><CheckCircle2 className="w-4 h-4" />Assessment complete</span>
+                <h2 className="text-3xl font-bold tracking-tight">{percentage}% score</h2>
+                <p className="text-blue-100">{correctCount} of {totalQuestions} questions correct · {earnedMarks} of {totalCalculatedMarks} marks</p>
+                {(usesScore || usesCriteria) && (
+                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${assessmentPassed ? "bg-emerald-400 text-emerald-950" : "bg-red-100 text-red-700"}`}>
+                    {assessmentPassed ? "Pass" : "Not yet passed"}
+                  </span>
+                )}
+              </div>
+              <div className="w-28 h-28 rounded-full bg-white/15 border-[10px] border-white/25 flex flex-col items-center justify-center shrink-0">
+                <span className="text-3xl font-bold leading-none">{earnedMarks}</span>
+                <span className="text-xs text-blue-100 mt-1">/ {totalCalculatedMarks}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4 bg-slate-50">
+            <p className="text-sm text-slate-600">Review each answer below and use the explanations to learn from mistakes.</p>
+            <Button variant="outline" onClick={restart} className="bg-white shrink-0"><RotateCcw className="w-4 h-4 mr-2" />Try again</Button>
+          </div>
+        </div>
+
+        {usesCriteria && (
+          <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-b border-slate-200 bg-slate-50">
+              <div>
+                <h3 className="font-bold text-slate-800">Skill criteria checklist</h3>
+                <p className="text-sm text-slate-500">Every mapped question must be correct for a criterion to be fulfilled.</p>
+              </div>
+              <span className={`rounded-full px-3 py-1 text-xs font-bold ${criteriaPassed ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>{criteriaResults.filter((criterion: any) => criterion.fulfilled).length} / {criteriaResults.length} fulfilled</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-5">
+              {criteriaResults.map((criterion: any) => (
+                <div key={criterion.id} className={`rounded-xl border p-4 ${criterion.fulfilled ? "border-emerald-200 bg-emerald-50/50" : "border-red-200 bg-red-50/50"}`}>
+                  <div className="flex items-start gap-3">
+                    {criterion.fulfilled ? <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />}
+                    <div className="min-w-0">
+                      <p className="font-bold text-slate-800">{criterion.code}</p>
+                      {criterion.description && <p className="text-sm text-slate-600 mt-0.5">{criterion.description}</p>}
+                      <p className={`text-xs font-semibold mt-2 ${criterion.fulfilled ? "text-emerald-700" : "text-red-700"}`}>{criterion.correct} of {criterion.total} mapped questions correct · {criterion.fulfilled ? "Fulfilled" : "Not fulfilled"}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {resultRows.map(({ question, index, correct }) => (
+            <div key={question.id} className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+              <div className={`flex items-center gap-3 px-5 py-3 border-b ${correct ? "bg-emerald-50 border-emerald-100" : "bg-red-50 border-red-100"}`}>
+                {correct ? <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" /> : <XCircle className="w-5 h-5 text-red-600 shrink-0" />}
+                <span className={`text-xs font-bold uppercase tracking-wider ${correct ? "text-emerald-700" : "text-red-700"}`}>Question {index + 1} · {correct ? "Correct" : "Review needed"}</span>
+                <span className="ml-auto text-xs font-semibold text-slate-500">{question.marks || 1} {question.marks === 1 ? "mark" : "marks"}</span>
+              </div>
+              <div className="p-5 sm:p-6 space-y-5">
+                <p className="text-lg font-semibold leading-relaxed text-slate-800">{toPlainText(question.content)}</p>
+                <div className={`grid gap-3 ${correct ? "grid-cols-1" : "sm:grid-cols-2"}`}>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Your answer</p>
+                    <p className="font-semibold text-slate-800">{toPlainText(Array.isArray(answers[question.id]) ? answers[question.id].join(", ") : answers[question.id])}</p>
+                  </div>
+                  {!correct && <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1.5">Correct answer</p>
+                    <p className="font-semibold text-emerald-800">{toPlainText(correctAnswer(question))}</p>
+                  </div>}
+                </div>
+                {question.explanation && <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-blue-700 mb-1.5">Why this is the answer</p>
+                  <p className="text-sm leading-relaxed text-slate-700">{toPlainText(question.explanation)}</p>
+                </div>
+                }
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto w-full pb-8">
@@ -346,12 +525,13 @@ export const LocalTaskPreview = ({
               </Button>
 
               {currentIndex < totalQuestions - 1 ? (
-                <Button onClick={handleNext} className="bg-blue-500 hover:bg-blue-600 text-white">
+                <Button onClick={handleNext} disabled={!isAnswered(currentQuestion)} className="bg-blue-500 hover:bg-blue-600 text-white">
                   Next Question
                 </Button>
               ) : (
                 <Button
                   onClick={() => setSubmitted(true)}
+                  disabled={!isAnswered(currentQuestion)}
                   className="bg-blue-500 hover:bg-blue-600 text-white font-semibold"
                 >
                   Submit Assessment
@@ -453,12 +633,13 @@ export const LocalTaskPreview = ({
             </Button>
 
             {currentIndex < totalQuestions - 1 ? (
-              <Button onClick={handleNext} className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Button onClick={handleNext} disabled={!isAnswered(currentQuestion)} className="bg-blue-500 hover:bg-blue-600 text-white">
                 Next Question
               </Button>
             ) : (
               <Button
                 onClick={() => setSubmitted(true)}
+                disabled={!isAnswered(currentQuestion)}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold"
               >
                 Submit Assessment

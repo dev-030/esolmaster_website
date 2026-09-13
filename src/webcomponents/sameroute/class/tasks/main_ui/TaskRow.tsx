@@ -113,7 +113,7 @@ export const TaskRow = ({
                 variant={isTeacher ? "ghost" : "default"}
                 className="gap-1.5 h-8"
               >
-                {isTeacher ? "Preview" : "Start"}
+                {isTeacher ? "Review results" : "Start"}
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </Link>
