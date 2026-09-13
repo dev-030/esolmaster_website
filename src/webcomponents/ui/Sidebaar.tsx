@@ -112,7 +112,7 @@ export const Sidebar = () => {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition-all duration-150 relative",
+                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold transition-all duration-150 relative",
                 active
                   ? "bg-blue-50 text-[#3454FB]"
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
@@ -176,14 +176,14 @@ export const Sidebar = () => {
         {/* Settings & Help */}
         <Link
           href="/settings"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
         >
           <Settings className="h-[18px] w-[18px] text-slate-400" />
           Settings
         </Link>
         <Link
           href="/help"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
         >
           <HelpCircle className="h-[18px] w-[18px] text-slate-400" />
           Help &amp; Support
@@ -193,7 +193,7 @@ export const Sidebar = () => {
         <button
           onClick={handleLogout}
           disabled={isSignOutPending}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-red-500 hover:bg-red-50 transition-all disabled:opacity-50"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold text-red-500 hover:bg-red-50 transition-all disabled:opacity-50"
         >
           <LogOut className="h-[18px] w-[18px]" />
           {isSignOutPending ? "Logging out..." : "Logout"}
