@@ -3,12 +3,56 @@ import { BookOpen, ClipboardList, Settings, Users } from "lucide-react";
 import { ClassDetails } from "@/types/class";
 
 interface ClassHeaderProps {
-  classDetails: ClassDetails;
+  classDetails?: ClassDetails | null;
   action?: ReactNode;
   isTeacher?: boolean;
   currentTab?: string;
   onTabChange?: (tab: string) => void;
+  isLoading?: boolean;
 }
+
+export const ClassHeaderSkeleton = ({ isTeacher = true }: { isTeacher?: boolean }) => {
+  return (
+    <section className="rounded-[20px] border border-slate-200 bg-white overflow-hidden animate-pulse">
+      {/* Top Details Row */}
+      <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="flex min-w-0 items-center gap-3.5">
+          <div className="h-12 w-12 shrink-0 rounded-[14px] bg-slate-100" />
+          <div className="space-y-2">
+            <div className="h-5 w-36 rounded-md bg-slate-200/70" />
+            <div className="h-3.5 w-24 rounded-md bg-slate-100" />
+          </div>
+        </div>
+        {!isTeacher && (
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-24 rounded-full bg-slate-100" />
+            <div className="h-7 w-24 rounded-full bg-slate-100" />
+          </div>
+        )}
+      </div>
+
+      {/* Teacher Tabs Skeleton */}
+      {isTeacher && (
+        <div className="border-t border-slate-100 px-4 sm:px-6 bg-white flex items-center gap-4 sm:gap-6 py-3">
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded bg-slate-200/60" />
+            <div className="h-4 w-16 rounded bg-slate-200/60" />
+            <div className="h-4 w-5 rounded-full bg-slate-100" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded bg-slate-100" />
+            <div className="h-4 w-16 rounded bg-slate-100" />
+            <div className="h-4 w-5 rounded-full bg-slate-100" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded bg-slate-100" />
+            <div className="h-4 w-14 rounded bg-slate-100" />
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
 
 export const ClassHeader = ({
   classDetails,
@@ -16,8 +60,11 @@ export const ClassHeader = ({
   isTeacher,
   currentTab,
   onTabChange,
+  isLoading,
 }: ClassHeaderProps) => {
-  if (!classDetails) return null;
+  if (isLoading || !classDetails) {
+    return <ClassHeaderSkeleton isTeacher={isTeacher} />;
+  }
 
   const tabs = [
     {

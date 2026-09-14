@@ -32,7 +32,7 @@ export default function ClassLayout({ children }: Props) {
 
   const classId = params.classId as string;
 
-  const { data: cls } = useGetClassByIdQuery(classId);
+  const { data: cls, isLoading: isClassLoading } = useGetClassByIdQuery(classId);
   const { mutateAsync: leaveClass, isPending: isLeaving } = useLeaveClassMutation();
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
@@ -63,6 +63,7 @@ export default function ClassLayout({ children }: Props) {
       {!isNestedPage && (
         <ClassHeader
           classDetails={cls as ClassDetails}
+          isLoading={isClassLoading}
           isTeacher={isTeacher}
           currentTab={currentTab}
           onTabChange={(tabValue) => router.push(`/classes/${classId}/${tabValue}`)}
