@@ -45,7 +45,7 @@ const ChoiceReview = ({ r }: { r: any }) => {
             ) : (
               <Circle className="w-4 h-4 shrink-0 text-slate-300" />
             )}
-            <span>{opt}</span>
+            <span dangerouslySetInnerHTML={{ __html: (opt || "").replace(/&nbsp;/g, " ") }} />
             {isCorrect && (
               <Badge variant="success" className="ml-auto text-[10px]">
                 Correct
@@ -431,9 +431,10 @@ export const ResultScreen = ({ result }: { result: AttemptResult }) => {
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm font-medium">
-                  {index + 1}. {r.question}
-                </p>
+                <div
+                  className="text-sm font-medium"
+                  dangerouslySetInnerHTML={{ __html: `${index + 1}. ${(r.question || "").replace(/&nbsp;/g, " ")}` }}
+                />
               </div>
             </div>
 
@@ -444,7 +445,10 @@ export const ResultScreen = ({ result }: { result: AttemptResult }) => {
             {r.note && (
               <div className="ml-8 flex items-start gap-2 text-xs bg-background border rounded-lg p-2 text-muted-foreground">
                 <Lightbulb className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-                <span>{r.note}</span>
+                <div
+                  className="flex-1 prose-xs"
+                  dangerouslySetInnerHTML={{ __html: (r.note || "").replace(/&nbsp;/g, " ") }}
+                />
               </div>
             )}
           </div>
