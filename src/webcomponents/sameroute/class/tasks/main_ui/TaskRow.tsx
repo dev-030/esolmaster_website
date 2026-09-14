@@ -112,10 +112,14 @@ export const TaskRow = ({
               <div className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1 text-muted-foreground">
                   <Users className="w-3 h-3" />
-                  <span>{isTeacher ? "Completion" : "Your progress"}</span>
+                  <span>{isTeacher ? "Completion" : isCompleted ? "Your score" : "Your progress"}</span>
                 </span>
                 <span className="font-medium text-foreground">
-                  {isTeacher ? completedText : isCompleted ? `${task.percentage}%` : `${task.answeredQuestions}/${task.totalQuestions}`}
+                  {isTeacher
+                    ? completedText
+                    : isCompleted
+                    ? `${task.score ?? 0} / ${task.totalQuestions ?? 0} marks  ${task.percentage ?? 0}%`
+                    : `${task.answeredQuestions}/${task.totalQuestions}`}
                 </span>
               </div>
               <Progress value={isTeacher ? completionRate : isCompleted ? task.percentage ?? 0 : task.progressPercentage} className="h-2" />
