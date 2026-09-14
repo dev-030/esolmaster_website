@@ -123,25 +123,8 @@ export const StudentClassPage = () => {
 
   return (
     <div className="space-y-5">
-      {/* Action Sub-header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight text-slate-800">Enrolled Students</h2>
-          <p className="text-xs text-slate-400 font-medium mt-0.5">
-            {total} student{total !== 1 ? "s" : ""} enrolled in this classroom
-          </p>
-        </div>
-        <Button
-          onClick={() => setInviteOpen(true)}
-          className="gap-2 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[12px] h-9 px-4 text-xs shadow-sm shadow-blue-500/15 transition-all"
-        >
-          <UserPlus className="w-4 h-4" />
-          Invite Student
-        </Button>
-      </div>
-
       {/* Class Join Code Card */}
-      <div className="rounded-[20px] border border-slate-100/90 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+      <div className="rounded-[20px] border border-slate-200 bg-white p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           {/* Info */}
           <div className="flex items-center gap-3.5">
@@ -267,12 +250,21 @@ export const StudentClassPage = () => {
               <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isRegenerating ? "animate-spin" : ""}`} />
               Regenerate
             </Button>
+
+            {/* Invite Student Button */}
+            <Button
+              onClick={() => setInviteOpen(true)}
+              className="gap-1.5 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[10px] h-8 px-3 text-xs shadow-none transition-all ml-auto sm:ml-0"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Invite Student
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Class Roster Table Card */}
-      <div className="rounded-[20px] border border-slate-100/90 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
+      <div className="rounded-[20px] border border-slate-200 bg-white overflow-hidden">
         {/* Table Card Header with Search */}
         <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100">
           <div>
