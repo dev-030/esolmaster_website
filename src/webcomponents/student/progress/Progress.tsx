@@ -1,4 +1,5 @@
 'use client';
+
 import {
   LineChart,
   Line,
@@ -13,11 +14,13 @@ import {
   Legend,
   TooltipProps,
 } from "recharts";
-import { SectionHeading } from "../../reusable/SectionHeading";
 import { ProgressCard } from "./ProgressCard";
-import { useGetStudentProgressQuery, useGetStudentScoreTrendQuery, useGetStudentSkillDistributionQuery } from "@/api/student";
+import {
+  useGetStudentProgressQuery,
+  useGetStudentScoreTrendQuery,
+  useGetStudentSkillDistributionQuery,
+} from "@/api/student";
 
-// Types for tooltip payload
 interface TooltipPayload {
   name: string;
   value: number;
@@ -31,15 +34,15 @@ interface CustomTooltipProps extends TooltipProps<number, string> {
   label?: string;
 }
 
-// Custom tooltip for line chart - moved outside component
 const CustomLineTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-background border border-border rounded-lg shadow-lg p-3">
-        <p className="text-sm font-semibold text-foreground mb-2">{label}</p>
+      <div className="bg-white border border-slate-100 rounded-xl shadow-xl p-3 text-xs">
+        <p className="font-bold text-slate-900 mb-2">{label}</p>
         {payload.map((entry, index) => (
-          <p key={index} className="text-xs" style={{ color: entry.color }}>
-            {entry.name}: {entry.value}%
+          <p key={index} className="flex items-center gap-1.5 py-0.5" style={{ color: entry.color }}>
+            <span className="font-semibold">{entry.name}:</span>
+            <span className="font-extrabold">{entry.value}%</span>
           </p>
         ))}
       </div>
@@ -48,16 +51,13 @@ const CustomLineTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   return null;
 };
 
-// Custom tooltip for pie chart - moved outside component
 const CustomPieTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-background border border-border rounded-lg shadow-lg p-3">
-        <p className="text-sm font-semibold text-foreground">
-          {payload[0].name}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Value: {payload[0].value}%
+      <div className="bg-white border border-slate-100 rounded-xl shadow-xl p-3 text-xs">
+        <p className="font-bold text-slate-900">{payload[0].name}</p>
+        <p className="text-slate-500 mt-0.5">
+          Proficiency: <strong className="text-slate-900 font-extrabold">{payload[0].value}%</strong>
         </p>
       </div>
     );
@@ -69,24 +69,48 @@ export const Progress = () => {
   const { data: studentProgress } = useGetStudentProgressQuery();
   const { data: score } = useGetStudentScoreTrendQuery();
   const { data: skillDistribution } = useGetStudentSkillDistributionQuery();
-  
+
   const PROGRESS_CARDS = [
-  { title: "Grammar Mastery", gradient: "bg-[linear-gradient(135deg,#6699FF_0%,#799EE9_100%,#4A86FF_49%)]", value: studentProgress?.grammar || 0, label: "Grammar" },
-  { title: "Reading Comprehension", gradient: "bg-[linear-gradient(135deg,#0ABA10_0%,#3DC141_100%,#00C006_100%)]", value: studentProgress?.reading || 0, label: "Reading" },
-  { title: "Vocabulary", gradient: "bg-[linear-gradient(135deg,#09BAAB_0%,#3EC2B7_100%,#00BFAF_100%)]", value: studentProgress?.vocabulary || 0, label: "Vocabulary" },
-  { title: "Overall Progress", gradient: "bg-[linear-gradient(135deg,#F0C102_0%,#FFCC02_100%,#FFD428_100%)]", value: studentProgress?.overall || 0, label: "Overall" },
-];
+    {
+      title: "Grammar Mastery",
+      value: studentProgress?.grammar || 0,
+      label: "Grammar",
+      color: "#3454FB",
+    },
+    {
+      title: "Reading Comprehension",
+      value: studentProgress?.reading || 0,
+      label: "Reading",
+      color: "#10B981",
+    },
+    {
+      title: "Vocabulary",
+      value: studentProgress?.vocabulary || 0,
+      label: "Vocabulary",
+      color: "#F59E0B",
+    },
+    {
+      title: "Overall Progress",
+      value: studentProgress?.overall || 0,
+      label: "Overall",
+      color: "#8B5CF6",
+    },
+  ];
 
   return (
-    <div className="space-y-8">
-      {/* Heading */}
-      <SectionHeading
-        heading="Progress Tracker"
-        subheading="Monitor your learning journey across all skill areas."
-      />
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-black tracking-tight text-slate-900">
+          Progress Tracker
+        </h1>
+        <p className="text-xs text-slate-400 font-medium mt-0.5">
+          Monitor your learning performance and mastery across all core competencies
+        </p>
+      </div>
 
       {/* 4 progress cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {PROGRESS_CARDS.map((card, index) => (
           <ProgressCard key={index} {...card} />
         ))}
@@ -95,110 +119,103 @@ export const Progress = () => {
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Line Chart */}
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-foreground">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight">
               Score Trend
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Performance over the last 6 weeks
+            <p className="text-xs text-slate-400 font-medium mt-0.5">
+              Performance analysis over recent activity attempts
             </p>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={score} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+
+          <ResponsiveContainer width="100%" height={290}>
+            <LineChart data={score} margin={{ top: 5, right: 10, left: -15, bottom: 5 }}>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="hsl(var(--border))"
-                strokeOpacity={0.5}
+                stroke="#F1F5F9"
+                vertical={false}
               />
-              <XAxis 
-                dataKey="week" 
-                tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                axisLine={{ stroke: "hsl(var(--border))" }}
-                tickLine={{ stroke: "hsl(var(--border))" }}
+              <XAxis
+                dataKey="week"
+                tick={{ fontSize: 11, fill: "#94A3B8" }}
+                axisLine={false}
+                tickLine={false}
               />
-              <YAxis 
-                tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+              <YAxis
+                tick={{ fontSize: 11, fill: "#94A3B8" }}
                 domain={[0, 100]}
-                axisLine={{ stroke: "hsl(var(--border))" }}
-                tickLine={{ stroke: "hsl(var(--border))" }}
-                label={{ 
-                  value: "Score (%)", 
-                  angle: -90, 
-                  position: "insideLeft",
-                  style: { fontSize: 12, fill: "hsl(var(--muted-foreground))" }
-                }}
+                axisLine={false}
+                tickLine={false}
               />
               <Tooltip content={<CustomLineTooltip />} />
-              <Legend 
-                wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
+              <Legend
+                wrapperStyle={{ fontSize: 11, paddingTop: 16 }}
                 iconType="circle"
                 iconSize={8}
               />
               <Line
                 type="monotone"
                 dataKey="Grammar"
-                stroke="#3B82F6"
+                stroke="#3454FB"
                 strokeWidth={2.5}
-                dot={{ r: 4, strokeWidth: 2 }}
+                dot={{ r: 3.5, fill: "#3454FB" }}
                 activeDot={{ r: 6 }}
-                strokeOpacity={0.9}
               />
               <Line
                 type="monotone"
                 dataKey="Reading"
                 stroke="#10B981"
                 strokeWidth={2.5}
-                dot={{ r: 4, strokeWidth: 2 }}
+                dot={{ r: 3.5, fill: "#10B981" }}
                 activeDot={{ r: 6 }}
-                strokeOpacity={0.9}
               />
               <Line
                 type="monotone"
                 dataKey="Vocabulary"
                 stroke="#F59E0B"
                 strokeWidth={2.5}
-                dot={{ r: 4, strokeWidth: 2 }}
+                dot={{ r: 3.5, fill: "#F59E0B" }}
                 activeDot={{ r: 6 }}
-                strokeOpacity={0.9}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Donut Chart */}
-        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+        {/* Skill Distribution Donut */}
+        <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-foreground">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight">
               Skill Distribution
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Current proficiency breakdown
+            <p className="text-xs text-slate-400 font-medium mt-0.5">
+              Current breakdown of total skills mastered
             </p>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
+
+          <ResponsiveContainer width="100%" height={290}>
             <PieChart>
               <Pie
                 data={skillDistribution}
                 cx="50%"
                 cy="50%"
-                innerRadius={70}
-                outerRadius={100}
-                paddingAngle={3}
+                innerRadius={65}
+                outerRadius={95}
+                paddingAngle={4}
                 dataKey="value"
                 strokeWidth={0}
               >
                 {(skillDistribution ?? []).map((entry: { name: string; color: string }, index: number) => (
                   <Cell
                     key={entry.name ?? index}
-                    fill={entry.color}
-                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                    fill={entry.color || "#3454FB"}
+                    className="cursor-pointer hover:opacity-85 transition-opacity"
                   />
                 ))}
               </Pie>
               <Tooltip content={<CustomPieTooltip />} />
-              <Legend 
-                wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
+              <Legend
+                wrapperStyle={{ fontSize: 11, paddingTop: 16 }}
                 iconType="circle"
                 iconSize={8}
                 layout="horizontal"

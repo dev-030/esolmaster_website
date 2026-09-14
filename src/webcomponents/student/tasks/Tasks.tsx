@@ -1,9 +1,8 @@
 // Tasks.tsx
 "use client";
-import { SectionHeading } from "@/webcomponents/reusable";
+
 import { TASK_TYPE_CONFIG, TaskCard } from "./TaskCard";
 import { useMemo, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Filter, X } from "lucide-react";
 import {
   Select,
@@ -63,97 +62,103 @@ export const Tasks = () => {
   const hasActiveFilter = selectedType !== "" || selectedLevel !== "all";
 
   return (
-    <div className="flex flex-col gap-6 lg:px-6 md:px-4 max-md:px-2">
-      <SectionHeading
-        heading="Browse Tasks"
-        subheading="Here are the tasks assigned to you."
-      />
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-black tracking-tight text-slate-900">
+          Browse Tasks
+        </h1>
+        <p className="text-xs text-slate-400 font-medium mt-0.5">
+          Explore and complete learning tasks assigned to your classroom
+        </p>
+      </div>
 
-      <Card className="border shadow-sm">
-        <CardContent className="p-4 space-y-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium shrink-0">
-              <Filter className="w-3.5 h-3.5" />
-              Filter
-            </div>
-
-            <div className="flex gap-2 flex-wrap flex-1">
-              {(Object.keys(TASK_TYPE_CONFIG) as TaskType[]).map((type) => {
-                const cfg = TASK_TYPE_CONFIG[type];
-                const isActive = selectedType === type;
-                const Icon = cfg.icon;
-
-                return (
-                  <button
-                    key={type}
-                    onClick={() => setSelectedType(isActive ? "" : type)}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-medium transition-all",
-                      isActive
-                        ? `${cfg.bg} ${cfg.border} ${cfg.text}`
-                        : "border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground",
-                    )}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {cfg.label}
-                    {isActive && <X className="w-3 h-3 ml-0.5" />}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              <Select
-                value={selectedLevel}
-                onValueChange={(value) => setSelectedLevel(value ?? "all")}
-              >
-                <SelectTrigger className="h-8 text-xs w-36 gap-1.5">
-                  <SelectValue placeholder="All Levels" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEVEL_OPTIONS.map((opt) => (
-                    <SelectItem
-                      key={opt.value}
-                      value={opt.value}
-                      className="text-xs"
-                    >
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Filter Card */}
+      <div className="rounded-[20px] border border-slate-100/90 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold shrink-0">
+            <Filter className="w-3.5 h-3.5 text-[#3454FB]" />
+            Filters:
           </div>
 
-          {hasActiveFilter && (
-            <div className="flex items-center justify-between pt-2 border-t">
-              <span className="text-xs text-muted-foreground">
-                {filtered.length} result{filtered.length !== 1 ? "s" : ""}
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedType("");
-                  setSelectedLevel("all");
-                }}
-                className="h-7 text-xs"
-              >
-                Clear all
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <div className="flex gap-2 flex-wrap flex-1">
+            {(Object.keys(TASK_TYPE_CONFIG) as TaskType[]).map((type) => {
+              const cfg = TASK_TYPE_CONFIG[type];
+              const isActive = selectedType === type;
+              const Icon = cfg.icon;
 
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setSelectedType(isActive ? "" : type)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer",
+                    isActive
+                      ? "bg-[#3454FB] text-white shadow-sm shadow-blue-500/20 font-bold"
+                      : "bg-slate-50 border border-slate-200/80 text-slate-600 hover:border-slate-300 hover:bg-slate-100/60"
+                  )}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {cfg.label}
+                  {isActive && <X className="w-3 h-3 ml-0.5" />}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Select
+              value={selectedLevel}
+              onValueChange={(value) => setSelectedLevel(value ?? "all")}
+            >
+              <SelectTrigger className="h-9 text-xs w-36 gap-1.5 rounded-xl border-slate-200">
+                <SelectValue placeholder="All Levels" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-slate-100">
+                {LEVEL_OPTIONS.map((opt) => (
+                  <SelectItem
+                    key={opt.value}
+                    value={opt.value}
+                    className="text-xs"
+                  >
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {hasActiveFilter && (
+          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+            <span className="text-xs font-medium text-slate-400">
+              Showing <strong className="text-slate-700 font-bold">{filtered.length}</strong> task{filtered.length !== 1 ? "s" : ""}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSelectedType("");
+                setSelectedLevel("all");
+              }}
+              className="h-7 text-xs font-semibold text-slate-500 hover:text-slate-900"
+            >
+              Clear all filters
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Task Sections */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3">
-          <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center text-2xl">
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 rounded-[22px] border border-dashed border-slate-200 bg-white">
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl text-[#3454FB]">
             📚
           </div>
-          <p className="font-semibold text-foreground">No tasks found</p>
-          <p className="text-sm text-muted-foreground max-w-xs">
-            Try adjusting your filters.
+          <p className="font-bold text-slate-900 text-sm">No tasks found</p>
+          <p className="text-xs text-slate-400 max-w-xs">
+            Try adjusting your filters or check back later for newly scheduled tasks.
           </p>
           <Button
             variant="outline"
@@ -162,22 +167,23 @@ export const Tasks = () => {
               setSelectedType("");
               setSelectedLevel("all");
             }}
+            className="rounded-xl text-xs font-semibold mt-2"
           >
-            Clear all filters
+            Reset filters
           </Button>
         </div>
       ) : (
-        <div className="flex flex-col gap-8">
+        <div className="space-y-8">
           {grammarTasks.length > 0 && (
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-6 bg-blue-500 rounded-full" />
-                <h2 className="text-lg font-semibold">Grammar</h2>
-                <span className="text-sm text-muted-foreground">
-                  ({grammarTasks.length})
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-1.5 h-5 bg-[#3454FB] rounded-full" />
+                <h2 className="text-base font-bold text-slate-900">Grammar Activities</h2>
+                <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {grammarTasks.length}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {grammarTasks.map((task) => (
                   <TaskCard key={task.scheduledTaskId} task={task} />
                 ))}
@@ -187,14 +193,14 @@ export const Tasks = () => {
 
           {readingTasks.length > 0 && (
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-6 bg-emerald-500 rounded-full" />
-                <h2 className="text-lg font-semibold">Reading</h2>
-                <span className="text-sm text-muted-foreground">
-                  ({readingTasks.length})
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-1.5 h-5 bg-emerald-500 rounded-full" />
+                <h2 className="text-base font-bold text-slate-900">Reading Comprehension</h2>
+                <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {readingTasks.length}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {readingTasks.map((task) => (
                   <TaskCard key={task.scheduledTaskId} task={task} />
                 ))}
@@ -204,14 +210,14 @@ export const Tasks = () => {
 
           {vocabularyTasks.length > 0 && (
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-1 h-6 bg-amber-500 rounded-full" />
-                <h2 className="text-lg font-semibold">Vocabulary</h2>
-                <span className="text-sm text-muted-foreground">
-                  ({vocabularyTasks.length})
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-1.5 h-5 bg-amber-500 rounded-full" />
+                <h2 className="text-base font-bold text-slate-900">Vocabulary & Flashcards</h2>
+                <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {vocabularyTasks.length}
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {vocabularyTasks.map((task) => (
                   <TaskCard key={task.scheduledTaskId} task={task} />
                 ))}

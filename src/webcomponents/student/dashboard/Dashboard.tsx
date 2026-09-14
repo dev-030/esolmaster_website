@@ -301,67 +301,91 @@ export const StudentDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen space-y-8 bg-[#F7F9FC]">
-      {/* Heading with animation */}
-      <div className="animate-fade-in-up">
-        <SectionHeading
-          heading="Student Dashboard"
-          subheading="Keep learning at your pace and stay on top of your progress."
-        />
+    <div className="space-y-6">
+      {/* Shopeers-style Top Header Action Bar */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+            Dashboard
+          </h1>
+          <p className="text-xs text-slate-400 font-medium mt-0.5">
+            Keep learning at your pace and stay on top of your progress.
+          </p>
+        </div>
+
+        {/* Action Controls from Reference */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-xs">
+            <span className="text-slate-400">📅</span>
+            <span>Jan 1, 2025 - Feb 1, 2025</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-xs">
+            <span>Last 30 days</span>
+            <span className="text-[10px] text-slate-400">▼</span>
+          </div>
+
+          <button
+            type="button"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition-colors"
+          >
+            Add widget
+          </button>
+
+          <button
+            type="button"
+            className="flex items-center gap-1.5 rounded-xl bg-[#3454FB] hover:bg-[#2842D8] px-4 py-1.5 text-xs font-bold text-white shadow-sm shadow-blue-500/20 transition-all"
+          >
+            Export
+          </button>
+        </div>
       </div>
 
-      {/* 4 stat cards with staggered animation */}
+      {/* 4 stat cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {DASHBOARD_CARDS.map((card, index) => (
-          <div 
-            key={index} 
-            className="animate-fade-in-up hover-scale"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <DashboardStatCard {...card} />
-          </div>
+          <DashboardStatCard key={index} {...card} />
         ))}
       </div>
 
-      {/* Middle row: Active Tasks (75%) + Current Level (25%) */}
-      <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,.75fr)]">
-        {/* Active Tasks – 75% */}
-        <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm animate-slide-in-left">
+      {/* Middle row: Active Tasks (70%) + Current Level (30%) */}
+      <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.8fr)]">
+        {/* Active Tasks */}
+        <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-base text-foreground">
-              Active Tasks
-            </h3>
+            <div>
+              <h3 className="font-bold text-base text-slate-900 tracking-tight">
+                Active Tasks
+              </h3>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">
+                Tasks currently scheduled and open for you
+              </p>
+            </div>
             {scheduledTasks?.meta && (
-              <span className="text-sm text-muted-foreground">
-                Total: {scheduledTasks.meta.total} tasks
+              <span className="text-xs font-semibold text-slate-500 rounded-full bg-slate-50 border border-slate-100 px-3 py-1">
+                {scheduledTasks.meta.total} tasks total
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
             {isTasksLoading ? (
               <ActiveTasksSkeleton />
             ) : scheduledTasks?.data?.length === 0 ? (
-              <div className="col-span-2 text-center py-8 text-muted-foreground animate-fade-in-up">
-                No active tasks found. Check back later for new tasks!
+              <div className="col-span-2 text-center py-12 text-slate-400 text-xs font-medium">
+                No active tasks right now. Check back soon for new assignments!
               </div>
             ) : (
               scheduledTasks?.data?.map((task, index) => (
-                <div 
-                  key={index} 
-                  className="animate-fade-in-up hover-scale"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <ActiveTaskCard task={task} />
-                </div>
+                <ActiveTaskCard key={index} task={task} />
               ))
             )}
           </div>
 
           {/* Pagination Controls */}
           {scheduledTasks?.meta && scheduledTasks.meta.totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4 animate-fade-in-up">
-              <div className="text-sm text-muted-foreground">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+              <div className="text-xs text-slate-400 font-medium">
                 Showing {(currentPage - 1) * limit + 1} to{" "}
                 {Math.min(currentPage * limit, scheduledTasks.meta.total)} of{" "}
                 {scheduledTasks.meta.total} tasks
@@ -370,26 +394,17 @@ export const StudentDashboard = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handlePageChange(1)}
-                  disabled={currentPage === 1}
-                  className="h-8 w-8 p-0 transition-all duration-200 hover:scale-105"
-                >
-                  <ChevronsLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="h-8 w-8 p-0 transition-all duration-200 hover:scale-105"
+                  className="h-8 w-8 p-0 rounded-[10px] border-slate-200"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
 
-                <div className="flex items-center gap-1 px-2">
-                  <span className="text-sm font-medium">{currentPage}</span>
-                  <span className="text-sm text-muted-foreground">of</span>
-                  <span className="text-sm font-medium">{totalPages}</span>
+                <div className="flex items-center gap-1 px-2 text-xs font-semibold text-slate-600">
+                  <span>{currentPage}</span>
+                  <span className="text-slate-400">/</span>
+                  <span>{totalPages}</span>
                 </div>
 
                 <Button
@@ -397,73 +412,76 @@ export const StudentDashboard = () => {
                   size="sm"
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="h-8 w-8 p-0 transition-all duration-200 hover:scale-105"
+                  className="h-8 w-8 p-0 rounded-[10px] border-slate-200"
                 >
                   <ChevronRight className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(totalPages)}
-                  disabled={currentPage === totalPages}
-                  className="h-8 w-8 p-0 transition-all duration-200 hover:scale-105"
-                >
-                  <ChevronsRight className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           )}
         </div>
 
-        {/* Current Level – 25% */}
-        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm animate-slide-in-right">
-          <h3 className="font-semibold text-base text-foreground self-start">
-            Current Level
-          </h3>
-          <div className="flex flex-col items-center gap-3 flex-1 justify-center">
-            <div 
-              className="w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-lg transition-all duration-300 hover:scale-105 animate-pulse-slow"
-              style={{
-                background: "linear-gradient(135deg,#2F7EDA 0%,#72B0F8 100%)",
-                border: "3px solid #255DEB",
-              }}
-            >
-              <GraduationCap className="w-8 h-8 text-white mb-1" />
-              <span className="text-white font-extrabold text-lg leading-none">
-                {dashboardData?.level?.level?.toString() ?? "0"}
-              </span>
-            </div>
-            <p className="text-center text-sm font-semibold text-foreground">
-              Level {dashboardData?.level?.level?.toString() ?? "0"}
+        {/* Current Level Widget */}
+        <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+          <div>
+            <h3 className="font-bold text-base text-slate-900 tracking-tight">
+              Current Level
+            </h3>
+            <p className="text-xs text-slate-400 font-medium mt-0.5">
+              Your overall ranking and XP milestones
             </p>
-            <p className="text-center text-xs text-muted-foreground">
-              {dashboardData?.level?.level && dashboardData.level.level > 10 
-                ? "Master Learner" 
-                : dashboardData?.level?.level && dashboardData.level.level > 5 
-                ? "Advanced Learner" 
-                : "Active Learner"}
-            </p>
-        <div className="w-full">
-              <div className="flex justify-center text-xs text-muted-foreground mb-1">
-                {dashboardData?.level?.totalXp ?? 0} XP
+          </div>
+
+          <div className="flex flex-col items-center justify-center my-6">
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-tr from-[#3454FB] to-[#5572FF] shadow-lg shadow-blue-500/25">
+              <div className="flex flex-col items-center justify-center text-white">
+                <GraduationCap className="w-7 h-7 mb-0.5" />
+                <span className="text-xl font-black leading-none">
+                  {dashboardData?.level?.level?.toString() ?? "1"}
+                </span>
               </div>
-              <Progress 
-                value={dashboardData?.level?.xpNeededForNextLevel ?? 0} 
-                className="h-2 transition-all duration-500" 
-              />
-              <p className="text-xs text-muted-foreground text-center mt-1">
-                {dashboardData?.level?.xpNeededForNextLevel ?? 0} XP to Level{" "}
-                {(dashboardData?.level?.level ?? 0) + 1}
-              </p>
             </div>
+
+            <p className="mt-3 text-sm font-bold text-slate-900">
+              Level {dashboardData?.level?.level?.toString() ?? "1"}
+            </p>
+            <span className="mt-0.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-[#3454FB]">
+              {dashboardData?.level?.level && dashboardData.level.level > 10
+                ? "Master Learner"
+                : dashboardData?.level?.level && dashboardData.level.level > 5
+                ? "Advanced Learner"
+                : "Active Learner"}
+            </span>
+          </div>
+
+          <div className="w-full space-y-2 pt-2 border-t border-slate-100">
+            <div className="flex justify-between text-xs font-semibold">
+              <span className="text-slate-400">Total Progress</span>
+              <span className="text-[#3454FB] font-bold">{dashboardData?.level?.totalXp ?? 0} XP</span>
+            </div>
+            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#3454FB] rounded-full transition-all duration-500"
+                style={{
+                  width: `${Math.min(
+                    ((dashboardData?.level?.totalXp ?? 0) /
+                      Math.max((dashboardData?.level?.xpNeededForNextLevel ?? 100) + (dashboardData?.level?.totalXp ?? 0), 1)) *
+                      100,
+                    100
+                  )}%`,
+                }}
+              />
+            </div>
+            <p className="text-[11px] text-slate-400 font-medium text-center">
+              {dashboardData?.level?.xpNeededForNextLevel ?? 0} XP needed for Level{" "}
+              {(dashboardData?.level?.level ?? 0) + 1}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Recent Activity – full width */}
-      <div className="animate-fade-in-up">
-        <RecentActivity items={dashboardData?.recentActivity ?? []} />
-      </div>
+      {/* Recent Activity */}
+      <RecentActivity items={dashboardData?.recentActivity ?? []} />
     </div>
   );
 };

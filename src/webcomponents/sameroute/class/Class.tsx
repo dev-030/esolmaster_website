@@ -109,23 +109,26 @@ export const Class = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">
             {isTeacher ? "My Classes" : "Classes"}
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {totalItems} class{totalItems !== 1 ? "es" : ""}
+          <p className="text-xs text-slate-400 font-medium mt-0.5">
+            {totalItems} class{totalItems !== 1 ? "es" : ""} enrolled
           </p>
         </div>
         {isTeacher ? (
           <Button
             onClick={() => setClassDialog({ open: true, initial: null })}
-            className="gap-2"
+            className="gap-2 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[12px] h-9 px-4 text-xs shadow-sm shadow-blue-500/15"
           >
             <Plus className="w-4 h-4" />
             New Class
           </Button>
         ) : (
-          <Button onClick={() => setJoinOpen(true)} className="gap-2">
+          <Button
+            onClick={() => setJoinOpen(true)}
+            className="gap-2 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[12px] h-9 px-4 text-xs shadow-sm shadow-blue-500/15"
+          >
             <LogIn className="w-4 h-4" />
             Join Class
           </Button>

@@ -4,7 +4,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Pencil, Save, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Pencil, Save, Eye, EyeOff, Loader2, User } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -105,10 +105,18 @@ export const Profile = () => {
   const fullName = `${profile?.firstName ?? ""} ${profile?.lastName ?? ""}`.trim();
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Heading Section */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Profile</h2>
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+            Account Profile
+          </h1>
+          <p className="text-xs text-slate-400 font-medium mt-0.5">
+            Manage your personal information and account security
+          </p>
+        </div>
+
         <Button
           type="button"
           disabled={isLoading || savingProfile}
@@ -117,7 +125,11 @@ export const Profile = () => {
               ? profileForm.handleSubmit(onProfileSave)()
               : setEditing(true)
           }
-          className="gap-2"
+          className={`gap-2 rounded-[12px] text-xs font-semibold h-9 px-4 transition-all ${
+            editing
+              ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/20"
+              : "bg-[#3454FB] hover:bg-[#2842D8] text-white shadow-sm shadow-blue-500/15"
+          }`}
         >
           {savingProfile ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -126,25 +138,23 @@ export const Profile = () => {
           ) : (
             <Pencil className="w-4 h-4" />
           )}
-          {editing ? "Save Profile" : "Edit Profile"}
+          {editing ? "Save Changes" : "Edit Profile"}
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-border p-6 space-y-6 bg-[#F9FBFF]">
+      <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 md:p-8 space-y-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
         {/* Avatar Section */}
-        <div className="flex items-center gap-5">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-sm bg-muted flex items-center justify-center">
-            <span className="text-3xl font-bold text-muted-foreground">
-              {profile?.firstName?.charAt(0)?.toUpperCase() ?? "?"}
-            </span>
+        <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
+          <div className="w-16 h-16 rounded-full bg-[#3454FB] text-white flex items-center justify-center font-extrabold text-2xl shadow-md shadow-blue-500/20 ring-4 ring-blue-50">
+            {profile?.firstName?.charAt(0)?.toUpperCase() ?? "U"}
           </div>
           <div>
-            <p className="text-xl font-bold text-foreground">
+            <p className="text-lg font-bold text-slate-900 tracking-tight">
               {fullName || "—"}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-slate-400 font-medium">
               {profile?.email}
-              {profile?.username ? ` — @${profile.username}` : ""}
+              {profile?.username ? ` · @${profile.username}` : ""}
             </p>
           </div>
         </div>
@@ -160,8 +170,13 @@ export const Profile = () => {
               control={profileForm.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>First Name</FieldLabel>
-                  <Input {...field} disabled={!editing} placeholder="First name" />
+                  <FieldLabel className="text-xs font-bold text-slate-700">First Name</FieldLabel>
+                  <Input
+                    {...field}
+                    disabled={!editing}
+                    placeholder="First name"
+                    className="h-10 rounded-[12px] border-slate-200 text-xs focus:border-[#3454FB]"
+                  />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -173,26 +188,40 @@ export const Profile = () => {
               control={profileForm.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Last Name</FieldLabel>
-                  <Input {...field} disabled={!editing} placeholder="Last name" />
+                  <FieldLabel className="text-xs font-bold text-slate-700">Last Name</FieldLabel>
+                  <Input
+                    {...field}
+                    disabled={!editing}
+                    placeholder="Last name"
+                    className="h-10 rounded-[12px] border-slate-200 text-xs focus:border-[#3454FB]"
+                  />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
                 </Field>
               )}
             />
-            <Field>
-              <FieldLabel>Email</FieldLabel>
-              <Input value={profile?.email ?? ""} disabled />
+            <Field className="sm:col-span-2">
+              <FieldLabel className="text-xs font-bold text-slate-700">Email Address</FieldLabel>
+              <Input
+                value={profile?.email ?? ""}
+                disabled
+                className="h-10 rounded-[12px] border-slate-200 bg-slate-50 text-xs text-slate-500"
+              />
             </Field>
           </FieldGroup>
         </form>
 
-        <div className="space-y-1">
-          <Separator />
-          <p className="text-xs font-semibold text-muted-foreground pt-1 uppercase tracking-wider">
-            Change Password
-          </p>
+        <div className="pt-2">
+          <Separator className="bg-slate-100" />
+          <div className="mt-6 mb-4">
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+              Change Password
+            </h3>
+            <p className="text-xs text-slate-400 font-medium">
+              Update your account password to keep your account secure
+            </p>
+          </div>
         </div>
 
         {/* Password Form */}
@@ -200,7 +229,7 @@ export const Profile = () => {
           id="password-form"
           onSubmit={passwordForm.handleSubmit(onPasswordSave)}
         >
-          <FieldGroup className="space-y-4">
+          <FieldGroup className="space-y-4 max-w-xl">
             {(
               ["currentPassword", "newPassword", "confirmPassword"] as const
             ).map((fieldName) => {
@@ -223,7 +252,9 @@ export const Profile = () => {
                   control={passwordForm.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel>{labels[fieldName]}</FieldLabel>
+                      <FieldLabel className="text-xs font-bold text-slate-700">
+                        {labels[fieldName]}
+                      </FieldLabel>
                       <InputGroup>
                         <Input
                           {...field}
@@ -233,6 +264,7 @@ export const Profile = () => {
                               : "password"
                           }
                           placeholder="••••••••"
+                          className="h-10 rounded-[12px] border-slate-200 text-xs focus:border-[#3454FB]"
                         />
                         <InputGroupAddon>
                           <button
@@ -240,7 +272,7 @@ export const Profile = () => {
                             onClick={() =>
                               togglePw(showKey as keyof typeof showPw)
                             }
-                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            className="text-slate-400 hover:text-slate-700 transition-colors"
                           >
                             {showPw[showKey as keyof typeof showPw] ? (
                               <EyeOff className="w-4 h-4" />
@@ -259,19 +291,19 @@ export const Profile = () => {
               );
             })}
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-start pt-2">
               <Button
                 type="submit"
                 form="password-form"
                 disabled={savingPassword}
-                className="gap-2"
+                className="gap-2 rounded-[12px] bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs h-9 px-4 shadow-sm shadow-blue-500/15"
               >
                 {savingPassword ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
-                Save Password
+                Update Password
               </Button>
             </div>
           </FieldGroup>

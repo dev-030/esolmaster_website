@@ -3,15 +3,14 @@
 
 import * as Icons from "lucide-react";
 import { BadgeCard, BadgeItem } from "./BadgeCard";
-import { SectionHeading } from "../../reusable/SectionHeading";
 import { useGetMyBadgesQuery } from "@/api/badge";
+import { Award, Loader2 } from "lucide-react";
 
 export const Badges = () => {
   const { data = [], isLoading } = useGetMyBadgesQuery();
 
   const badges: BadgeItem[] = data.map((item: any) => {
     const Icon = (Icons as any)[item.badge.iconName] || Icons.Award;
-
     const config = item.badge.conditionConfig;
 
     const target =
@@ -35,24 +34,43 @@ export const Badges = () => {
       completed: !!item.earnedAt,
       progress,
       progressLabel: `${item.progress}/${target}`,
-      iconColor: "text-yellow-500",
+      iconColor: "text-amber-500",
     };
   });
 
   const completed = badges.filter((b) => b.completed).length;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center py-24">
+        <Loader2 className="w-8 h-8 animate-spin text-[#3454FB]" />
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <SectionHeading
-        heading="Badges & Achievements"
-        subheading={`You've unlocked ${completed} of ${badges.length} badges. Keep going!`}
-      />
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+            Badges & Achievements
+          </h1>
+          <p className="text-xs text-slate-400 font-medium mt-0.5">
+            Collect badges by completing activities, keeping learning streaks, and earning XP
+          </p>
+        </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="flex items-center gap-2 rounded-full bg-blue-50 border border-blue-100 px-3.5 py-1.5 text-xs font-bold text-[#3454FB]">
+          <Award className="w-4 h-4" />
+          <span>
+            {completed} of {badges.length} unlocked
+          </span>
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {badges.map((badge, i) => (
           <BadgeCard key={i} badge={badge} />
         ))}

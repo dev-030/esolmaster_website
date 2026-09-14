@@ -1,18 +1,46 @@
-export const ProgressCard = ({ title, gradient, value, label }: {
-  title: string; gradient: string; value: number; label?: string;
-}) => (
-  <div className={`relative overflow-hidden rounded-2xl p-5 flex flex-col gap-4 shadow-sm ${gradient}`}>
-    <div className="absolute -bottom-6 -right-6 w-28 h-28 rounded-full opacity-10 bg-white" />
-    <p className="text-sm font-semibold text-white/90 relative z-10">{title}</p>
-    <div className="relative z-10">
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-xs text-white/70">{label ?? "Progress"}</span>
-        <span className="text-xs font-bold text-white">{value}%</span>
+export const ProgressCard = ({
+  title,
+  value,
+  label,
+  color = "#3454FB",
+}: {
+  title: string;
+  value: number;
+  label?: string;
+  color?: string;
+  gradient?: string;
+}) => {
+  const safeValue = Math.min(Math.max(value || 0, 0), 100);
+
+  return (
+    <div className="relative overflow-hidden rounded-[22px] border border-slate-100/90 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          {title}
+        </span>
+        <span
+          className="h-2.5 w-2.5 rounded-full"
+          style={{ backgroundColor: color }}
+        />
       </div>
-      <div className="w-full bg-white/20 rounded-full h-2">
-        <div className="h-2 rounded-full bg-white transition-all duration-700" style={{ width: `${value}%` }} />
+
+      <div className="mt-3 flex items-baseline justify-between">
+        <span className="text-3xl font-black tracking-tight text-slate-900">
+          {safeValue}%
+        </span>
+        <span className="text-xs font-semibold text-slate-400">
+          {label ?? "Proficiency"}
+        </span>
+      </div>
+
+      <div className="mt-4 space-y-1.5">
+        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{ width: `${safeValue}%`, backgroundColor: color }}
+          />
+        </div>
       </div>
     </div>
-    <p className="text-4xl font-extrabold text-white relative z-10">{value}%</p>
-  </div>
-);
+  );
+};
