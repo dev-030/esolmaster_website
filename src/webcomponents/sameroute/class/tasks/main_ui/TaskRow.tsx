@@ -2,13 +2,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { useRole } from "@/provider/RoleProvider";
 import { ClassTaskWithClass } from "@/types/class";
 import {
   ArrowRight,
   BookA,
   BookOpen,
   Clock,
+  CheckCircle2,
+  AlertCircle,
   SpellCheck,
   Users,
 } from "lucide-react";
@@ -44,17 +45,20 @@ export const TaskRow = ({
   const config =
     TASK_TYPE_CONFIG[
       task.task.type.toLowerCase() as keyof typeof TASK_TYPE_CONFIG
-    ];
+    ] ?? TASK_TYPE_CONFIG.reading;
 
   const completionRate = task.completionRate || 0;
   const completedText = `${task.completedStudents}/${task.totalStudents}`;
+  const isCompleted = !isTeacher && task.status === "COMPLETED";
+  const isOverdue = !isTeacher && task.status === "OVERDUE";
+  const actionLabel = isTeacher ? "View results" : isCompleted ? "View score" : task.status === "IN_PROGRESS" ? "Continue" : "Start";
 
   return (
-    <Card className="group hover:shadow-sm transition-all duration-200">
+    <Card className="group gap-0 py-0 transition-all duration-200 hover:border-blue-200 hover:shadow-sm">
       <CardContent className="p-4">
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           {/* Emoji icon */}
-          <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-xl shrink-0 mt-0.5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
             {config.icon}
           </div>
 
@@ -72,8 +76,6 @@ export const TaskRow = ({
               </Badge>
             </div>
 
-            <span className="text-xs text-gray-500">{task?.class?.name}</span>
-
             <div className="flex items-center gap-4 text-[11px] text-muted-foreground pt-0.5">
               <span className="flex items-center gap-1">
                 <BookOpen className="w-3 h-3" />
@@ -82,41 +84,53 @@ export const TaskRow = ({
               </span>
 
               {task.scheduled?.dueAt && (
-                <span className="flex items-center gap-1">
+                <span className={`flex items-center gap-1 ${isOverdue ? "font-medium text-red-600" : ""}`}>
                   <Clock className="w-3 h-3" />
                   Due {new Date(task.scheduled.dueAt).toLocaleDateString()}
                 </span>
               )}
+              {!task.scheduled?.dueAt && <span>No due date</span>}
             </div>
+            {isCompleted && (
+              <div className="mt-2 flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span className="font-semibold text-slate-900">{task.score} / {task.totalMarks} marks</span>
+                <span className="text-slate-500">· {task.percentage}%</span>
+              </div>
+            )}
+            {isOverdue && (
+              <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-600">
+                <AlertCircle className="h-3.5 w-3.5" /> Submission closed
+              </div>
+            )}
           </div>
 
           {/* Right side with progress and actions */}
-          <div className="flex flex-col items-end gap-2 shrink-0">
+          <div className="flex items-center gap-3 sm:ml-auto sm:flex-col sm:items-end sm:gap-2">
             {/* Progress section */}
-            <div className="w-48 space-y-1">
+            <div className="min-w-32 flex-1 space-y-1 sm:w-44 sm:flex-none">
               <div className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1 text-muted-foreground">
                   <Users className="w-3 h-3" />
-                  <span>Completion</span>
+                  <span>{isTeacher ? "Completion" : "Your progress"}</span>
                 </span>
                 <span className="font-medium text-foreground">
-                  {isTeacher ? completedText : `${task.answeredQuestions}/${task.totalQuestions}`}
+                  {isTeacher ? completedText : isCompleted ? `${task.percentage}%` : `${task.answeredQuestions}/${task.totalQuestions}`}
                 </span>
               </div>
-              <Progress value={isTeacher ? completionRate : task.progressPercentage} className="h-2" />
+              <Progress value={isTeacher ? completionRate : isCompleted ? task.percentage ?? 0 : task.progressPercentage} className="h-2" />
             </div>
 
-            {/* Action button */}
-            <Link href={`/classes/${classId}/task/${task.scheduled?.id}`}>
+            {!isOverdue && <Link href={`/classes/${classId}/task/${task.scheduled?.id}`}>
               <Button
                 size="sm"
                 variant={isTeacher ? "ghost" : "default"}
                 className="gap-1.5 h-8"
               >
-                {isTeacher ? "Review results" : "Start"}
+                {actionLabel}
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
-            </Link>
+            </Link>}
           </div>
         </div>
       </CardContent>

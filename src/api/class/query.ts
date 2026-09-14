@@ -1,8 +1,10 @@
 import {
+  Class,
   CreateClassPayload,
   ScheduleTaskDto,
   StudentQuery,
 } from "@/types/class";
+import { PaginatedResponse } from "@/types/pagintaion";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   addStudentsToClass,
@@ -15,6 +17,7 @@ import {
   getScheduledTasksForClass,
   getStudentsInClass,
   joinClassByCode,
+  leaveClass,
   regenerateClassJoinCode,
   removeStudentsFromClass,
   scheduleClassTask,
@@ -54,7 +57,44 @@ export const useJoinClassMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: joinClassByCode,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["classes"] }),
+    onSuccess: (result) => {
+      const joinedClass = result.class as Class;
+      queryClient.setQueriesData<PaginatedResponse<Class>>(
+        { queryKey: ["classes"] },
+        (current) => {
+          if (!current || current.data.some((classroom) => classroom.id === joinedClass.id)) return current;
+          const total = current.meta.total + 1;
+          return {
+            data: [joinedClass, ...current.data].slice(0, current.meta.limit),
+            meta: { ...current.meta, total, totalPages: Math.ceil(total / current.meta.limit) },
+          };
+        },
+      );
+      queryClient.invalidateQueries({ queryKey: ["classes"], refetchType: "none" });
+    },
+  });
+};
+
+export const useLeaveClassMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: leaveClass,
+    onSuccess: (_data, classId) => {
+      queryClient.setQueriesData<PaginatedResponse<Class>>(
+        { queryKey: ["classes"] },
+        (current) => {
+          if (!current) return current;
+          const data = current.data.filter((classroom) => classroom.id !== classId);
+          const total = Math.max(0, current.meta.total - (data.length === current.data.length ? 0 : 1));
+          return {
+            data,
+            meta: { ...current.meta, total, totalPages: Math.ceil(total / current.meta.limit) },
+          };
+        },
+      );
+      queryClient.invalidateQueries({ queryKey: ["classes"], refetchType: "none" });
+      queryClient.removeQueries({ queryKey: ["class", classId] });
+    },
   });
 };
 
@@ -173,6 +213,7 @@ export const useGetScheduledTaskAnalyticsQuery = (
   return useQuery({
     queryKey: ["scheduled-task-analytics", classId, scheduledTaskId],
     queryFn: () => getScheduledTaskAnalytics(classId, scheduledTaskId),
+    enabled: !!classId && !!scheduledTaskId,
   });
 };
 

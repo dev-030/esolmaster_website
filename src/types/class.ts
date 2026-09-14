@@ -19,6 +19,7 @@ export interface ClassTaskTask {
 
 export interface ScheduledTask {
   id: string;
+  scheduledAt?: string;
   dueAt?: string;
   isActive?: boolean;
 }
@@ -111,6 +112,38 @@ export interface ClassTaskWithClass {
   totalQuestions: number;
   answeredQuestions: number;
   progressPercentage: number;
+  status?: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "OVERDUE";
+  score?: number | null;
+  totalMarks?: number;
+  percentage?: number | null;
+  isPassed?: boolean | null;
+  completedAt?: string | null;
+  canAttempt?: boolean;
+  averagePercentage?: number;
+}
+
+export interface ScheduledTaskStudentResult {
+  id: string;
+  name: string;
+  email: string;
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "OVERDUE";
+  score: number | null;
+  percentage: number | null;
+  isPassed: boolean | null;
+  startedAt: string | null;
+  completedAt: string | null;
+}
+
+export interface ScheduledTaskAnalytics {
+  task: { id: string; title: string; type: string };
+  scheduledAt: string;
+  dueAt: string | null;
+  totalStudents: number;
+  completedStudents: number;
+  completionRate: number;
+  averagePercentage: number;
+  totalMarks: number;
+  students: ScheduledTaskStudentResult[];
 }
 
 export interface StudentData {

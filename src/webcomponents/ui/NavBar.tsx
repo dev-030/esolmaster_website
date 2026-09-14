@@ -159,7 +159,7 @@ export const Navbar = () => {
   if (!role) return null;
   const profileRoute =
     {
-      admin: "/admin/profile",
+      admin: "/admin_profile",
       teacher: "/profile_teacher",
       student: "/profile",
     }[role as Role] ?? "/profile";
@@ -198,7 +198,7 @@ export const Navbar = () => {
               signOut(undefined, {
                 onSuccess: () => {
                   router.refresh();
-                  router.push("/signin");
+                  router.push("/login");
                 },
               })
             }

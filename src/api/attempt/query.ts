@@ -26,6 +26,7 @@ export const useSubmitAnswerMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["attempt", variables.attemptId],
       });
+      queryClient.invalidateQueries({ queryKey: ["classScheduledTasks"] });
     },
   });
 };

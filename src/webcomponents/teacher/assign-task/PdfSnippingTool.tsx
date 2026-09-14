@@ -111,7 +111,7 @@ const PdfPageCanvas = ({
       tempCtx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
     }
 
-    const base64 = tempCanvas.toDataURL("image/jpeg", 1.0); // max quality
+    const base64 = tempCanvas.toDataURL("image/jpeg", 0.86);
     onSnip(base64);
     
     setStartPos({x:0, y:0});

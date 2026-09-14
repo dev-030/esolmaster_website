@@ -62,7 +62,15 @@ export const getCriterion = async (
 
 export const getTaskById = async (taskId: string) => {
   const { data } = await axios.get(`/tasks/${taskId}`);
-  return data;
+  const details = data.readingContent || data.grammarContent;
+  return {
+    ...data,
+    content: details?.content,
+    entryType: details?.entryType,
+    awardingBody: data.readingContent?.awardingBody,
+    passMark: data.readingContent?.passMark,
+    passLogic: data.readingContent?.passLogic,
+  };
 }
 
 export const getAllScheduledTasks = async (params: PaginationQuery): Promise<PaginatedResponse<ScheduledTaskOverview>> => {

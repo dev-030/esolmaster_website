@@ -1,5 +1,5 @@
 import { axios } from "@/lib/axios";
-import { Class, ClassDetails, ClassTaskWithClass, CreateClassPayload, ScheduleTaskDto, StudentData, StudentQuery } from "@/types/class";
+import { Class, ClassDetails, ClassTaskWithClass, CreateClassPayload, ScheduledTaskAnalytics, ScheduleTaskDto, StudentData, StudentQuery } from "@/types/class";
 import { PaginatedResponse } from "@/types/pagintaion";
 
 export const createClass = async (payload: CreateClassPayload) => {
@@ -66,6 +66,11 @@ export const removeStudentsFromClass = async (
   return data;
 };
 
+export const leaveClass = async (id: string) => {
+  const { data } = await axios.delete(`/classes/${id}/membership`);
+  return data;
+};
+
 export const scheduleTaskForClass = async (
   id: string,
   taskId: string,
@@ -112,7 +117,7 @@ export const getScheduledTasksForClass = async (id: string):Promise<ClassTaskWit
 export const getScheduledTaskAnalytics = async (
   classId: string,
   scheduledTaskId: string,
-) => {
+): Promise<ScheduledTaskAnalytics> => {
   const { data } = await axios.get(
     `/classes/${classId}/scheduled-tasks/${scheduledTaskId}/analytics`,
   );

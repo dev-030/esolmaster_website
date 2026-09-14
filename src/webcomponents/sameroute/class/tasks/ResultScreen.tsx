@@ -2,7 +2,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -14,6 +13,9 @@ import {
   Circle,
 } from "lucide-react";
 import { AttemptResult } from "@/types/attempt";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { buttonVariants } from "@/components/ui/button";
 
 /* ---------- per-type review bodies ---------- */
 
@@ -272,6 +274,7 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 export const ResultScreen = ({ result }: { result: AttemptResult }) => {
+  const { classId } = useParams<{ classId: string }>();
   const { score, total, percentage, results } = result;
 
   const grade =
@@ -299,7 +302,7 @@ export const ResultScreen = ({ result }: { result: AttemptResult }) => {
             </Badge>
           </div>
           <p className="text-muted-foreground text-sm">
-            {score} out of {total} questions correct
+            {score} out of {total} marks
           </p>
           <div className="h-2.5 bg-muted rounded-full overflow-hidden max-w-xs mx-auto">
             <div
@@ -450,10 +453,10 @@ export const ResultScreen = ({ result }: { result: AttemptResult }) => {
 
       {/* ACTIONS */}
       <div className="flex justify-between pt-2">
-        <Button variant="outline">
+        <Link href={`/classes/${classId}/tasks`} className={buttonVariants({ variant: "outline" })}>
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Tasks
-        </Button>
+          Back to activities
+        </Link>
       </div>
     </div>
   );

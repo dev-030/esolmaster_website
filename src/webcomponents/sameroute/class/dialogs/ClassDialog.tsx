@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -49,7 +50,7 @@ interface ClassDialogProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   initial?: Class | null;
-  onSave: (cls: CreateClassPayload) => void;
+  onSave: (cls: CreateClassPayload) => Promise<void>;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -61,6 +62,7 @@ export const ClassDialog = ({
   onSave,
 }: ClassDialogProps) => {
   const isEdit = !!initial;
+  const [isSaving, setIsSaving] = useState(false);
 
   const {
     register,
@@ -92,16 +94,20 @@ export const ClassDialog = ({
   }, [open, initial, reset]);
 
   const selectedColor = watch("color");
-  const onSubmit = (data: ClassFormData) => {
+  const onSubmit = async (data: ClassFormData) => {
     const cls: CreateClassPayload = {
       name: data.name,
       subject: data.subject,
       description: data.description,
       color: data.color,
     };
-    console.log(cls, "Classes From Class Dialog");
-    onSave(cls);
-    onOpenChange(false);
+    setIsSaving(true);
+    try {
+      await onSave(cls);
+      onOpenChange(false);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -184,11 +190,19 @@ export const ClassDialog = ({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              disabled={isSaving}
             >
               Cancel
             </Button>
-            <Button type="submit">
-              {isEdit ? "Save Changes" : "Create Class"}
+            <Button type="submit" disabled={isSaving}>
+              {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isSaving
+                ? isEdit
+                  ? "Saving changes..."
+                  : "Creating class..."
+                : isEdit
+                  ? "Save Changes"
+                  : "Create Class"}
             </Button>
           </DialogFooter>
         </form>

@@ -78,5 +78,8 @@ export interface AttemptResult {
   score: number;
   total: number;
   percentage: number;
+  status?: string;
+  isPassed?: boolean;
+  completedAt?: string;
   results: QuestionResult[];
 }

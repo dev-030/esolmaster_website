@@ -1,34 +1,45 @@
-import { BookOpen } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ReactNode } from "react";
+import { BookOpen, ClipboardList, Users } from "lucide-react";
 import { ClassDetails } from "@/types/class";
 
-export const ClassHeader = ({ classDetails }: { classDetails: ClassDetails }) => {
-
+export const ClassHeader = ({
+  classDetails,
+  action,
+}: {
+  classDetails: ClassDetails;
+  action?: ReactNode;
+}) => {
   if (!classDetails) return null;
 
   return (
-    <Card className="overflow-hidden rounded-2xl shadow-md border-0 p-0">
-      {/* Color Banner */}
-      <div
-        className="h-6 w-full"
-        style={{ backgroundColor: classDetails.color }}
-      />
-
-      {/* Content */}
-      <CardContent className="px-6 py-4 space-y-1">
-        {/* Class Name */}
-        <h2 className="text-xl font-bold text-gray-900 leading-tight">
-          {classDetails.name}
-        </h2>
-
-        {/* Subject + Teacher */}
-        <div className="flex items-center gap-1.5 text-sm text-gray-500">
-          <BookOpen className="w-4 h-4 shrink-0 text-gray-400" />
-          <span>{classDetails.subject}</span>
-          <span className="text-gray-300">·</span>
-          <span>{classDetails.teacherName}</span>
+    <section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
+      <div className="flex min-w-0 items-center gap-3">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-bold text-white shadow-sm"
+          style={{ backgroundColor: classDetails.color }}
+        >
+          {classDetails.name.charAt(0).toUpperCase()}
         </div>
-      </CardContent>
-    </Card>
+        <div className="min-w-0">
+          <h1 className="truncate text-lg font-bold tracking-tight text-slate-900 sm:text-xl">{classDetails.name}</h1>
+          <p className="flex items-center gap-1.5 text-sm text-slate-500">
+            <BookOpen className="h-3.5 w-3.5" /> {classDetails.subject}
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+        <div className="flex divide-x rounded-lg border border-slate-100 bg-slate-50 text-xs">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-slate-600">
+            <Users className="h-4 w-4 text-slate-400" />
+            <strong className="text-slate-900">{classDetails.studentCount}</strong> learners
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-slate-600">
+            <ClipboardList className="h-4 w-4 text-slate-400" />
+            <strong className="text-slate-900">{classDetails.taskCount}</strong> activities
+          </div>
+        </div>
+        {action}
+      </div>
+    </section>
   );
 };

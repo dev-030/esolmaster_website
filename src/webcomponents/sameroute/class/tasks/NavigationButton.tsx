@@ -10,10 +10,11 @@ interface NavigationButtonsProps {
   onPrev: () => void;
   onNext: () => void;
   onSubmit: () => void;
+  isSubmitting?: boolean;
 }
 
 export const NavigationButtons = ({
-  isFirst, isLast, canProceed, onPrev, onNext, onSubmit,
+  isFirst, isLast, canProceed, onPrev, onNext, onSubmit, isSubmitting = false,
 }: NavigationButtonsProps) => {
   return (
     <div className="flex items-center justify-between pt-5 border-t">
@@ -21,7 +22,7 @@ export const NavigationButtons = ({
         variant="ghost"
         size="sm"
         onClick={onPrev}
-        disabled={isFirst}
+        disabled={isFirst || isSubmitting}
         className="gap-1.5"
       >
         <ArrowLeft className="w-4 h-4" />
@@ -31,20 +32,20 @@ export const NavigationButtons = ({
       {isLast ? (
         <Button
           onClick={onSubmit}
-          disabled={!canProceed}
+          disabled={!canProceed || isSubmitting}
           className="gap-1.5"
         >
-          <CheckCircle className="w-4 h-4" />
-          Submit Task
+          {isSubmitting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <CheckCircle className="w-4 h-4" />}
+          {isSubmitting ? "Saving…" : "Submit Task"}
         </Button>
       ) : (
         <Button
           onClick={onNext}
-          disabled={!canProceed}
+          disabled={!canProceed || isSubmitting}
           className="gap-1.5"
         >
-          Next
-          <ArrowRight className="w-4 h-4" />
+          {isSubmitting ? "Saving…" : "Next"}
+          {isSubmitting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <ArrowRight className="w-4 h-4" />}
         </Button>
       )}
     </div>

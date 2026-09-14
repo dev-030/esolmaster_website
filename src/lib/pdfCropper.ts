@@ -19,7 +19,7 @@ export interface CropRegion {
  * @param file The uploaded PDF File object
  * @param region Normalized bounding box coordinates (0.0 - 1.0 or 0 - 1000 box_2d)
  * @param scale Quality scale factor (default 2.5 for crisp text)
- * @returns Base64 image data URL (data:image/png;base64,...)
+ * @returns Compressed Base64 image data URL.
  */
 export async function cropPdfContext(
   file: File | ArrayBuffer,
@@ -114,8 +114,9 @@ export async function cropPdfContext(
     0, 0, pixelW, pixelH            // destination rectangle
   );
 
-  // 4. Return clean Base64 data URL
-  const dataUrl = cropCanvas.toDataURL('image/png');
+  // JPEG keeps document crops readable without turning assessment saves into
+  // multi-megabyte PNG payloads.
+  const dataUrl = cropCanvas.toDataURL('image/jpeg', 0.86);
 
   // 5. Memory Cleanup
   fullCanvas.width = 0;

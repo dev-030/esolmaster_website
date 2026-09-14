@@ -6,13 +6,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
+import { useState } from "react";
 
 interface DeleteDialogProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   title?: string;
   description?: string;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   loading?: boolean;
 }
 
@@ -24,6 +25,21 @@ export const DeleteDialog = ({
   onConfirm,
   loading,
 }: DeleteDialogProps) => {
+  const [isConfirming, setIsConfirming] = useState(false);
+  const busy = loading || isConfirming;
+
+  const confirm = async () => {
+    try {
+      setIsConfirming(true);
+      await onConfirm();
+      onOpenChange(false);
+    } catch {
+      // The caller owns the error message; keep the dialog open for retry.
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
@@ -39,19 +55,18 @@ export const DeleteDialog = ({
           </div>
         </DialogHeader>
         <DialogFooter className="pt-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
             Cancel
           </Button>
           <Button
             variant="destructive"
-            onClick={() => { onConfirm(); onOpenChange(false); }}
-            disabled={loading}
+            onClick={confirm}
+            disabled={busy}
           >
-            {loading ? "Deleting..." : "Delete"}
+            {busy ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-

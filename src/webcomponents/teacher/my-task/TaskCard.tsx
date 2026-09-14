@@ -71,6 +71,14 @@ const TASK_TYPE_CONFIG: Record<
   },
 };
 
+const TASK_STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  DRAFT: { label: "Draft", className: "border-amber-200 bg-amber-50 text-amber-700" },
+  PENDING_APPROVAL: { label: "Pending review", className: "border-violet-200 bg-violet-50 text-violet-700" },
+  APPROVED: { label: "Published", className: "border-emerald-200 bg-emerald-50 text-emerald-700" },
+  ARCHIVED: { label: "Archived", className: "border-slate-200 bg-slate-100 text-slate-600" },
+  REJECTED: { label: "Rejected", className: "border-red-200 bg-red-50 text-red-700" },
+};
+
 // ── Link logic ────────────────────────────────────────────────────────────────
 function getTaskLink(task: Task): string {
   return `/assign-task?taskId=${task.id}`;
@@ -90,6 +98,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
 
   const awardingBody = task.readingContent?.awardingBody;
   const entryLevel = task.readingContent?.entryType?.[0] || task.grammarContent?.entryType?.[0];
+  const status = TASK_STATUS_CONFIG[task.status] || TASK_STATUS_CONFIG.DRAFT;
 
   const handleApprove = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -152,11 +161,9 @@ export const TaskCard = ({ task }: { task: Task }) => {
         </div>
 
         <div className="flex items-center gap-1 shrink-0 -mt-1 -mr-1">
-          {role !== "admin" && (
-            <Badge variant={task.status === "APPROVED" ? "success" : "warning"} className="capitalize text-[10px] px-1.5 py-0">
-              {task.status.replace(/_/g, " ").toLowerCase()}
-            </Badge>
-          )}
+          <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", status.className)}>
+            {status.label}
+          </Badge>
 
           {task.status === "PENDING_APPROVAL" && role === "admin" && (
             <Button

@@ -53,7 +53,7 @@ export const Class = () => {
     name?: string;
   }>({ open: false });
 
-  const isTeacher = role === "teacher" || role === "admin";
+  const isTeacher = role === "teacher";
 
   // Calculate pagination values
   const totalItems = classesData?.meta?.total || 0;
@@ -69,10 +69,11 @@ export const Class = () => {
   const handleAddClass = async (cls: CreateClassPayload) => {
     try {
       await createClass(cls);
-      refetch();
+      await refetch();
       toast.success("Class created");
     } catch (error) {
       toast.error("Failed to create class");
+      throw error;
     }
   };
 
@@ -82,18 +83,19 @@ export const Class = () => {
     if (!classDialog.initial?.id) return;
     try {
       await updateClassMutation({ id: classDialog.initial.id, payload: cls });
-      refetch();
+      await refetch();
       toast.success("Class updated");
     } catch (error) {
       toast.error("Failed to update class");
+      throw error;
     }
   };
 
   const handleJoinClass = async (event: React.FormEvent) => {
     event.preventDefault();
+    const code = joinCode.trim();
     try {
-      await joinClass(joinCode.trim());
-      await refetch();
+      await joinClass(code);
       setJoinCode("");
       setJoinOpen(false);
       toast.success("You joined the class");
@@ -285,10 +287,9 @@ export const Class = () => {
         open={classDialog.open}
         onOpenChange={(v) => setClassDialog((s) => ({ ...s, open: v }))}
         initial={classDialog.initial}
-        onSave={(cls) => {
-          if (classDialog.initial) handleUpdateClass(cls);
-          else handleAddClass(cls);
-        }}
+        onSave={(cls) =>
+          classDialog.initial ? handleUpdateClass(cls) : handleAddClass(cls)
+        }
       />
 
       <DeleteDialog
@@ -296,11 +297,16 @@ export const Class = () => {
         onOpenChange={(v) => setDeleteDialog((s) => ({ ...s, open: v }))}
         title={`Delete "${deleteDialog.name}"?`}
         description="This will permanently remove the class and all its data. This action cannot be undone."
-        onConfirm={() => {
+        onConfirm={async () => {
           if (deleteDialog.id) {
-            deleteClassMutation(deleteDialog.id);
-            refetch();
-            toast.success("Class deleted");
+            try {
+              await deleteClassMutation(deleteDialog.id);
+              await refetch();
+              toast.success("Class deleted");
+            } catch (error) {
+              toast.error("Unable to delete class");
+              throw error;
+            }
           }
         }}
       />

@@ -59,9 +59,7 @@ export const StudentClassPage = () => {
     search: debouncedSearch,
   });
 
-  const { mutate: removeStudent } = useRemoveStudentsFromClassMutation(classId);
-
-  console.log("Students data:", studentsData);
+  const { mutateAsync: removeStudent } = useRemoveStudentsFromClassMutation(classId);
 
   // Debounce search
   useEffect(() => {
@@ -78,6 +76,8 @@ export const StudentClassPage = () => {
   const totalPages = studentsData?.meta?.totalPages || 1;
   const startItem = (page - 1) * limit + 1;
   const endItem = Math.min(page * limit, total);
+  const joinStatus = classDetails?.joinStatus ?? "OPEN";
+  const joinStatusLabel = joinStatus.charAt(0) + joinStatus.slice(1).toLowerCase();
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -106,12 +106,13 @@ export const StudentClassPage = () => {
   ) => {
     try {
       setIsRemoving(true);
-      removeStudent([studentId]);
+      await removeStudent([studentId]);
       toast.success(`${studentName} removed from class`);
       await refetch();
       setDeleteDialog({ open: false });
     } catch (error) {
       toast.error("Failed to remove student");
+      throw error;
     } finally {
       setIsRemoving(false);
     }
@@ -120,12 +121,11 @@ export const StudentClassPage = () => {
   // Calculate stats (for commented section)
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Students</h2>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h2 className="text-xl font-bold tracking-tight text-foreground">Students</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             {total} student{total !== 1 ? "s" : ""} enrolled
           </p>
         </div>
@@ -135,15 +135,21 @@ export const StudentClassPage = () => {
         </Button>
       </div>
 
-      <Card className="border-blue-200 bg-blue-50/50">
-        <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-slate-900">Class join code</p>
-            <p className="mt-1 text-xs text-slate-600">
-              Share this code with students. Joining is currently <span className="font-semibold">{classDetails?.joinStatus?.toLowerCase() || "open"}</span>.
-            </p>
-            <div className="mt-3 flex items-center gap-2">
-              <span className="rounded-lg bg-white px-4 py-2 font-mono text-lg font-bold tracking-[0.2em] text-blue-700 shadow-sm">
+      <Card className="border-blue-100 bg-gradient-to-r from-blue-50 to-white py-0 shadow-none">
+        <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:py-3.5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
+              <Users className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-sm font-semibold text-slate-900">Class join code</p>
+                <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${joinStatus === "OPEN" ? "bg-emerald-100 text-emerald-700" : joinStatus === "PAUSED" ? "bg-amber-100 text-amber-700" : "bg-slate-200 text-slate-700"}`}>{joinStatusLabel}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-slate-500">Share it with students to let them join this classroom.</p>
+            </div>
+            <div className="ml-auto flex items-center gap-2 sm:ml-3">
+              <span className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 font-mono text-base font-bold tracking-[0.18em] text-blue-700 shadow-sm">
                 {classDetails?.joinCode || "------"}
               </span>
               <Button variant="outline" size="icon" onClick={copyJoinCode} aria-label="Copy join code">
@@ -206,15 +212,17 @@ export const StudentClassPage = () => {
       </div>
       */}
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Search students by name or email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm font-medium text-slate-700">Class roster</p>
+        <div className="relative w-full sm:max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search students by name or email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-9 bg-white pl-9"
+          />
+        </div>
       </div>
 
       {/* Loading State */}
@@ -244,7 +252,7 @@ export const StudentClassPage = () => {
         </div>
       ) : (
         <>
-          <Card>
+          <Card className="gap-0 py-0 shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -369,7 +377,7 @@ export const StudentClassPage = () => {
         description="The student will lose access to this class and all its tasks. This action cannot be undone."
         onConfirm={() => {
           if (deleteDialog.id && !isRemoving) {
-            handleRemoveStudent(
+            return handleRemoveStudent(
               deleteDialog.id,
               deleteDialog.name || "Student",
             );

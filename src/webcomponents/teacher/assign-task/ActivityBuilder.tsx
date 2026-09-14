@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Send, Trash2, GripVertical, Save, Eye, Award, CheckCircle2, AlertCircle, Sparkles, Folder, BookOpen, X, Loader2, ArrowLeft, ChevronRight, School, Scissors, FileText, Plus, Check, Tag } from "lucide-react";
+import { PlusCircle, Send, Trash2, GripVertical, Save, Eye, Award, CheckCircle2, AlertCircle, Sparkles, Folder, BookOpen, X, Loader2, ArrowLeft, ChevronRight, School, Scissors, FileText, Plus, Check, Tag, Archive, ArchiveRestore } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -35,6 +35,8 @@ import {
   OrderingConfigUI 
 } from "./QuestionConfigs";
 import { LocalTaskPreview } from "./LocalTaskPreview";
+import { TaskStatus } from "@/types/task";
+import { useQueryClient } from "@tanstack/react-query";
 
 type QuestionType = "MCQ" | "GAP_FILL" | "WORD_BOX_MATCH" | "MATCHING" | "QUESTION_ANSWER" | "ORDERING" | "TRUE_FALSE" | "INSTRUCTION";
 type TaskType = "READING" | "WRITING" | "LISTENING" | "SPEAKING" | "GRAMMAR" | "VOCABULARY";
@@ -316,6 +318,7 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
 
 export default function ActivityBuilder() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const folderId = searchParams.get("folderId");
   const taskId = searchParams.get("taskId");
@@ -407,12 +410,7 @@ export default function ActivityBuilder() {
       setIsAddingCrit(false);
       toast.success(`Created & added ${code} to checklist`);
     } catch (err: any) {
-      const localId = `crit_${Date.now()}`;
-      setTaskCriteria(prev => [...prev, { id: localId, code, description: description }]);
-      setNewCritCode("");
-      setNewCritDesc("");
-      setIsAddingCrit(false);
-      toast.success(`Added ${code} to checklist`);
+      toast.error(err?.response?.data?.message || `Could not create criterion ${code}`);
     }
   };
 
@@ -428,6 +426,8 @@ export default function ActivityBuilder() {
   const [isLoadingTask, setIsLoadingTask] = useState(!!taskId);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSaving, setIsSaving] = useState<"DRAFT" | "PUBLISHED" | null>(null);
+  const [taskStatus, setTaskStatus] = useState<TaskStatus>("DRAFT");
+  const [isChangingStatus, setIsChangingStatus] = useState(false);
 
   const [isImporting, setIsImporting] = useState(false);
   const [pdfFileForSnipping, setPdfFileForSnipping] = useState<File | null>(null);
@@ -637,6 +637,7 @@ const playSuccessSound = () => {
       setIsLoaded(false);
       setIsLoadingTask(true);
       getTaskById(taskId).then(task => {
+        setTaskStatus(task.status as TaskStatus);
         setTitle(task.title || "");
         setTaskType((task.type as TaskType) || "READING");
         const loadedPassMark = task.passMark !== null && task.passMark !== undefined ? task.passMark.toString() : "18";
@@ -1029,7 +1030,11 @@ const playSuccessSound = () => {
   };
 
   const handleSave = async (status: "PUBLISHED" | "DRAFT", shouldRedirect = true) => {
-    const validation = validateActivity();
+    const validation = status === "PUBLISHED"
+      ? validateActivity()
+      : !title.trim()
+        ? { firstError: "Please enter an Activity Title.", errorMap: { title: true }, firstElementId: "field-title" }
+        : null;
     if (validation) {
       setInvalidFieldKeys(validation.errorMap);
       toast.error(validation.firstError, { duration: 5000 });
@@ -1050,21 +1055,62 @@ const playSuccessSound = () => {
 
     try {
       let response: any;
+      let criteriaToSave = taskCriteria;
+      let questionsToSave = questions;
+
+      // AI imports use temporary IDs until the first save. Resolve them once
+      // here so every question references a real database criterion.
+      for (const criterion of taskCriteria.filter(c => c.id.startsWith("ai_crit_") || c.id.startsWith("crit_"))) {
+        const existing = criteriaList.find((c: any) => c.code.toLowerCase() === criterion.code.toLowerCase());
+        const saved = existing || await createCriteriaMutation.mutateAsync({
+          code: criterion.code,
+          description: criterion.description,
+        });
+        const realCriterion = saved?.data || saved;
+        criteriaToSave = criteriaToSave.map(c => c.id === criterion.id ? { ...c, ...realCriterion } : c);
+        questionsToSave = questionsToSave.map(q => q.criterionId === criterion.id ? { ...q, criterionId: realCriterion.id } : q);
+      }
+
+      if (criteriaToSave !== taskCriteria) setTaskCriteria(criteriaToSave);
+      if (questionsToSave !== questions) setQuestions(questionsToSave);
+
       const parsedPassMark = requirePassMark && passMark !== "" ? (parseInt(passMark, 10) || 0) : null;
       const computedPassLogic = 
         requirePassMark && mustPassAllSkills ? "CRITERIA_AND_SCORE" :
         mustPassAllSkills ? "CRITERIA_ONLY" :
         "SCORE_ONLY";
 
+      const multipart = new FormData();
+      let sectionImageIndex = 0;
+      const sectionsToSave: TaskSection[] = [];
+      for (const section of taskSections) {
+        if (!section.imageUrl?.startsWith("data:image/")) {
+          sectionsToSave.push(section);
+          continue;
+        }
+
+        const image = await fetch(section.imageUrl).then(res => res.blob());
+        multipart.append("sectionImages", image, `section-${section.id}.${image.type === "image/png" ? "png" : "jpg"}`);
+        sectionsToSave.push({ ...section, imageUrl: `__SECTION_IMAGE_${sectionImageIndex++}__` });
+      }
+
       const serializedContent = JSON.stringify({
         version: 2,
-        sections: taskSections,
-        criteria: taskCriteria,
+        sections: sectionsToSave,
+        criteria: criteriaToSave,
       });
 
+      const appendPayload = (payload: Record<string, unknown>) => {
+        Object.entries(payload).forEach(([key, value]) => {
+          if (value === undefined || value === null) return;
+          multipart.append(key, typeof value === "object" ? JSON.stringify(value) : String(value));
+        });
+        return multipart;
+      };
+
       if (taskId) {
-        const deleteQuestionIds = initialQuestionIds.filter(id => !questions.some(q => q.id === id));
-        const updateQuestions = questions.filter(q => initialQuestionIds.includes(q.id)).map((q, index) => ({
+        const deleteQuestionIds = initialQuestionIds.filter(id => !questionsToSave.some(q => q.id === id));
+        const updateQuestions = questionsToSave.filter(q => initialQuestionIds.includes(q.id)).map((q, index) => ({
           id: q.id,
           type: q.type,
           order: index + 1,
@@ -1077,7 +1123,7 @@ const playSuccessSound = () => {
             ...q.config 
           })
         }));
-        const newQuestions = questions.filter(q => !initialQuestionIds.includes(q.id)).map((q, index) => ({
+        const newQuestions = questionsToSave.filter(q => !initialQuestionIds.includes(q.id)).map((q, index) => ({
           type: q.type,
           order: index + 1,
           criterionId: q.criterionId || undefined,
@@ -1091,10 +1137,10 @@ const playSuccessSound = () => {
           clientKey: q.id
         }));
 
-        response = await updateTask(taskId, {
+        response = await updateTask(taskId, appendPayload({
           title,
           type: taskType,
-          status: status === "PUBLISHED" ? "PENDING_APPROVAL" : "DRAFT",
+          status: status === "PUBLISHED" ? "APPROVED" : "DRAFT",
           folderId: folderId || undefined,
           content: serializedContent,
           awardingBody: awardingBody !== "CUSTOM" ? awardingBody : undefined,
@@ -1104,9 +1150,9 @@ const playSuccessSound = () => {
           deleteQuestionIds,
           updateQuestions,
           newQuestions,
-        } as any);
+        }));
       } else {
-        const formattedQuestions = questions.map((q, index) => ({
+        const formattedQuestions = questionsToSave.map((q, index) => ({
           type: q.type,
           order: index + 1,
           criterionId: q.criterionId || undefined,
@@ -1119,10 +1165,10 @@ const playSuccessSound = () => {
           })
         }));
 
-        response = await createTask({
+        response = await createTask(appendPayload({
           title,
           type: taskType,
-          status: status === "PUBLISHED" ? "PENDING_APPROVAL" : "DRAFT",
+          status: status === "PUBLISHED" ? "APPROVED" : "DRAFT",
           questions: formattedQuestions as any,
           folderId: selectedFolderId || folderId || undefined,
           content: serializedContent,
@@ -1130,8 +1176,20 @@ const playSuccessSound = () => {
           entryType: [entryLevel],
           passMark: parsedPassMark,
           passLogic: computedPassLogic,
-        } as any);
+        }) as any);
       }
+
+      const savedContent = response?.readingContent?.content || response?.grammarContent?.content;
+      if (savedContent) {
+        try {
+          const parsed = typeof savedContent === "string" ? JSON.parse(savedContent) : savedContent;
+          if (Array.isArray(parsed?.sections)) setTaskSections(parsed.sections);
+        } catch {
+          // The save succeeded; keep the current editor state if legacy content cannot be parsed.
+        }
+      }
+      setTaskStatus(response?.status || (status === "PUBLISHED" ? "APPROVED" : "DRAFT"));
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
 
       toast.success(`Activity saved as ${status}!`);
       if (status === "PUBLISHED" || status === "DRAFT") {
@@ -1170,6 +1228,23 @@ const playSuccessSound = () => {
       return null;
     } finally {
       setIsSaving(null);
+    }
+  };
+
+  const handleLifecycleChange = async (nextStatus: "APPROVED" | "ARCHIVED") => {
+    if (!taskId) return;
+    setIsChangingStatus(true);
+    try {
+      const payload = new FormData();
+      payload.append("status", nextStatus);
+      await updateTask(taskId, payload);
+      setTaskStatus(nextStatus);
+      await queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success(nextStatus === "ARCHIVED" ? "Activity archived" : "Activity restored and published");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || "Could not update activity status");
+    } finally {
+      setIsChangingStatus(false);
     }
   };
 
@@ -1381,7 +1456,7 @@ const playSuccessSound = () => {
       </div>
 
       {/* Page Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between pb-4 border-b border-slate-200/60 gap-4">
+      <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between pb-4 border-b border-slate-200/60 gap-4">
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800">
@@ -1389,7 +1464,7 @@ const playSuccessSound = () => {
             </h1>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
           
           <input 
             type="file" 
@@ -1427,7 +1502,7 @@ const playSuccessSound = () => {
           <Button
             variant="outline" 
             className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex-1 sm:flex-none" 
-            disabled={Boolean(isSaving)}
+            disabled={Boolean(isSaving) || isChangingStatus}
             onClick={handlePreview}
           >
             <Eye className="w-4 h-4 mr-2" />
@@ -1437,7 +1512,7 @@ const playSuccessSound = () => {
             type="button" 
             variant="outline" 
             className="font-medium border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex-1 sm:flex-none" 
-            disabled={Boolean(isSaving)}
+            disabled={Boolean(isSaving) || isChangingStatus}
             onClick={() => handleSave("DRAFT", false)}
           >
             {isSaving === "DRAFT" ? (
@@ -1450,7 +1525,7 @@ const playSuccessSound = () => {
           <Button 
             type="button" 
             className="font-medium bg-blue-500 hover:bg-blue-600 text-white shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex-1 sm:flex-none" 
-            disabled={Boolean(isSaving)}
+            disabled={Boolean(isSaving) || isChangingStatus}
             onClick={() => handleSave("PUBLISHED")}
           >
             {isSaving === "PUBLISHED" ? (
@@ -1460,12 +1535,36 @@ const playSuccessSound = () => {
             )}
             {isSaving === "PUBLISHED" ? "Publishing..." : "Publish"}
           </Button>
+          {taskId && taskStatus === "APPROVED" && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={Boolean(isSaving) || isChangingStatus}
+              onClick={() => handleLifecycleChange("ARCHIVED")}
+              className="border-slate-300 text-slate-700 hover:bg-slate-100"
+            >
+              {isChangingStatus ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Archive className="w-4 h-4 mr-2" />}
+              Archive
+            </Button>
+          )}
+          {taskId && taskStatus === "ARCHIVED" && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={Boolean(isSaving) || isChangingStatus}
+              onClick={() => handleLifecycleChange("APPROVED")}
+              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+            >
+              {isChangingStatus ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArchiveRestore className="w-4 h-4 mr-2" />}
+              Restore
+            </Button>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8 items-start min-w-0">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 xl:gap-8 items-start min-w-0">
         {/* Main Canvas Area */}
-        <div className="col-span-1 lg:col-span-9 flex flex-col gap-6 lg:gap-8 min-w-0">
+        <div className="col-span-1 xl:col-span-9 flex flex-col gap-6 xl:gap-8 min-w-0">
           {/* Activity Settings Card */}
           <Card className="border-slate-200 overflow-hidden shadow-none rounded-xl bg-white">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 px-6 pt-5 flex flex-row items-center justify-between">
@@ -1663,7 +1762,7 @@ const playSuccessSound = () => {
 
                         {/* Created Criteria Grid */}
                         {taskCriteria.length > 0 && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
                             {[...taskCriteria].sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true, sensitivity: 'base' })).map((crit) => {
                               const mappedCount = criteriaCoverage.map[crit.id] || 0;
                               const isCovered = mappedCount > 0;
@@ -2115,7 +2214,7 @@ const playSuccessSound = () => {
         </div>
 
         {/* Right Sticky Sidebar: Overview & Global Question Palette */}
-        <div className="col-span-1 lg:col-span-3 lg:sticky lg:top-6 flex flex-col gap-5 min-w-0">
+        <div className="col-span-1 xl:col-span-3 xl:sticky xl:top-6 flex flex-col gap-5 min-w-0">
           {/* 1. Quick Overview Summary Card (FIRST) */}
           <Card className="border-slate-200 shadow-none rounded-xl bg-white overflow-hidden">
             <div className="p-4 space-y-4">
