@@ -2,11 +2,23 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Eye, Loader2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Eye,
+  FileCheck2,
+  Loader2,
+  Lock,
+  Send,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getTaskById } from "@/api/task/api";
 import { LocalTaskPreview } from "@/webcomponents/teacher/assign-task/LocalTaskPreview";
+import { TaskOverviewAnswerKey } from "@/webcomponents/teacher/assign-task/TaskOverviewAnswerKey";
+import { AssignToClassDialog } from "@/webcomponents/teacher/assign-task/AssignToClassDialog";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function PreviewTaskPage() {
   const params = useParams<{ taskId: string }>();
@@ -15,6 +27,9 @@ export default function PreviewTaskPage() {
   const folderId = searchParams.get("folderId");
 
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"preview" | "overview">("preview");
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
+
   const [taskData, setTaskData] = useState<{
     title: string;
     taskType: string;
@@ -175,7 +190,7 @@ export default function PreviewTaskPage() {
     return (
       <div className="w-full min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <p className="text-xs text-slate-500 font-medium animate-pulse">Loading preview simulation...</p>
+        <p className="text-xs text-slate-500 font-medium animate-pulse">Loading activity preview...</p>
       </div>
     );
   }
@@ -193,43 +208,112 @@ export default function PreviewTaskPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Top Sticky Bar with Title and Exit Preview Button */}
-      <div className="sticky top-0 z-40 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-2xs">
-        <div className="flex items-center gap-3">
-          <span className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
-            <Eye className="w-4 h-4" />
-          </span>
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 leading-tight">Student Examination Preview</h2>
-            <p className="text-[11px] text-slate-500">Live interactive split-screen simulation</p>
+      {/* Top Sticky Bar with Title, View Switcher, Assign and Exit Buttons */}
+      <div className="sticky top-0 z-40 bg-white border-b border-slate-200/80 px-4 sm:px-6 py-2.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shadow-2xs">
+        {/* Left: Title & Meta */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-sm font-bold text-slate-900 truncate leading-tight max-w-[280px] sm:max-w-md">
+                {taskData.title}
+              </h1>
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 border border-slate-200 shrink-0">
+                <Lock className="w-2.5 h-2.5" /> Read-Only
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+              {taskData.awardingBody ? `${taskData.awardingBody} · ` : ""}
+              {taskData.entryLevel ? taskData.entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ") : "General Activity"}
+            </p>
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleExit}
-          className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200 font-semibold text-xs px-3.5 h-8.5 rounded-lg flex items-center gap-1.5 shadow-2xs cursor-pointer"
-        >
-          <X className="w-4 h-4 text-slate-500" />
-          Exit Preview
-        </Button>
+        {/* Center: View Switcher */}
+        <div className="flex items-center justify-center">
+          <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100/90 rounded-xl border border-slate-200/60 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setActiveTab("preview")}
+              className={cn(
+                "flex items-center justify-center gap-1.5 py-1.5 px-3.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+                activeTab === "preview"
+                  ? "bg-white text-[#3454FB] shadow-xs"
+                  : "text-slate-500 hover:text-slate-800",
+              )}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Student Simulation</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("overview")}
+              className={cn(
+                "flex items-center justify-center gap-1.5 py-1.5 px-3.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+                activeTab === "overview"
+                  ? "bg-white text-[#3454FB] shadow-xs"
+                  : "text-slate-500 hover:text-slate-800",
+              )}
+            >
+              <FileCheck2 className="w-3.5 h-3.5" />
+              <span>Overview & Answer Key</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Right: Assign to Class & Exit Preview */}
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            type="button"
+            onClick={() => setIsAssignOpen(true)}
+            className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-3.5 h-8.5 rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer transition-all"
+          >
+            <Send className="w-3.5 h-3.5" />
+            Assign to Class
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleExit}
+            className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200 font-semibold text-xs px-3 h-8.5 rounded-lg flex items-center gap-1.5 shadow-2xs cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5 text-slate-500" />
+            Exit
+          </Button>
+        </div>
       </div>
 
-      {/* Full Screen Content Body */}
-      <div className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-8">
-        <LocalTaskPreview
-          title={taskData.title}
-          taskType={taskData.taskType}
-          questions={taskData.questions}
-          taskSections={taskData.taskSections}
-          taskCriteria={taskData.taskCriteria}
-          passMark={taskData.passMark}
-          passLogic={taskData.passLogic}
-          awardingBody={taskData.awardingBody}
-          entryLevel={taskData.entryLevel}
+      {/* Main Content Body */}
+      {activeTab === "preview" ? (
+        <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
+          <LocalTaskPreview
+            title={taskData.title}
+            taskType={taskData.taskType}
+            questions={taskData.questions}
+            taskSections={taskData.taskSections}
+            taskCriteria={taskData.taskCriteria}
+            passMark={taskData.passMark}
+            passLogic={taskData.passLogic}
+            awardingBody={taskData.awardingBody}
+            entryLevel={taskData.entryLevel}
+          />
+        </div>
+      ) : (
+        <div className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-6 md:p-8">
+          <TaskOverviewAnswerKey taskData={taskData} />
+        </div>
+      )}
+
+      {/* Assign to Class Modal */}
+      {taskData && (
+        <AssignToClassDialog
+          open={isAssignOpen}
+          onOpenChange={setIsAssignOpen}
+          taskId={params.taskId}
+          taskTitle={taskData.title}
         />
-      </div>
+      )}
     </div>
   );
 }
+

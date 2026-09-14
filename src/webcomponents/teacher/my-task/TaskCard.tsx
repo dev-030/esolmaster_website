@@ -89,7 +89,10 @@ export const TaskCard = ({ task }: { task: Task }) => {
   const classes = task.classes ?? [];
   const { role } = useRole();
   const isAdmin = role === "admin";
-  const href = isAdmin ? getTaskLink(task) : undefined;
+  const previewHref = task.folderId
+    ? `/assign-task/preview/${task.id}?folderId=${task.folderId}`
+    : `/assign-task/preview/${task.id}`;
+  const href = isAdmin ? getTaskLink(task) : previewHref;
   const router = useRouter();
   const { mutate: approveTask, isPending } = useApproveTaskMutation();
   const { mutate: deleteTask, isPending: isDeleting } = useDeleteTaskMutation();
@@ -129,7 +132,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
   return (
     <div 
       onClick={() => href && router.push(href)}
-      className={cn("relative group flex flex-col justify-between p-4.5 bg-white border border-slate-200 rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-200 transition-all duration-300 h-full overflow-hidden gap-2.5 min-h-[120px]", isAdmin ? "cursor-pointer" : "cursor-default")}
+      className="relative group flex flex-col justify-between p-4.5 bg-white border border-slate-200 rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-blue-200 transition-all duration-300 h-full overflow-hidden gap-2.5 min-h-[120px] cursor-pointer"
     >
       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50/50 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
@@ -177,22 +180,18 @@ export const TaskCard = ({ task }: { task: Task }) => {
             </Button>
           )}
 
-          {isAdmin && <Button
+          <Button
             variant="ghost"
             size="icon"
             onClick={(e) => {
               e.stopPropagation();
-              router.push(
-                task.folderId
-                  ? `/assign-task/preview/${task.id}?folderId=${task.folderId}`
-                  : `/assign-task/preview/${task.id}`,
-              );
+              router.push(previewHref);
             }}
             title="Preview Activity"
             className="h-7 w-7 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full cursor-pointer transition-colors"
           >
             <Eye className="w-3.5 h-3.5" />
-          </Button>}
+          </Button>
 
           {isAdmin && <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
             <AlertDialogTrigger
