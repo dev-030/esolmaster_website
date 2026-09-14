@@ -48,26 +48,20 @@ export default function PreviewTaskPage() {
       getTaskById(params.taskId)
         .then((task) => {
           let loadedSections: any[] = [];
-          if (task.content) {
+          let loadedCriteria: any[] = [];
+          let parsedContent: any = null;
+
+          if (typeof task.content === "string") {
             try {
-              const parsed = JSON.parse(task.content);
-              if (parsed && Array.isArray(parsed.sections) && parsed.sections.length > 0) {
-                loadedSections = parsed.sections;
-              }
-            } catch (e) {
-              loadedSections = [
-                {
-                  id: "sec_1",
-                  title: "Task 1",
-                  instruction: "Read the text and answer the questions below.",
-                  stimulusType: task.readingContent?.imageUrl ? "IMAGE" : "RICH_TEXT",
-                  imageUrl: task.readingContent?.imageUrl || "",
-                  content: task.content || "",
-                },
-              ];
-            }
+              parsedContent = JSON.parse(task.content);
+            } catch (e) {}
+          } else if (typeof task.content === "object" && task.content !== null) {
+            parsedContent = task.content;
           }
-          if (loadedSections.length === 0) {
+
+          if (parsedContent && Array.isArray(parsedContent.sections) && parsedContent.sections.length > 0) {
+            loadedSections = parsedContent.sections;
+          } else {
             loadedSections = [
               {
                 id: "sec_1",
@@ -75,9 +69,13 @@ export default function PreviewTaskPage() {
                 instruction: "Read the text and answer the questions below.",
                 stimulusType: task.readingContent?.imageUrl ? "IMAGE" : "RICH_TEXT",
                 imageUrl: task.readingContent?.imageUrl || "",
-                content: task.content || "",
+                content: typeof task.content === "string" ? task.content : "",
               },
             ];
+          }
+
+          if (parsedContent && Array.isArray(parsedContent.criteria)) {
+            loadedCriteria = parsedContent.criteria;
           }
 
           let loadedQuestions: any[] = [];
@@ -91,9 +89,14 @@ export default function PreviewTaskPage() {
                 data: undefined,
                 sectionId: undefined,
               } as any;
-              try {
-                configObj = JSON.parse(q.config);
-              } catch (e) {}
+
+              if (typeof q.config === "string") {
+                try {
+                  configObj = JSON.parse(q.config);
+                } catch (e) {}
+              } else if (typeof q.config === "object" && q.config !== null) {
+                configObj = q.config;
+              }
 
               const { question, prompt, explanation, marks, data, sectionId, ...restConfig } =
                 configObj;
@@ -142,16 +145,6 @@ export default function PreviewTaskPage() {
                 config: extractedConfig,
               };
             });
-          }
-
-          let loadedCriteria: any[] = [];
-          if (task.content) {
-            try {
-              const parsed = JSON.parse(task.content);
-              if (parsed && Array.isArray(parsed.criteria)) {
-                loadedCriteria = parsed.criteria;
-              }
-            } catch (e) {}
           }
 
           setTaskData({

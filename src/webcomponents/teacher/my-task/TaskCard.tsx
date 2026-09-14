@@ -22,7 +22,7 @@ import { useApproveTaskMutation, useDeleteTaskMutation } from "@/api/task";
 import { toast } from "sonner";
 import { useRole } from "@/provider/RoleProvider";
 import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -88,10 +88,12 @@ export const TaskCard = ({ task }: { task: Task }) => {
   const cfg = TASK_TYPE_CONFIG[task.type] || TASK_TYPE_CONFIG[TaskType.GRAMMAR];
   const classes = task.classes ?? [];
   const { role } = useRole();
-  const isAdmin = role === "admin";
-  const previewHref = task.folderId
-    ? `/assign-task/preview/${task.id}?folderId=${task.folderId}`
+  const searchParams = useSearchParams();
+  const currentFolderId = task.folderId || searchParams.get("folderId") || undefined;
+  const previewHref = currentFolderId
+    ? `/assign-task/preview/${task.id}?folderId=${currentFolderId}`
     : `/assign-task/preview/${task.id}`;
+  const isAdmin = role === "admin";
   const href = isAdmin ? getTaskLink(task) : previewHref;
   const router = useRouter();
   const { mutate: approveTask, isPending } = useApproveTaskMutation();

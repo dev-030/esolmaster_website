@@ -85,7 +85,11 @@ export async function proxy(request: NextRequest) {
       return toDashboard();
     }
 
-    if (pathname.startsWith("/assign-task") && role !== "admin") {
+    if (
+      pathname.startsWith("/assign-task") &&
+      !pathname.startsWith("/assign-task/preview") &&
+      role !== "admin"
+    ) {
       return toDashboard();
     }
 
