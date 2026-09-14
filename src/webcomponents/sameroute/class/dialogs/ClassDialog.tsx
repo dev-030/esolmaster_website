@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { BookOpen, Check, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Class, CreateClassPayload } from "@/types/class";
+import { cn } from "@/lib/utils";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -36,12 +37,14 @@ const schema = z.object({
 export type ClassFormData = z.infer<typeof schema>;
 
 const COLOR_OPTIONS = [
-  "#2F7EDA",
-  "#f59e0b",
-  "#10b981",
-  "#8b5cf6",
-  "#ef4444",
-  "#06b6d4",
+  "#3454FB", // Electric Blue (Primary Brand)
+  "#2563EB", // Royal Blue
+  "#0EA5E9", // Sky Blue
+  "#10B981", // Emerald Green
+  "#F59E0B", // Amber Orange
+  "#8B5CF6", // Purple
+  "#EC4899", // Pink
+  "#EF4444", // Coral Red
 ];
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -63,6 +66,9 @@ export const ClassDialog = ({
 }: ClassDialogProps) => {
   const isEdit = !!initial;
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>(
+    initial?.color || "#3454FB"
+  );
 
   const {
     register,
@@ -77,29 +83,54 @@ export const ClassDialog = ({
       name: "",
       subject: "",
       description: "",
-      color: "#2F7EDA",
+      color: "#3454FB",
+      maxStudents: 30,
     },
   });
 
+  const watchedName = watch("name");
+  const watchedSubject = watch("subject");
+
+  // Keep palette inclusive if the class already has a custom/legacy color
+  const activePalette = useMemo(() => {
+    if (
+      initial?.color &&
+      !COLOR_OPTIONS.some((c) => c.toLowerCase() === initial.color?.toLowerCase())
+    ) {
+      return [initial.color, ...COLOR_OPTIONS];
+    }
+    return COLOR_OPTIONS;
+  }, [initial?.color]);
+
   useEffect(() => {
     if (open) {
+      const initialColor = initial?.color || "#3454FB";
+      setSelectedColor(initialColor);
       reset({
         name: initial?.name ?? "",
         subject: initial?.subject ?? "",
         description: initial?.description ?? "",
-        color: initial?.color ?? "#2F7EDA",
+        color: initialColor,
         maxStudents: initial?.maxStudents ?? 30,
       });
     }
   }, [open, initial, reset]);
 
-  const selectedColor = watch("color");
+  const handleColorSelect = (c: string) => {
+    setSelectedColor(c);
+    setValue("color", c, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
   const onSubmit = async (data: ClassFormData) => {
     const cls: CreateClassPayload = {
       name: data.name,
       subject: data.subject,
       description: data.description,
-      color: data.color,
+      color: selectedColor || data.color,
     };
     setIsSaving(true);
     try {
@@ -114,23 +145,45 @@ export const ClassDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-lg font-bold text-slate-800">
             {isEdit ? "Edit Class" : "Create New Class"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-slate-500">
             {isEdit
               ? "Update the class details below."
               : "Fill in the details to create a new class."}
           </DialogDescription>
         </DialogHeader>
 
+        {/* Live Color & Header Preview */}
+        <div
+          className="relative rounded-[16px] p-4 text-white flex flex-col justify-between min-h-[90px] transition-colors duration-200 overflow-hidden shadow-xs"
+          style={{ backgroundColor: selectedColor }}
+        >
+          <div className="flex items-start justify-between gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-semibold text-white">
+              <BookOpen className="h-3 w-3" />
+              {watchedSubject?.trim() || "Subject"}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-black/20 backdrop-blur-xs px-2 py-0.5 rounded-full">
+              Live Preview
+            </span>
+          </div>
+          <h3 className="truncate text-base font-bold tracking-tight text-white mt-2.5">
+            {watchedName?.trim() || "Class Name"}
+          </h3>
+        </div>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-1">
           {/* Name */}
           <div className="space-y-1.5">
-            <Label htmlFor="name">Class Name</Label>
+            <Label htmlFor="name" className="text-xs font-semibold text-slate-700">
+              Class Name
+            </Label>
             <Input
               id="name"
               placeholder="e.g. Intermediate English B2"
+              className="rounded-xl border-slate-200 text-sm focus-visible:ring-[#3454FB]/20"
               {...register("name")}
             />
             {errors.name && (
@@ -138,64 +191,97 @@ export const ClassDialog = ({
             )}
           </div>
 
-          {/* Subject + Max Students — side by side */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="subject">Subject</Label>
-              <Input
-                id="subject"
-                placeholder="e.g. English"
-                {...register("subject")}
-              />
-              {errors.subject && (
-                <p className="text-xs text-destructive">
-                  {errors.subject.message}
-                </p>
-              )}
-            </div>
+          {/* Subject */}
+          <div className="space-y-1.5">
+            <Label htmlFor="subject" className="text-xs font-semibold text-slate-700">
+              Subject
+            </Label>
+            <Input
+              id="subject"
+              placeholder="e.g. English"
+              className="rounded-xl border-slate-200 text-sm focus-visible:ring-[#3454FB]/20"
+              {...register("subject")}
+            />
+            {errors.subject && (
+              <p className="text-xs text-destructive">
+                {errors.subject.message}
+              </p>
+            )}
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <Label htmlFor="description">Description (optional)</Label>
+            <Label htmlFor="description" className="text-xs font-semibold text-slate-700">
+              Description (optional)
+            </Label>
             <Textarea
               id="description"
               placeholder="Brief description of the class..."
               rows={2}
+              className="rounded-xl border-slate-200 text-sm focus-visible:ring-[#3454FB]/20 resize-none"
               {...register("description")}
             />
           </div>
 
           {/* Color picker */}
           <div className="space-y-2">
-            <Label>Class Color</Label>
-            <div className="flex gap-2">
-              {COLOR_OPTIONS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setValue("color", c)}
-                  className="w-7 h-7 rounded-full transition-transform hover:scale-110 ring-offset-2"
-                  style={{
-                    backgroundColor: c,
-                    outline: selectedColor === c ? `2px solid ${c}` : "none",
-                  }}
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-semibold text-slate-700">Class Color</Label>
+              <span className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                <span
+                  className="h-3 w-3 rounded-full inline-block ring-1 ring-slate-200 transition-colors"
+                  style={{ backgroundColor: selectedColor }}
                 />
-              ))}
+                <span className="font-mono text-[11px] uppercase text-slate-600 font-semibold">
+                  {selectedColor}
+                </span>
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-2.5 pt-0.5">
+              {activePalette.map((c) => {
+                const isSelected =
+                  selectedColor.toLowerCase() === c.toLowerCase();
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => handleColorSelect(c)}
+                    className={cn(
+                      "relative h-8 w-8 rounded-full flex items-center justify-center transition-all duration-150 cursor-pointer",
+                      isSelected
+                        ? "scale-110 ring-2 ring-offset-2 ring-slate-800 shadow-sm"
+                        : "hover:scale-105 opacity-85 hover:opacity-100"
+                    )}
+                    style={{ backgroundColor: c }}
+                    title={c}
+                    aria-label={`Select color ${c}`}
+                  >
+                    {isSelected && (
+                      <Check className="h-4 w-4 text-white stroke-[3] drop-shadow-xs" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <DialogFooter className="pt-2">
+          <DialogFooter className="pt-3 gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSaving}
+              className="rounded-xl text-xs font-semibold h-9"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSaving}>
-              {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+            <Button
+              type="submit"
+              disabled={isSaving}
+              className="rounded-xl bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs h-9 px-4 shadow-none"
+            >
+              {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
               {isSaving
                 ? isEdit
                   ? "Saving changes..."

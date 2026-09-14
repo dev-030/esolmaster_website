@@ -62,9 +62,11 @@ export const ClassCard = ({
 
       {/* Card Body */}
       <div className="p-4 sm:p-4.5 flex flex-col flex-1 justify-between gap-3.5">
-        <p className="text-xs text-slate-500 font-medium line-clamp-2 min-h-[32px]">
-          {cls.description || "A classroom ready for learners, assignments, and activities."}
-        </p>
+        {cls.description?.trim() ? (
+          <p className="text-xs text-slate-500 font-medium line-clamp-2">
+            {cls.description}
+          </p>
+        ) : null}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 divide-x divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/50 py-2">

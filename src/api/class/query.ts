@@ -128,6 +128,22 @@ export const useUpdateClassMutation = () => {
       return updateClass(id, payload);
     },
     onSuccess: (_data, variables) => {
+      queryClient.setQueriesData<PaginatedResponse<Class>>(
+        { queryKey: ["classes"] },
+        (current) => {
+          if (!current) return current;
+          return {
+            ...current,
+            data: current.data.map((c) =>
+              c.id === variables.id ? { ...c, ...variables.payload } : c
+            ),
+          };
+        }
+      );
+      queryClient.setQueryData(["class", variables.id], (current: any) => {
+        if (!current) return current;
+        return { ...current, ...variables.payload };
+      });
       queryClient.invalidateQueries({ queryKey: ["classes"] });
       queryClient.invalidateQueries({ queryKey: ["class", variables.id] });
     },
