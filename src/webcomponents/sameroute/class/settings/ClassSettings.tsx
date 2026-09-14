@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { isAxiosError } from "axios";
 import { useDeleteClassMutation, useGetClassByIdQuery, useUpdateClassMutation } from "@/api/class";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Class, CreateClassPayload } from "@/types/class";
 import { ClassDialog, DeleteDialog } from "../dialogs";
@@ -57,28 +57,32 @@ export const ClassSettings = () => {
         </div>
       </div>
 
-      <Card className="gap-0 py-0 shadow-sm">
-        <CardHeader className="border-b border-slate-100 p-4 sm:p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle className="text-base">Class information</CardTitle>
-              <CardDescription className="mt-1">Name, subject, colour, and classroom capacity.</CardDescription>
-            </div>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setEditOpen(true)}>
-              <Pencil className="h-3.5 w-3.5" /> Edit
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl text-lg font-bold text-white shadow-sm" style={{ backgroundColor: cls.color }}>
+      <Card className="rounded-[20px] border border-slate-100/90 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.02)] p-6 gap-0">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3.5">
+            <div
+              className="flex h-12 w-12 items-center justify-center rounded-[14px] text-lg font-black text-white shadow-sm"
+              style={{ backgroundColor: cls.color || "#3454FB" }}
+            >
               {cls.name[0]?.toUpperCase()}
             </div>
             <div>
-              <p className="font-semibold text-slate-900">{cls.name}</p>
-              <p className="flex items-center gap-1.5 text-sm text-slate-500"><BookOpen className="h-3.5 w-3.5" /> {cls.subject}</p>
+              <p className="text-lg font-bold text-slate-900 tracking-tight">{cls.name}</p>
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mt-0.5">
+                <BookOpen className="h-3.5 w-3.5 text-[#3454FB]" /> {cls.subject}
+              </p>
             </div>
           </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 rounded-[10px] text-xs font-semibold h-8 border-slate-200 text-slate-700 hover:bg-slate-50"
+            onClick={() => setEditOpen(true)}
+          >
+            <Pencil className="h-3.5 w-3.5" /> Edit details
+          </Button>
+        </div>
 
           <Separator className="my-5" />
 
@@ -90,28 +94,35 @@ export const ClassSettings = () => {
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="flex items-center gap-3 rounded-xl bg-blue-50 p-3 text-sm text-slate-700">
-              <Users className="h-4 w-4 text-blue-600" /> <strong>{cls.studentCount}</strong> students enrolled
+            <div className="flex items-center gap-3 rounded-xl bg-blue-50/70 p-3 text-sm text-slate-700">
+              <Users className="h-4 w-4 text-[#3454FB]" /> <strong>{cls.studentCount}</strong> students enrolled
             </div>
-            <div className="flex items-center gap-3 rounded-xl bg-blue-50 p-3 text-sm text-slate-700">
-              <ClipboardList className="h-4 w-4 text-blue-600" /> <strong>{cls.taskCount}</strong> activities assigned
+            <div className="flex items-center gap-3 rounded-xl bg-blue-50/70 p-3 text-sm text-slate-700">
+              <ClipboardList className="h-4 w-4 text-[#3454FB]" /> <strong>{cls.taskCount}</strong> activities assigned
             </div>
           </div>
-        </CardContent>
       </Card>
 
-      <Card className="gap-0 border-red-200 py-0 shadow-none">
-        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-          <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600"><AlertTriangle className="h-4 w-4" /></div>
+      <div className="rounded-[20px] border border-red-100 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-red-50 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
             <div>
-              <p className="font-semibold text-slate-900">Delete classroom</p>
-              <p className="mt-0.5 text-sm text-slate-500">Removes the classroom, assignments, and enrolment permanently.</p>
+              <p className="text-sm font-bold text-slate-900">Delete classroom</p>
+              <p className="text-xs text-slate-400 mt-0.5">Removes the classroom, assignments, and student enrolment permanently.</p>
             </div>
           </div>
-          <Button variant="destructive" onClick={() => setDeleteOpen(true)}><Trash2 className="mr-1.5 h-4 w-4" /> Delete class</Button>
-        </CardContent>
-      </Card>
+          <Button
+            variant="destructive"
+            onClick={() => setDeleteOpen(true)}
+            className="rounded-[10px] text-xs font-semibold h-8 px-3"
+          >
+            <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete class
+          </Button>
+        </div>
+      </div>
 
       <ClassDialog open={editOpen} onOpenChange={setEditOpen} initial={cls as Class} onSave={handleUpdate} />
       <DeleteDialog
