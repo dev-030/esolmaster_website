@@ -294,12 +294,6 @@ export const ResultScreen = ({ result }: { result: AttemptResult }) => {
           <div className="text-4xl">{grade.emoji}</div>
           <div>
             <p className="text-5xl font-black">{percentage}%</p>
-            <Badge
-              variant={grade.variant as "info" | "success" | "warning" | "destructive"}
-              className="mt-2"
-            >
-              {grade.label}
-            </Badge>
           </div>
           <p className="text-muted-foreground text-sm">
             {score} out of {total} marks
