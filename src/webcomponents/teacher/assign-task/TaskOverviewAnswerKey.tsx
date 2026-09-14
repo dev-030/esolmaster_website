@@ -14,6 +14,55 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+const htmlEntities: Record<string, string> = {
+  nbsp: " ",
+  amp: "&",
+  quot: '"',
+  apos: "'",
+  lt: "<",
+  gt: ">",
+  pound: "£",
+  euro: "€",
+  yen: "¥",
+  cent: "¢",
+  copy: "©",
+  reg: "®",
+  deg: "°",
+  hellip: "…",
+  ndash: "–",
+  mdash: "—",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+  bull: "•",
+};
+
+export const cleanHtmlText = (value: unknown): string => {
+  if (value === null || value === undefined) return "";
+  let str = String(value);
+
+  // Replace <br> and paragraph breaks with clean whitespace
+  str = str
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<[^>]*>/g, "");
+
+  // Decode common named & numeric entities
+  str = str.replace(
+    /&(nbsp|amp|quot|apos|lt|gt|pound|euro|yen|cent|copy|reg|deg|hellip|ndash|mdash|lsquo|rsquo|ldquo|rdquo|bull);|&#(x?[0-9a-f]+);/gi,
+    (entity, named, numeric) => {
+      if (named) return htmlEntities[named.toLowerCase()] || entity;
+      const code = numeric.toLowerCase().startsWith("x")
+        ? parseInt(numeric.slice(1), 16)
+        : parseInt(numeric, 10);
+      return Number.isNaN(code) ? entity : String.fromCodePoint(code);
+    },
+  );
+
+  return str.replace(/[ \t\f\v]+/g, " ").replace(/\n\s*\n/g, "\n\n").trim();
+};
+
 interface TaskOverviewAnswerKeyProps {
   taskData: {
     title: string;
@@ -40,6 +89,8 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
     awardingBody,
     entryLevel,
   } = taskData;
+
+  const criteriaMap = new Map(taskCriteria.map((c: any) => [c.id, c]));
 
   const totalMarks = questions.reduce(
     (acc, q) => acc + (typeof q.marks === "number" ? q.marks : 1),
@@ -130,7 +181,7 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                   {crit.code || `C${idx + 1}`}
                 </span>
                 <span className="text-slate-600 font-medium">
-                  {crit.description || crit.title}
+                  {cleanHtmlText(crit.description || crit.title)}
                 </span>
               </div>
             ))}
@@ -158,7 +209,7 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                       Section {secIdx + 1}
                     </span>
                     <h2 className="text-base font-bold text-slate-800">
-                      {section.title || `Task ${secIdx + 1}`}
+                      {cleanHtmlText(section.title || `Task ${secIdx + 1}`)}
                     </h2>
                   </div>
                   <span className="text-xs font-semibold text-slate-500">
@@ -169,7 +220,7 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
 
                 {section.instruction && (
                   <p className="text-xs text-slate-600 italic">
-                    {section.instruction}
+                    {cleanHtmlText(section.instruction)}
                   </p>
                 )}
 
@@ -193,7 +244,7 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
 
                     {section.content && (
                       <div className="whitespace-pre-line prose prose-slate max-w-none text-slate-800 text-sm">
-                        {section.content}
+                        {cleanHtmlText(section.content)}
                       </div>
                     )}
                   </div>
@@ -224,14 +275,21 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                         </div>
 
                         <div className="flex items-center gap-2">
-                          {question.criterionId && (
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] font-mono border-slate-200 text-slate-500"
-                            >
-                              Criterion: {question.criterionId}
-                            </Badge>
-                          )}
+                          {question.criterionId && (() => {
+                            const crit = criteriaMap.get(question.criterionId);
+                            const code = crit?.code || crit?.title || question.criterionId;
+                            const desc = crit?.description || crit?.title;
+
+                            return (
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] font-semibold border-blue-200 bg-blue-50/70 text-[#3454FB]"
+                                title={desc}
+                              >
+                                Criterion: {code}
+                              </Badge>
+                            );
+                          })()}
                           <Badge className="bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold shadow-none">
                             {question.marks || 1}{" "}
                             {question.marks === 1 ? "Mark" : "Marks"}
@@ -242,7 +300,7 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                       {/* Prompt */}
                       {question.content && (
                         <p className="text-sm font-semibold text-slate-800 leading-snug">
-                          {question.content}
+                          {cleanHtmlText(question.content)}
                         </p>
                       )}
 
@@ -261,8 +319,9 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                                 const isCorrect =
                                   optIdx === cfg.correctIndex ||
                                   (typeof opt === "object" && opt.isCorrect);
-                                const optText =
-                                  typeof opt === "string" ? opt : opt?.text || "";
+                                 const optText = cleanHtmlText(
+                                   typeof opt === "string" ? opt : opt?.text || "",
+                                 );
 
                                 return (
                                   <div
@@ -335,18 +394,18 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                                       key={aIdx}
                                       className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-mono shadow-2xs"
                                     >
-                                      {ans}
+                                      {cleanHtmlText(ans)}
                                     </span>
                                   ))
                                 ) : (
                                   <span className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-mono shadow-2xs">
-                                    {String(cfg.correctAnswers)}
+                                    {cleanHtmlText(String(cfg.correctAnswers))}
                                   </span>
                                 )}
                               </div>
                             ) : cfg.correctAnswer ? (
                               <span className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-mono shadow-2xs">
-                                {cfg.correctAnswer}
+                                {cleanHtmlText(cfg.correctAnswer)}
                               </span>
                             ) : (
                               <span className="italic text-slate-500 font-normal">
@@ -366,13 +425,13 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                                   className="flex items-center gap-2 p-1.5 rounded-lg bg-white border border-emerald-100"
                                 >
                                   <span className="font-semibold text-slate-800">
-                                    {p.left || p.prompt}
+                                    {cleanHtmlText(p.left || p.prompt)}
                                   </span>
                                   <span className="text-emerald-600 font-bold">
                                     ➔
                                   </span>
                                   <span className="font-bold text-emerald-900">
-                                    {p.right || p.answer}
+                                    {cleanHtmlText(p.right || p.answer)}
                                   </span>
                                 </div>
                               ))
@@ -398,9 +457,11 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                                       {oIdx + 1}
                                     </span>
                                     <span className="text-slate-800 font-medium">
-                                      {typeof item === "string"
-                                        ? item
-                                        : item?.text || ""}
+                                      {cleanHtmlText(
+                                        typeof item === "string"
+                                          ? item
+                                          : item?.text || "",
+                                      )}
                                     </span>
                                   </div>
                                 ),
@@ -417,19 +478,21 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                           question.type !== "MATCHING" &&
                           question.type !== "ORDERING" && (
                             <p className="text-xs text-emerald-900 font-medium">
-                              {cfg.correctAnswer ||
-                                cfg.answer ||
-                                JSON.stringify(cfg)}
+                              {cleanHtmlText(
+                                cfg.correctAnswer ||
+                                  cfg.answer ||
+                                  JSON.stringify(cfg),
+                              )}
                             </p>
                           )}
 
                         {/* Explanation */}
                         {question.explanation && (
-                          <div className="pt-2 border-t border-emerald-100/80 text-[11px] text-slate-600">
+                          <div className="pt-2 border-t border-emerald-100/80 text-[11px] text-slate-600 leading-relaxed">
                             <span className="font-bold text-slate-700">
                               Explanation:{" "}
                             </span>
-                            {question.explanation}
+                            {cleanHtmlText(question.explanation)}
                           </div>
                         )}
                       </div>
