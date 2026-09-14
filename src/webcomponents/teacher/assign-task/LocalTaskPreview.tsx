@@ -338,41 +338,41 @@ export const LocalTaskPreview = ({
   return (
     <div className="space-y-6 max-w-7xl mx-auto w-full pb-8">
       {/* Header Bar */}
-      <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-slate-200">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-slate-200/80">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <h1 className="text-xl font-bold text-slate-800 tracking-tight">
             {title || "Untitled Activity"}
           </h1>
-          <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-500 border border-blue-200 flex items-center gap-1.5 shadow-2xs">
+          <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-blue-50/70 text-[#3454FB] border border-blue-200/80 flex items-center gap-1.5 shadow-2xs">
             <span>{currentSkill.emoji}</span> {currentSkill.label}
           </span>
           {awardingBody && awardingBody !== "CUSTOM" && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-500 border border-blue-200">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-600 border border-slate-200/80 shadow-2xs">
               {awardingBody}
             </span>
           )}
           {entryLevel && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 border border-slate-200">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-600 border border-slate-200/80 shadow-2xs">
               {entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}
             </span>
           )}
           {passRequirementNode !== "N/A (Ungraded)" && (
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-50 text-slate-600 border border-slate-200 flex items-center gap-1.5 shadow-2xs ml-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-50 text-slate-600 border border-slate-200/80 flex items-center gap-1.5 shadow-2xs ml-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#3454FB]"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
               {passRequirementNode}
             </span>
           )}
         </div>
-        <div className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+        <div className="text-xs font-semibold text-slate-600 bg-white px-3 py-1 rounded-full border border-slate-200/80 shadow-2xs">
           Question {currentIndex + 1} of {totalQuestions}
         </div>
       </div>
 
       {/* Progress Bar */}
       <div className="flex items-center gap-4">
-        <div className="flex-1 h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-200 shadow-inner">
+        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/70 shadow-2xs">
           <div
-            className="h-full bg-blue-500 transition-all duration-300 ease-out"
+            className="h-full bg-[#3454FB] transition-all duration-300 ease-out"
             style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
           />
         </div>
@@ -386,23 +386,23 @@ export const LocalTaskPreview = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Panel: Persistent Stimulus Material (50%) */}
           <div className="lg:col-span-6 flex flex-col gap-3 sticky top-4 max-h-[75vh] overflow-y-auto pr-1">
-            <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
               {/* Task Section Banner */}
-              <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 text-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="bg-blue-500 text-white text-[11px] font-bold px-2 py-0.5 rounded">
+              <div className="px-5 py-3.5 bg-white border-b border-slate-100 text-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="h-6 px-2.5 rounded-lg bg-[#3454FB] text-white text-[11px] font-bold flex items-center shadow-xs">
                     {activeSection.title || "Task 1"}
                   </span>
-                  <span className="text-xs font-medium text-slate-600 truncate max-w-[280px]">
+                  <span className="text-xs font-semibold text-slate-600 truncate max-w-[280px]">
                     {activeSection.instruction || "Read the text and answer questions."}
                   </span>
                 </div>
                 {activeSection.stimulusType === "IMAGE" && (
-                  <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-700 shadow-2xs">
+                  <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1 text-xs text-slate-700 shadow-2xs">
                     <button
                       type="button"
                       onClick={() => setImageZoom((z) => Math.max(0.5, z - 0.25))}
-                      className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600 hover:text-blue-600 font-bold text-base transition-colors cursor-pointer"
+                      className="w-5 h-5 flex items-center justify-center rounded hover:bg-white text-slate-600 hover:text-blue-600 font-bold text-base transition-colors cursor-pointer"
                       title="Zoom Out"
                     >
                       −
@@ -413,7 +413,7 @@ export const LocalTaskPreview = ({
                     <button
                       type="button"
                       onClick={() => setImageZoom((z) => Math.min(2.5, z + 0.25))}
-                      className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 text-slate-600 hover:text-blue-600 font-bold text-base transition-colors cursor-pointer"
+                      className="w-5 h-5 flex items-center justify-center rounded hover:bg-white text-slate-600 hover:text-blue-600 font-bold text-base transition-colors cursor-pointer"
                       title="Zoom In"
                     >
                       +
@@ -423,22 +423,24 @@ export const LocalTaskPreview = ({
               </div>
 
               {/* Stimulus Body */}
-              <div className="p-4 bg-slate-50/50 min-h-[300px] flex items-center justify-center">
+              <div className="p-5 bg-slate-50/50 min-h-[340px] flex items-center justify-center">
                 {activeSection.stimulusType === "IMAGE" && activeSection.imageUrl ? (
-                  <div className="overflow-auto max-h-[60vh] w-full flex justify-center">
-                    <img
-                      src={activeSection.imageUrl}
-                      alt="Exam Stimulus Graphic"
-                      className="rounded-lg shadow-sm border border-slate-200 object-contain transition-transform origin-top"
-                      style={{
-                        transform: `scale(${imageZoom})`,
-                        maxWidth: imageZoom <= 1 ? "100%" : "none",
-                      }}
-                    />
+                  <div className="overflow-auto max-h-[60vh] w-full flex justify-center p-1">
+                    <div className="rounded-xl bg-white p-3 border border-slate-200/90 shadow-xs flex items-center justify-center">
+                      <img
+                        src={activeSection.imageUrl}
+                        alt="Exam Stimulus Graphic"
+                        className="rounded-lg object-contain transition-transform origin-top max-w-full"
+                        style={{
+                          transform: `scale(${imageZoom})`,
+                          maxWidth: imageZoom <= 1 ? "100%" : "none",
+                        }}
+                      />
+                    </div>
                   </div>
                 ) : (
                   <div
-                    className="prose prose-sm prose-slate max-w-none w-full bg-white p-5 rounded-lg border border-slate-200 shadow-sm leading-relaxed"
+                    className="prose prose-sm prose-slate max-w-none w-full bg-white p-6 rounded-xl border border-slate-200/80 shadow-xs leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: activeSection.content }}
                   />
                 )}
@@ -448,14 +450,14 @@ export const LocalTaskPreview = ({
 
           {/* Right Panel: Active Question (50%) */}
           <div className="lg:col-span-6 flex flex-col gap-4">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col gap-5">
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-7 flex flex-col gap-6">
               {/* Section Instruction Line Banner */}
               {currentQuestion?.type !== "INSTRUCTION" && sectionInstructions.length > 0 && (
                 <div className="space-y-2">
                   {sectionInstructions.map((inst: any) => (
                     <div
                       key={inst.id}
-                      className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl"
+                      className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl"
                     >
                       <p className="text-xs font-semibold text-slate-800 leading-snug">
                         {inst.content || inst.config?.heading || "Instruction"}
@@ -470,7 +472,7 @@ export const LocalTaskPreview = ({
                   <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     <span>📄 Instruction Line</span>
                   </div>
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-800">
+                  <div className="p-4 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-1 text-slate-800">
                     <p className="text-sm font-semibold text-slate-800 leading-snug">
                       {currentQuestion.content || currentQuestion.config?.heading || "Instruction"}
                     </p>
@@ -478,22 +480,22 @@ export const LocalTaskPreview = ({
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">
+                  <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+                    <span className="text-xs font-bold text-[#3454FB] uppercase tracking-wider">
                       Question {currentIndex + 1}
                     </span>
                     <div className="flex items-center gap-2">
                       {currentQuestion?.criterionId && taskCriteria && (
                         <span 
-                          className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1" 
+                          className="text-[10px] font-semibold text-[#3454FB] bg-blue-50/70 border border-blue-200/80 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs" 
                           title={taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.description}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
                           {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                         </span>
                       )}
-                      <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                        <span className="font-bold text-slate-700">
+                      <span className="text-[10px] font-semibold text-slate-600 bg-slate-100/80 border border-slate-200/80 px-2 py-0.5 rounded-md shadow-2xs">
+                        <span className="font-bold text-slate-800 mr-0.5">
                           {currentQuestion?.marks ?? 1}
                         </span>
                         {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
@@ -519,20 +521,24 @@ export const LocalTaskPreview = ({
                 variant="outline"
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
-                className="border-slate-200 text-slate-500 hover:text-slate-700"
+                className="border-slate-200/90 hover:bg-slate-50 text-slate-600 font-semibold text-xs px-4 h-9 rounded-xl shadow-2xs cursor-pointer"
               >
                 Previous
               </Button>
 
               {currentIndex < totalQuestions - 1 ? (
-                <Button onClick={handleNext} disabled={!isAnswered(currentQuestion)} className="bg-blue-500 hover:bg-blue-600 text-white">
+                <Button
+                  onClick={handleNext}
+                  disabled={!isAnswered(currentQuestion)}
+                  className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-5 h-9 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                >
                   Next Question
                 </Button>
               ) : (
                 <Button
                   onClick={() => setSubmitted(true)}
                   disabled={!isAnswered(currentQuestion)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-semibold"
+                  className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-5 h-9 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
                 >
                   Submit Assessment
                 </Button>
@@ -543,15 +549,15 @@ export const LocalTaskPreview = ({
       ) : (
         /* Focused Centered Layout for Tasks without Stimulus */
         <div className="max-w-3xl mx-auto space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 md:p-8 flex flex-col gap-5">
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 md:p-8 flex flex-col gap-6">
             {/* Task Banner */}
             {activeSection?.title && (
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                <span className="bg-blue-50 text-blue-500 border border-blue-200 text-xs font-bold px-2.5 py-0.5 rounded-full">
+              <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                <span className="h-6 px-2.5 rounded-lg bg-[#3454FB] text-white text-[11px] font-bold flex items-center shadow-xs">
                   {activeSection.title}
                 </span>
                 {activeSection.instruction && (
-                  <span className="text-xs font-medium text-slate-600">
+                  <span className="text-xs font-semibold text-slate-600">
                     {activeSection.instruction}
                   </span>
                 )}
@@ -564,7 +570,7 @@ export const LocalTaskPreview = ({
                 {sectionInstructions.map((inst: any) => (
                   <div
                     key={inst.id}
-                    className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl"
+                    className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl"
                   >
                     <p className="text-xs font-semibold text-slate-800 leading-snug">
                       {inst.content || inst.config?.heading || "Instruction"}
@@ -579,7 +585,7 @@ export const LocalTaskPreview = ({
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   <span>📄 Instruction Line</span>
                 </div>
-                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-800">
+                <div className="p-4 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-1 text-slate-800">
                   <p className="text-sm font-semibold text-slate-800 leading-snug">
                     {currentQuestion.content || currentQuestion.config?.heading || "Instruction"}
                   </p>
@@ -587,22 +593,22 @@ export const LocalTaskPreview = ({
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">
+                <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+                  <span className="text-xs font-bold text-[#3454FB] uppercase tracking-wider">
                     Question {currentIndex + 1}
                   </span>
                   <div className="flex items-center gap-2">
                     {currentQuestion?.criterionId && taskCriteria && (
                       <span 
-                        className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1" 
+                        className="text-[10px] font-semibold text-[#3454FB] bg-blue-50/70 border border-blue-200/80 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs" 
                         title={taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.description}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
                         {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                       </span>
                     )}
-                    <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                      <span className="font-bold text-slate-700">
+                    <span className="text-[10px] font-semibold text-slate-600 bg-slate-100/80 border border-slate-200/80 px-2 py-0.5 rounded-md shadow-2xs">
+                      <span className="font-bold text-slate-800 mr-0.5">
                         {currentQuestion?.marks ?? 1}
                       </span>
                       {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
@@ -627,20 +633,24 @@ export const LocalTaskPreview = ({
               variant="outline"
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className="border-slate-200 text-slate-500 hover:text-slate-700"
+              className="border-slate-200/90 hover:bg-slate-50 text-slate-600 font-semibold text-xs px-4 h-9 rounded-xl shadow-2xs cursor-pointer"
             >
               Previous
             </Button>
 
             {currentIndex < totalQuestions - 1 ? (
-              <Button onClick={handleNext} disabled={!isAnswered(currentQuestion)} className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Button
+                onClick={handleNext}
+                disabled={!isAnswered(currentQuestion)}
+                className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-5 h-9 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+              >
                 Next Question
               </Button>
             ) : (
               <Button
                 onClick={() => setSubmitted(true)}
                 disabled={!isAnswered(currentQuestion)}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold"
+                className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-5 h-9 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
               >
                 Submit Assessment
               </Button>
