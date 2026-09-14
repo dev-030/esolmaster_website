@@ -181,7 +181,7 @@ export default function PreviewTaskPage() {
 
   if (isLoading) {
     return (
-      <div className="w-full min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-3">
+      <div className="-m-4 sm:-m-6 min-h-[calc(100%+2rem)] sm:min-h-[calc(100%+3rem)] flex flex-col items-center justify-center bg-slate-50 gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
         <p className="text-xs text-slate-500 font-medium animate-pulse">Loading activity preview...</p>
       </div>
@@ -190,7 +190,7 @@ export default function PreviewTaskPage() {
 
   if (!taskData) {
     return (
-      <div className="w-full min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
+      <div className="-m-4 sm:-m-6 min-h-[calc(100%+2rem)] sm:min-h-[calc(100%+3rem)] flex flex-col items-center justify-center bg-slate-50 gap-4">
         <p className="text-sm font-semibold text-slate-700">Assessment not found or failed to load.</p>
         <Button variant="outline" onClick={handleExit}>
           <ArrowLeft className="w-4 h-4 mr-2" /> Go Back
@@ -200,9 +200,9 @@ export default function PreviewTaskPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="-m-4 sm:-m-6 min-h-[calc(100%+2rem)] sm:min-h-[calc(100%+3rem)] bg-slate-50 flex flex-col overflow-x-hidden">
       {/* Top Sticky Bar with Title, View Switcher, Assign and Exit Buttons */}
-      <div className="sticky top-0 z-40 bg-white border-b border-slate-200/80 px-4 sm:px-6 py-2.5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shadow-2xs">
+      <div className="sticky top-0 z-40 w-full bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shadow-xs">
         {/* Left: Title & Meta */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex flex-col min-w-0">
