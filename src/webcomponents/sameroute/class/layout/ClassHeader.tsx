@@ -13,7 +13,7 @@ interface ClassHeaderProps {
 
 export const ClassHeaderSkeleton = ({ isTeacher = true }: { isTeacher?: boolean }) => {
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white overflow-hidden animate-pulse">
+    <section className="rounded-[20px] border border-slate-100 bg-white overflow-hidden animate-pulse">
       {/* Top Details Row */}
       <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex min-w-0 items-center gap-3.5">
@@ -87,7 +87,7 @@ export const ClassHeader = ({
   ];
 
   return (
-    <section className="rounded-[20px] border border-slate-200 bg-white overflow-hidden">
+    <section className="rounded-[20px] border border-slate-100 bg-white overflow-hidden">
       {/* Top Details Row */}
       <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex min-w-0 items-center gap-3.5">
@@ -112,12 +112,12 @@ export const ClassHeader = ({
           {/* Stats Pills for Student View (Teachers have counts in the tabs) */}
           {!isTeacher && (
             <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-150 px-3 py-1 text-xs font-medium text-slate-500">
+              <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
                 <Users className="h-3.5 w-3.5 text-[#3454FB]" />
                 <strong className="text-slate-700 font-semibold">{classDetails.studentCount}</strong>{" "}
                 {classDetails.studentCount === 1 ? "learner" : "learners"}
               </span>
-              <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-150 px-3 py-1 text-xs font-medium text-slate-500">
+              <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
                 <ClipboardList className="h-3.5 w-3.5 text-[#3454FB]" />
                 <strong className="text-slate-700 font-semibold">{classDetails.taskCount}</strong>{" "}
                 {classDetails.taskCount === 1 ? "activity" : "activities"}

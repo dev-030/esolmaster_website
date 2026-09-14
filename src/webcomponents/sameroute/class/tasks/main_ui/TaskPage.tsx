@@ -28,7 +28,7 @@ const TaskListSkeleton = () => (
     {[1, 2, 3].map((i) => (
       <div
         key={i}
-        className="rounded-[18px] border border-slate-200 bg-white p-4"
+        className="rounded-[18px] border border-slate-100 bg-white p-4"
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3.5">
@@ -131,7 +131,7 @@ export const TaskMainPage = () => {
       {isLoading ? (
         <TaskListSkeleton />
       ) : scheduledTasks?.length === 0 ? (
-        <div className="flex flex-col items-center justify-center space-y-3 rounded-2xl border border-dashed border-slate-200 bg-white py-16 text-center">
+        <div className="flex flex-col items-center justify-center space-y-3 rounded-2xl border border-dashed border-slate-100 bg-white py-16 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50">
             <ClipboardList className="h-6 w-6 text-blue-600" />
           </div>

@@ -20,7 +20,7 @@ export const ClassCard = ({
     role === "teacher" ? `/classes/${cls.id}/students` : `/classes/${cls.id}/tasks`;
 
   return (
-    <div className="group flex flex-col justify-between overflow-hidden rounded-[20px] border border-slate-200 bg-white transition-all duration-200 hover:border-slate-300 hover:-translate-y-0.5 w-full max-w-[310px]">
+    <div className="group flex flex-col justify-between overflow-hidden rounded-[20px] border border-slate-100 bg-white transition-all duration-200 hover:border-slate-200/80 hover:-translate-y-0.5 w-full max-w-[310px]">
       {/* Top Card Banner */}
       <div
         className="relative p-4 sm:p-4.5 text-white flex flex-col justify-between min-h-[96px]"

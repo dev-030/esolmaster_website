@@ -54,7 +54,7 @@ export const TaskRow = ({
   const actionLabel = isTeacher ? "View results" : isCompleted ? "View score" : task.status === "IN_PROGRESS" ? "Continue" : "Start";
 
   return (
-    <Card className="group gap-0 py-0 transition-all duration-200 hover:border-blue-200 hover:shadow-sm">
+    <Card className="group gap-0 py-0 transition-all duration-200 border border-slate-100 hover:border-blue-200/70 hover:shadow-xs rounded-[18px]">
       <CardContent className="p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           {/* Emoji icon */}

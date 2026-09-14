@@ -31,7 +31,7 @@ import {
 } from "@/api/class";
 
 const JoinCodeCardSkeleton = () => (
-  <div className="rounded-[20px] border border-slate-200 bg-white p-5 animate-pulse">
+  <div className="rounded-[20px] border border-slate-100 bg-white p-5 animate-pulse">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex items-center gap-3.5">
         <div className="h-11 w-11 shrink-0 rounded-[14px] bg-slate-100" />
@@ -211,7 +211,7 @@ export const StudentClassPage = () => {
       {isClassLoading || !classDetails ? (
         <JoinCodeCardSkeleton />
       ) : (
-        <div className="rounded-[20px] border border-slate-200 bg-white p-5">
+        <div className="rounded-[20px] border border-slate-100 bg-white p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Info */}
             <div className="flex items-center gap-3.5">
@@ -224,8 +224,8 @@ export const StudentClassPage = () => {
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                       isJoinOpen
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
-                        : "bg-amber-50 text-amber-700 border border-amber-200/60"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                        : "bg-amber-50 text-amber-700 border border-amber-100"
                     }`}
                   >
                     <span
@@ -247,7 +247,7 @@ export const StudentClassPage = () => {
             {/* Code Pill + Controls */}
             <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               {/* Monospace Code Pill */}
-              <div className="flex items-center gap-2 rounded-[12px] border border-blue-100 bg-blue-50/40 px-3.5 py-1.5">
+              <div className="flex items-center gap-2 rounded-[12px] border border-blue-100/80 bg-blue-50/40 px-3.5 py-1.5">
                 <span className="font-mono text-sm font-bold tracking-[0.2em] text-[#3454FB]">
                   {classDetails.joinCode || "------"}
                 </span>
@@ -272,7 +272,7 @@ export const StudentClassPage = () => {
                   size="sm"
                   onClick={() => changeJoinStatus("PAUSED")}
                   disabled={isUpdatingJoinStatus}
-                  className="rounded-[10px] text-xs font-semibold h-8 border border-slate-200/80 text-slate-600 hover:bg-slate-50 hover:text-slate-900 shadow-none"
+                  className="rounded-[10px] text-xs font-semibold h-8 border border-slate-100 text-slate-600 hover:bg-slate-50 hover:text-slate-900 shadow-none"
                 >
                   <Pause className="mr-1.5 h-3.5 w-3.5" /> Pause joins
                 </Button>
@@ -317,7 +317,7 @@ export const StudentClassPage = () => {
       )}
 
       {/* Class Roster Table Card */}
-      <div className="rounded-[20px] border border-slate-200 bg-white overflow-hidden">
+      <div className="rounded-[20px] border border-slate-100 bg-white overflow-hidden">
         {/* Table Card Header with Search */}
         <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100">
           <div>
@@ -333,7 +333,7 @@ export const StudentClassPage = () => {
               placeholder="Search students..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-9 pl-9 text-xs rounded-[12px] border-slate-200 bg-slate-50/60 focus:bg-white focus:border-[#3454FB] transition-all"
+              className="h-9 pl-9 text-xs rounded-[12px] border-slate-100 bg-slate-50/60 focus:bg-white focus:border-[#3454FB] transition-all"
             />
           </div>
         </div>
@@ -420,7 +420,7 @@ export const StudentClassPage = () => {
                     size="sm"
                     onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
-                    className="gap-1 rounded-[10px] text-xs h-8 border-slate-200"
+                    className="gap-1 rounded-[10px] text-xs h-8 border-slate-100"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
                     Previous
@@ -462,7 +462,7 @@ export const StudentClassPage = () => {
                           className={`min-w-8 h-8 rounded-[10px] text-xs font-semibold ${
                             isCurrent
                               ? "bg-[#3454FB] hover:bg-[#2842D8] text-white border-[#3454FB]"
-                              : "border-slate-200 text-slate-600"
+                              : "border-slate-100 text-slate-600"
                           }`}
                         >
                           {pageNum}
@@ -475,7 +475,7 @@ export const StudentClassPage = () => {
                     size="sm"
                     onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
-                    className="gap-1 rounded-[10px] text-xs h-8 border-slate-200"
+                    className="gap-1 rounded-[10px] text-xs h-8 border-slate-100"
                   >
                     Next
                     <ChevronRight className="w-3.5 h-3.5" />
