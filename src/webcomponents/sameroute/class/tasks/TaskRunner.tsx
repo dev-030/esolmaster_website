@@ -77,7 +77,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
   // ── Error State ──────────────────────────────────────────────
   if (startError) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 p-8">
+      <div className="fixed inset-0 z-50 bg-[#F7F9FC] flex h-full flex-col items-center justify-center gap-4 p-8">
         <div className="rounded-2xl border border-red-100 bg-white p-8 text-center shadow-sm max-w-md w-full">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
             <X className="h-6 w-6 text-red-500" />
@@ -95,7 +95,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
   // ── Loading State ────────────────────────────────────────────
   if (isLoading || !attempt) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="fixed inset-0 z-50 bg-[#F7F9FC] flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#3454FB]" />
       </div>
     );
@@ -189,7 +189,8 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
 
   // ── Main Layout ───────────────────────────────────────────────
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-[#F7F9FC] overflow-hidden flex flex-col">
+      <div className="flex h-full flex-col overflow-hidden">
 
       {/* ── Top Header Bar ──────────────────────────────── */}
       <header className="flex shrink-0 items-center justify-between border-b border-slate-100 bg-white px-4 py-3 sm:px-6">
@@ -380,6 +381,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };
