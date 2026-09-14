@@ -36,7 +36,7 @@ export const TeacherTaskResults = () => {
 
       <div>
         <span className="mb-1.5 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold capitalize text-blue-700">{data.task.type.toLowerCase()}</span>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-950">{data.task.title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-800">{data.task.title}</h1>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
           <Clock3 className="h-4 w-4" />
           {data.dueAt ? `Due ${new Date(data.dueAt).toLocaleString()}` : "No due date"}
@@ -46,17 +46,17 @@ export const TeacherTaskResults = () => {
       <div className="grid gap-3 sm:grid-cols-3">
         <Card className="gap-2 border-blue-100 p-4 py-4 shadow-none">
           <div className="flex items-center justify-between text-sm font-medium text-slate-500"><span>Completed</span><Users className="h-4 w-4 text-blue-500" /></div>
-          <p className="text-2xl font-bold text-slate-950">{data.completedStudents}<span className="text-base font-medium text-slate-400"> / {data.totalStudents}</span></p>
+          <p className="text-2xl font-bold text-slate-800">{data.completedStudents}<span className="text-base font-medium text-slate-400"> / {data.totalStudents}</span></p>
           <p className="text-xs text-slate-500">{data.completionRate}% submission rate</p>
         </Card>
         <Card className="gap-2 border-blue-100 p-4 py-4 shadow-none">
           <div className="flex items-center justify-between text-sm font-medium text-slate-500"><span>Average score</span><Gauge className="h-4 w-4 text-blue-500" /></div>
-          <p className="text-2xl font-bold text-slate-950">{data.averagePercentage}%</p>
+          <p className="text-2xl font-bold text-slate-800">{data.averagePercentage}%</p>
           <p className="text-xs text-slate-500">Across completed submissions</p>
         </Card>
         <Card className="gap-2 border-blue-100 p-4 py-4 shadow-none">
           <div className="flex items-center justify-between text-sm font-medium text-slate-500"><span>Available marks</span><CheckCircle2 className="h-4 w-4 text-blue-500" /></div>
-          <p className="text-2xl font-bold text-slate-950">{data.totalMarks}</p>
+          <p className="text-2xl font-bold text-slate-800">{data.totalMarks}</p>
           <p className="text-xs text-slate-500">Total marks per student</p>
         </Card>
       </div>

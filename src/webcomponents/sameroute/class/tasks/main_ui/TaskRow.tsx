@@ -65,7 +65,7 @@ export const TaskRow = ({
           {/* Content */}
           <div className="flex-1 min-w-0 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-sm text-foreground">
+              <span className="font-semibold text-sm text-slate-800">
                 {task.task.title}
               </span>
               <Badge
@@ -76,7 +76,7 @@ export const TaskRow = ({
               </Badge>
             </div>
 
-            <div className="flex items-center gap-4 text-[11px] text-muted-foreground pt-0.5">
+            <div className="flex items-center gap-4 text-[11px] text-slate-400 font-medium pt-0.5">
               <span className="flex items-center gap-1">
                 <BookOpen className="w-3 h-3" />
                 {task.task.questionCount} question
@@ -120,11 +120,11 @@ export const TaskRow = ({
             {/* Progress section */}
             <div className="min-w-32 flex-1 space-y-1 sm:w-44 sm:flex-none">
               <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1 text-muted-foreground">
+                <span className="flex items-center gap-1 text-slate-400 font-medium">
                   <Users className="w-3 h-3" />
                   <span>{isTeacher ? "Completion" : isCompleted ? "Your score" : "Your progress"}</span>
                 </span>
-                <span className="font-medium text-foreground">
+                <span className="font-semibold text-slate-700">
                   {isTeacher
                     ? completedText
                     : isCompleted

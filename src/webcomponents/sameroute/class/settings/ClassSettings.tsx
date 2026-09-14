@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { AlertTriangle, BookOpen, ClipboardList, Pencil, Settings, Trash2, Users } from "lucide-react";
+import { AlertTriangle, BookOpen, ClipboardList, Pencil, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
 import { useDeleteClassMutation, useGetClassByIdQuery, useUpdateClassMutation } from "@/api/class";
@@ -15,14 +15,6 @@ import { InfoRow } from "./InfoRow";
 
 const ClassSettingsSkeleton = () => (
   <div className="space-y-5 animate-pulse">
-    <div className="flex items-center gap-2">
-      <div className="h-5 w-5 rounded bg-slate-100" />
-      <div className="space-y-1">
-        <div className="h-5 w-32 rounded bg-slate-200/70" />
-        <div className="h-3.5 w-48 rounded bg-slate-100" />
-      </div>
-    </div>
-
     <div className="rounded-[20px] border border-slate-100 bg-white p-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3.5">
@@ -83,14 +75,6 @@ export const ClassSettings = () => {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center gap-2">
-        <Settings className="h-5 w-5 text-blue-600" />
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Class settings</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">Manage the details students see.</p>
-        </div>
-      </div>
-
       <Card className="rounded-[20px] border border-slate-100 bg-white p-6 gap-0">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3.5">
@@ -128,11 +112,11 @@ export const ClassSettings = () => {
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="flex items-center gap-3 rounded-xl bg-blue-50/50 border border-blue-100/60 p-3 text-sm text-slate-700">
-            <Users className="h-4 w-4 text-[#3454FB]" /> <strong>{cls.studentCount}</strong> students enrolled
+          <div className="flex items-center gap-3 rounded-xl bg-slate-50/60 border border-slate-100 p-3 text-sm text-slate-600">
+            <Users className="h-4 w-4 text-[#3454FB]" /> <strong className="font-semibold text-slate-800">{cls.studentCount}</strong> students enrolled
           </div>
-          <div className="flex items-center gap-3 rounded-xl bg-blue-50/50 border border-blue-100/60 p-3 text-sm text-slate-700">
-            <ClipboardList className="h-4 w-4 text-[#3454FB]" /> <strong>{cls.taskCount}</strong> activities assigned
+          <div className="flex items-center gap-3 rounded-xl bg-slate-50/60 border border-slate-100 p-3 text-sm text-slate-600">
+            <ClipboardList className="h-4 w-4 text-[#3454FB]" /> <strong className="font-semibold text-slate-800">{cls.taskCount}</strong> activities assigned
           </div>
         </div>
       </Card>

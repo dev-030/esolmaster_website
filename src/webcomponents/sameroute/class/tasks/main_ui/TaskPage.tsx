@@ -136,8 +136,8 @@ export const TaskMainPage = () => {
             <ClipboardList className="h-6 w-6 text-blue-600" />
           </div>
           <div>
-            <p className="font-semibold text-foreground">No activities assigned</p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="font-semibold text-slate-800 text-sm">No activities assigned</p>
+            <p className="mt-1 text-xs text-slate-400 font-medium">
               {isTeacher ? "Choose a published activity and optionally set a due date." : "Your teacher has not assigned anything yet."}
             </p>
           </div>
