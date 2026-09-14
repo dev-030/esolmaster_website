@@ -1,6 +1,5 @@
 // StudentRow.tsx
 import { MoreHorizontal, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -10,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
 import { StudentData } from "@/types/class";
-import { Progress } from "@/components/ui/progress";
 
 interface StudentRowProps {
   student: StudentData;
@@ -28,56 +26,68 @@ export const StudentRow = ({ student, onRemove }: StudentRowProps) => {
   };
 
   const joinedDate = formatDistanceToNow(new Date(student.joinedAt), { addSuffix: true });
+  const progressVal = Math.min(Math.max(student.progress?.progressPercentage || 0, 0), 100);
 
   return (
-    <tr className="hover:bg-muted/30 transition-colors">
-      <td className="px-4 py-3">
+    <tr className="group hover:bg-slate-50/60 transition-colors">
+      <td className="px-5 py-4">
         <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-9 w-9 rounded-full ring-2 ring-slate-100">
             {student.avatarUrl ? (
-              <img src={student.avatarUrl} alt={student.firstName + " " + student.lastName} />
+              <img
+                src={student.avatarUrl}
+                alt={student.firstName + " " + student.lastName}
+                className="h-full w-full object-cover"
+              />
             ) : (
-              <AvatarFallback className="text-xs">
+              <AvatarFallback className="text-xs font-bold bg-blue-50 text-[#3454FB]">
                 {getInitials(student.firstName + " " + student.lastName)}
               </AvatarFallback>
             )}
           </Avatar>
-          <div>
-            <div className="font-medium text-foreground">{student.firstName} {student.lastName}</div>
-            <div className="text-xs text-muted-foreground md:hidden">
+          <div className="min-w-0">
+            <div className="font-semibold text-slate-900 text-sm tracking-tight truncate">
+              {student.firstName} {student.lastName}
+            </div>
+            <div className="text-xs text-slate-400 md:hidden truncate">
               {student.email}
             </div>
           </div>
         </div>
       </td>
-      <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">
+      <td className="px-5 py-4 hidden md:table-cell text-slate-500 text-xs font-medium">
         {student.email}
       </td>
-      <td className="px-4 py-3 hidden sm:table-cell text-muted-foreground">
+      <td className="px-5 py-4 hidden sm:table-cell text-slate-400 font-mono text-xs">
         @{student.username}
       </td>
-      <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground">
+      <td className="px-5 py-4 hidden lg:table-cell text-slate-400 text-xs">
         {joinedDate}
       </td>
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-2 min-w-[100px]">
-          <Progress value={student.progress.progressPercentage} className="h-2" />
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {student.progress.progressPercentage}%
+      <td className="px-5 py-4">
+        <div className="flex items-center gap-3 min-w-[120px] max-w-[160px]">
+          <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#3454FB] rounded-full transition-all duration-300"
+              style={{ width: `${progressVal}%` }}
+            />
+          </div>
+          <span className="text-xs font-bold text-slate-800 whitespace-nowrap tabular-nums">
+            {progressVal}%
           </span>
         </div>
       </td>
-      <td className="px-4 py-3 text-right">
+      <td className="px-5 py-4 text-right">
         <DropdownMenu>
-          <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium outline-none disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0">
+          <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 h-8 w-8 transition-colors outline-none">
             <MoreHorizontal className="w-4 h-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem 
-              onClick={onRemove} 
-              className="text-destructive focus:text-destructive"
+          <DropdownMenuContent align="end" className="rounded-xl border border-slate-100 shadow-md">
+            <DropdownMenuItem
+              onClick={onRemove}
+              className="text-destructive focus:text-destructive focus:bg-destructive/5 text-xs font-semibold cursor-pointer"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="w-3.5 h-3.5 mr-2" />
               Remove from class
             </DropdownMenuItem>
           </DropdownMenuContent>

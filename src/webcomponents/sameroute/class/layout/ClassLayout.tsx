@@ -3,7 +3,6 @@
 import { ReactNode, useState } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useRole } from "@/provider/RoleProvider";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ClassHeader } from "./ClassHeader";
 import { useGetClassByIdQuery, useLeaveClassMutation } from "@/api/class";
@@ -59,37 +58,29 @@ export default function ClassLayout({ children }: Props) {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Top Class Header */}
+    <div className="space-y-6">
+      {/* Top Class Header with Integrated Tabs */}
       {!isNestedPage && (
-        <>
-          <ClassHeader
-            classDetails={cls as ClassDetails}
-            action={
-              role === "student" ? (
-                <Button variant="outline" size="sm" onClick={() => setLeaveDialogOpen(true)} disabled={isLeaving} className="gap-1.5 text-destructive hover:bg-destructive/5 hover:text-destructive">
-                  <LogOut className="h-3.5 w-3.5" />
-                  {isLeaving ? "Leaving..." : "Leave class"}
-                </Button>
-              ) : undefined
-            }
-          />
-
-          {isTeacher && (
-            <Tabs
-              value={currentTab}
-              onValueChange={(value) =>
-                router.push(`/classes/${classId}/${value}`)
-              }
-            >
-              <TabsList variant="line" className="h-auto w-full justify-start gap-4 border-b border-slate-200 bg-transparent px-1">
-                <TabsTrigger value="students" className="rounded-none px-2.5 py-2.5 text-sm">Students</TabsTrigger>
-                <TabsTrigger value="tasks" className="rounded-none px-2.5 py-2.5 text-sm">Activities</TabsTrigger>
-                <TabsTrigger value="settings" className="rounded-none px-2.5 py-2.5 text-sm">Settings</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          )}
-        </>
+        <ClassHeader
+          classDetails={cls as ClassDetails}
+          isTeacher={isTeacher}
+          currentTab={currentTab}
+          onTabChange={(tabValue) => router.push(`/classes/${classId}/${tabValue}`)}
+          action={
+            role === "student" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLeaveDialogOpen(true)}
+                disabled={isLeaving}
+                className="gap-1.5 text-destructive hover:bg-destructive/5 hover:text-destructive rounded-[10px]"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                {isLeaving ? "Leaving..." : "Leave class"}
+              </Button>
+            ) : undefined
+          }
+        />
       )}
 
       {/* Route Content */}

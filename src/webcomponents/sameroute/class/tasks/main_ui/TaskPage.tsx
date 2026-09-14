@@ -85,13 +85,16 @@ export const TaskMainPage = () => {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Activities</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">{scheduledTasks?.length ?? 0} assigned</p>
+          <h1 className="text-lg font-bold tracking-tight text-slate-900">Activities</h1>
+          <p className="text-xs text-slate-400 font-medium mt-0.5">{scheduledTasks?.length ?? 0} assigned to this class</p>
         </div>
         {isTeacher && (
-          <Button onClick={() => setIsLibraryOpen(true)} className="gap-2">
+          <Button
+            onClick={() => setIsLibraryOpen(true)}
+            className="gap-2 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[12px] h-9 px-4 text-xs shadow-sm shadow-blue-500/15"
+          >
             <Plus className="h-4 w-4" /> Assign activity
           </Button>
         )}

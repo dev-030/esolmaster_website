@@ -1,7 +1,7 @@
 "use client";
+
 import { toast } from "sonner";
 import { DeleteDialog } from "../dialogs";
-import { Card } from "@/components/ui/card";
 import {
   Search,
   UserPlus,
@@ -10,10 +10,12 @@ import {
   ChevronRight,
   Loader2,
   Copy,
+  Check,
   RefreshCw,
   Pause,
   Play,
   Ban,
+  ShieldCheck,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,12 +39,14 @@ export const StudentClassPage = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     id?: string;
     name?: string;
   }>({ open: false });
   const [isRemoving, setIsRemoving] = useState(false);
+
   const { data: classDetails, refetch: refetchClass } = useGetClassByIdQuery(classId);
   const { mutateAsync: regenerateJoinCode, isPending: isRegenerating } =
     useRegenerateClassJoinCodeMutation(classId);
@@ -65,8 +69,8 @@ export const StudentClassPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-      setPage(1); // Reset to first page when searching
-    }, 500);
+      setPage(1);
+    }, 400);
 
     return () => clearTimeout(timer);
   }, [search]);
@@ -87,23 +91,22 @@ export const StudentClassPage = () => {
   const copyJoinCode = async () => {
     if (!classDetails?.joinCode) return;
     await navigator.clipboard.writeText(classDetails.joinCode);
-    toast.success("Join code copied");
+    setCopied(true);
+    toast.success("Join code copied to clipboard");
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const changeJoinStatus = async (status: "OPEN" | "PAUSED" | "CLOSED") => {
     try {
       await updateJoinStatus(status);
       await refetchClass();
-      toast.success(status === "OPEN" ? "New joins enabled" : "New joins stopped");
+      toast.success(status === "OPEN" ? "Class joining reopened" : "Class joining updated");
     } catch {
-      toast.error("Unable to update classroom joining");
+      toast.error("Unable to update classroom joining status");
     }
   };
 
-  const handleRemoveStudent = async (
-    studentId: string,
-    studentName: string,
-  ) => {
+  const handleRemoveStudent = async (studentId: string, studentName: string) => {
     try {
       setIsRemoving(true);
       await removeStudent([studentId]);
@@ -118,164 +121,231 @@ export const StudentClassPage = () => {
     }
   };
 
-  // Calculate stats (for commented section)
-
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      {/* Action Sub-header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-foreground">Students</h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {total} student{total !== 1 ? "s" : ""} enrolled
+          <h2 className="text-lg font-bold tracking-tight text-slate-900">Enrolled Students</h2>
+          <p className="text-xs text-slate-400 font-medium mt-0.5">
+            {total} student{total !== 1 ? "s" : ""} enrolled in this classroom
           </p>
         </div>
-        <Button onClick={() => setInviteOpen(true)} className="gap-2">
+        <Button
+          onClick={() => setInviteOpen(true)}
+          className="gap-2 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[12px] h-9 px-4 text-xs shadow-sm shadow-blue-500/15 transition-all"
+        >
           <UserPlus className="w-4 h-4" />
           Invite Student
         </Button>
       </div>
 
-      <Card className="border-blue-100 bg-gradient-to-r from-blue-50 to-white py-0 shadow-none">
-        <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:py-3.5">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
-              <Users className="h-4 w-4" />
+      {/* Class Join Code Card */}
+      <div className="rounded-[20px] border border-slate-100/90 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          {/* Info */}
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-blue-50 text-[#3454FB]">
+              <Users className="h-5 w-5" />
             </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="text-sm font-semibold text-slate-900">Class join code</p>
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${joinStatus === "OPEN" ? "bg-emerald-100 text-emerald-700" : joinStatus === "PAUSED" ? "bg-amber-100 text-amber-700" : "bg-slate-200 text-slate-700"}`}>{joinStatusLabel}</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-slate-900">Class Join Code</span>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    joinStatus === "OPEN"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                      : joinStatus === "PAUSED"
+                      ? "bg-amber-50 text-amber-700 border border-amber-200/60"
+                      : "bg-slate-100 text-slate-600 border border-slate-200/60"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      joinStatus === "OPEN"
+                        ? "bg-emerald-500 animate-pulse"
+                        : joinStatus === "PAUSED"
+                        ? "bg-amber-500"
+                        : "bg-slate-400"
+                    }`}
+                  />
+                  {joinStatusLabel}
+                </span>
               </div>
-              <p className="mt-0.5 text-xs text-slate-500">Share it with students to let them join this classroom.</p>
-            </div>
-            <div className="ml-auto flex items-center gap-2 sm:ml-3">
-              <span className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 font-mono text-base font-bold tracking-[0.18em] text-blue-700 shadow-sm">
-                {classDetails?.joinCode || "------"}
-              </span>
-              <Button variant="outline" size="icon" onClick={copyJoinCode} aria-label="Copy join code">
-                <Copy className="h-4 w-4" />
-              </Button>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">
+                Share this code with students to let them join directly.
+              </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 sm:justify-end">
+
+          {/* Code Pill + Controls */}
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            {/* Monospace Code Pill */}
+            <div className="flex items-center gap-2 rounded-[12px] border border-blue-100 bg-blue-50/40 px-3.5 py-1.5">
+              <span className="font-mono text-sm font-extrabold tracking-[0.2em] text-[#3454FB]">
+                {classDetails?.joinCode || "------"}
+              </span>
+              <button
+                type="button"
+                onClick={copyJoinCode}
+                className="rounded-md p-1 text-slate-400 hover:text-[#3454FB] hover:bg-white transition-colors"
+                title="Copy join code"
+              >
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-600" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </div>
+
+            {/* Status Controls */}
             {classDetails?.joinStatus === "OPEN" ? (
               <>
-                <Button variant="outline" size="sm" onClick={() => changeJoinStatus("PAUSED")} disabled={isUpdatingJoinStatus}>
-                  <Pause className="mr-1.5 h-4 w-4" /> Pause joins
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => changeJoinStatus("PAUSED")}
+                  disabled={isUpdatingJoinStatus}
+                  className="rounded-[10px] text-xs font-semibold h-8 border-slate-200 text-slate-600 hover:bg-slate-50"
+                >
+                  <Pause className="mr-1.5 h-3.5 w-3.5" /> Pause joins
                 </Button>
-                <Button variant="destructive" size="sm" onClick={() => changeJoinStatus("CLOSED")} disabled={isUpdatingJoinStatus}>
-                  <Ban className="mr-1.5 h-4 w-4" /> Stop joins
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => changeJoinStatus("CLOSED")}
+                  disabled={isUpdatingJoinStatus}
+                  className="rounded-[10px] text-xs font-semibold h-8 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                >
+                  <Ban className="mr-1.5 h-3.5 w-3.5" /> Stop joins
                 </Button>
               </>
             ) : classDetails?.joinStatus === "PAUSED" ? (
               <>
-                <Button size="sm" onClick={() => changeJoinStatus("OPEN")} disabled={isUpdatingJoinStatus}>
-                  <Play className="mr-1.5 h-4 w-4" /> Resume joins
+                <Button
+                  size="sm"
+                  onClick={() => changeJoinStatus("OPEN")}
+                  disabled={isUpdatingJoinStatus}
+                  className="rounded-[10px] text-xs font-semibold h-8 bg-[#3454FB] hover:bg-[#2842D8] text-white"
+                >
+                  <Play className="mr-1.5 h-3.5 w-3.5" /> Resume joins
                 </Button>
-                <Button variant="destructive" size="sm" onClick={() => changeJoinStatus("CLOSED")} disabled={isUpdatingJoinStatus}>
-                  <Ban className="mr-1.5 h-4 w-4" /> Stop joins
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => changeJoinStatus("CLOSED")}
+                  disabled={isUpdatingJoinStatus}
+                  className="rounded-[10px] text-xs font-semibold h-8 border-red-200 text-red-600 hover:bg-red-50"
+                >
+                  <Ban className="mr-1.5 h-3.5 w-3.5" /> Stop joins
                 </Button>
               </>
             ) : (
-              <Button size="sm" onClick={() => changeJoinStatus("OPEN")} disabled={isUpdatingJoinStatus}>
-                <Play className="mr-1.5 h-4 w-4" /> Reopen joins
+              <Button
+                size="sm"
+                onClick={() => changeJoinStatus("OPEN")}
+                disabled={isUpdatingJoinStatus}
+                className="rounded-[10px] text-xs font-semibold h-8 bg-[#3454FB] hover:bg-[#2842D8] text-white"
+              >
+                <Play className="mr-1.5 h-3.5 w-3.5" /> Reopen joins
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={async () => { await regenerateJoinCode(); await refetchClass(); toast.success("Join code regenerated"); }} disabled={isRegenerating}>
-              <RefreshCw className="mr-1.5 h-4 w-4" /> Regenerate
+
+            {/* Regenerate */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={async () => {
+                await regenerateJoinCode();
+                await refetchClass();
+                toast.success("Join code regenerated");
+              }}
+              disabled={isRegenerating}
+              className="rounded-[10px] text-xs font-semibold h-8 text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+            >
+              <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isRegenerating ? "animate-spin" : ""}`} />
+              Regenerate
             </Button>
           </div>
         </div>
-      </Card>
-
-      {/* Stats row - Commented until data is available */}
-      {/* 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <StatTile
-          icon={<Users className="w-4 h-4" />}
-          label="Total"
-          value={totalStudents}
-          color="text-blue-600 bg-blue-50"
-        />
-        <StatTile
-          icon={<TrendingUp className="w-4 h-4" />}
-          label="Avg. Progress"
-          value={`${avgProgress}%`}
-          color="text-emerald-600 bg-emerald-50"
-        />
-        <StatTile
-          icon={<TrendingUp className="w-4 h-4" />}
-          label="Above 70%"
-          value={studentsAbove70}
-          color="text-violet-600 bg-violet-50"
-        />
-      </div>
-      */}
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm font-medium text-slate-700">Class roster</p>
-        <div className="relative w-full sm:max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search students by name or email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-9 bg-white pl-9"
-          />
-        </div>
       </div>
 
-      {/* Loading State */}
-      {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      {/* Class Roster Table Card */}
+      <div className="rounded-[20px] border border-slate-100/90 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.02)] overflow-hidden">
+        {/* Table Card Header with Search */}
+        <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">Class Roster</h3>
+            <p className="text-xs text-slate-400 font-medium mt-0.5">
+              Manage student enrollments and monitor individual activity progress
+            </p>
+          </div>
+
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+            <Input
+              placeholder="Search students..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-9 pl-9 text-xs rounded-[12px] border-slate-200 bg-slate-50/60 focus:bg-white focus:border-[#3454FB] transition-all"
+            />
+          </div>
         </div>
-      ) : students.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center space-y-2">
-          <Users className="w-8 h-8 text-muted-foreground" />
-          <p className="font-medium text-foreground">No students found</p>
-          <p className="text-sm text-muted-foreground">
-            {debouncedSearch
-              ? "Try a different search term."
-              : "Invite students to get started."}
-          </p>
-          {!debouncedSearch && (
-            <Button
-              onClick={() => setInviteOpen(true)}
-              variant="outline"
-              className="gap-2 mt-4"
-            >
-              <UserPlus className="w-4 h-4" />
-              Invite Your First Student
-            </Button>
-          )}
-        </div>
-      ) : (
-        <>
-          <Card className="gap-0 py-0 shadow-sm">
+
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-7 h-7 animate-spin text-[#3454FB]" />
+          </div>
+        ) : students.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+            <div className="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#3454FB]">
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="font-bold text-slate-900 text-sm">No students found</p>
+              <p className="text-xs text-slate-400 mt-1">
+                {debouncedSearch
+                  ? "Try a different search keyword."
+                  : "Invite students to get started with this classroom."}
+              </p>
+            </div>
+            {!debouncedSearch && (
+              <Button
+                onClick={() => setInviteOpen(true)}
+                className="gap-2 mt-2 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[12px] text-xs h-8 px-4"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Invite First Student
+              </Button>
+            )}
+          </div>
+        ) : (
+          <>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-left">
                 <thead>
-                  <tr className="border-b bg-muted/30">
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  <tr className="border-b border-slate-100 bg-slate-50/50">
+                    <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                       Student
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden md:table-cell">
+                    <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider hidden md:table-cell">
                       Email
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden sm:table-cell">
+                    <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider hidden sm:table-cell">
                       Username
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide hidden lg:table-cell">
+                    <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider hidden lg:table-cell">
                       Joined
                     </th>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                       Progress
                     </th>
-                    <th className="px-4 py-3 w-12" />
+                    <th className="px-5 py-3 w-12" />
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y divide-slate-100">
                   {students.map((student) => (
                     <StudentRow
                       key={student.id}
@@ -292,80 +362,87 @@ export const StudentClassPage = () => {
                 </tbody>
               </table>
             </div>
-          </Card>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-4">
-              <div className="text-sm text-muted-foreground">
-                Showing {startItem} to {endItem} of {total} students
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page === 1}
-                  className="gap-1"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </Button>
-                <div className="flex gap-1">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (page <= 3) {
-                      pageNum = i + 1;
-                      if (i === 4) pageNum = totalPages;
-                    } else if (page >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = page - 2 + i;
-                      if (i === 3 && totalPages > 5) {
-                        return (
-                          <span
-                            key={`ellipsis-${i}`}
-                            className="px-3 py-2 text-muted-foreground"
-                          >
-                            ...
-                          </span>
-                        );
-                      }
-                      if (i === 4) pageNum = totalPages;
-                    }
-
-                    if (pageNum === undefined) return null;
-
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={page === pageNum ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handlePageChange(pageNum)}
-                        className="min-w-10"
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between p-4 border-t border-slate-100 bg-slate-50/30">
+                <div className="text-xs text-slate-400 font-medium">
+                  Showing <strong className="text-slate-700">{startItem}</strong> to{" "}
+                  <strong className="text-slate-700">{endItem}</strong> of{" "}
+                  <strong className="text-slate-700">{total}</strong> students
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page === totalPages}
-                  className="gap-1"
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                    className="gap-1 rounded-[10px] text-xs h-8 border-slate-200"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    Previous
+                  </Button>
+                  <div className="flex gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (page <= 3) {
+                        pageNum = i + 1;
+                        if (i === 4) pageNum = totalPages;
+                      } else if (page >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = page - 2 + i;
+                        if (i === 3 && totalPages > 5) {
+                          return (
+                            <span
+                              key={`ellipsis-${i}`}
+                              className="px-2.5 py-1 text-slate-400 text-xs flex items-center"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+                        if (i === 4) pageNum = totalPages;
+                      }
+
+                      if (pageNum === undefined) return null;
+
+                      const isCurrent = page === pageNum;
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={isCurrent ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`min-w-8 h-8 rounded-[10px] text-xs font-semibold ${
+                            isCurrent
+                              ? "bg-[#3454FB] hover:bg-[#2842D8] text-white border-[#3454FB]"
+                              : "border-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
+                    className="gap-1 rounded-[10px] text-xs h-8 border-slate-200"
+                  >
+                    Next
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
+      </div>
 
       {/* Dialogs */}
       <InviteStudentDialog open={inviteOpen} onOpenChange={setInviteOpen} />
@@ -383,7 +460,7 @@ export const StudentClassPage = () => {
             );
           }
         }}
-        loading={isRemoving} // Make sure your DeleteDialog component accepts this prop
+        loading={isRemoving}
       />
     </div>
   );
