@@ -139,7 +139,7 @@ export const ClassDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-[22px] border border-slate-200/80 bg-white p-6 shadow-xl ring-0">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-slate-800">
             {isEdit ? "Edit Class" : "Create New Class"}

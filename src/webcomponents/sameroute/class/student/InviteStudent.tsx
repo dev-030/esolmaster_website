@@ -144,7 +144,7 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] rounded-[22px] border border-slate-200 bg-white p-6 shadow-xl">
+      <DialogContent className="sm:max-w-[480px] rounded-[22px] border border-slate-200/80 bg-white p-6 shadow-xl ring-0 focus-visible:ring-0 outline-none">
         <DialogHeader className="gap-1">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-blue-50 text-[#3454FB]">
@@ -175,7 +175,7 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
                 value={searchEmail}
                 onChange={(e) => setSearchEmail(e.target.value)}
                 disabled={isAdding}
-                className="w-full pl-10 pr-10 h-10 rounded-xl border-slate-200 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus-visible:ring-[#3454FB]/20 focus-visible:border-[#3454FB]"
+                className="w-full pl-10 pr-10 h-10 rounded-xl border border-slate-200/80 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus-visible:outline-none focus-visible:border-[#3454FB] focus-visible:ring-1 focus-visible:ring-[#3454FB]/20 shadow-none transition-all"
                 autoFocus
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
@@ -208,7 +208,7 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
               <Label className="text-xs font-semibold text-slate-700">
                 Found Student
               </Label>
-              <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50/50 p-3 shadow-2xs">
+              <div className="flex items-center justify-between rounded-xl border border-blue-100 bg-blue-50/40 p-3 shadow-2xs">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#3454FB] text-xs font-bold text-white shadow-xs">
                     {searchResult.user.firstName?.charAt(0)?.toUpperCase()}
@@ -252,7 +252,7 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
                   Clear all
                 </button>
               </div>
-              <div className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white overflow-hidden max-h-48 overflow-y-auto">
+              <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/70 bg-white overflow-hidden max-h-48 overflow-y-auto">
                 {selectedStudents.map((student) => (
                   <div
                     key={student.user.id}
@@ -287,8 +287,8 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
 
           {/* Empty State */}
           {selectedStudents.length === 0 && !searchResult && (
-            <div className="flex flex-col items-center justify-center py-8 px-4 rounded-[18px] border border-dashed border-slate-200 bg-slate-50/40 text-center">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 mb-2.5 shadow-2xs">
+            <div className="flex flex-col items-center justify-center py-7 px-4 rounded-[16px] border border-dashed border-slate-200/70 bg-slate-50/30 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 mb-2.5 shadow-2xs">
                 <Users className="h-5 w-5 text-slate-400" />
               </div>
               <p className="text-xs font-semibold text-slate-700">
@@ -300,13 +300,13 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
             </div>
           )}
 
-          <DialogFooter className="pt-2 gap-2">
+          <DialogFooter className="pt-2 gap-2 border-0 bg-transparent m-0 p-0 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isAdding}
-              className="rounded-xl text-xs font-semibold h-9 border-slate-200 text-slate-700 hover:bg-slate-50"
+              className="rounded-xl text-xs font-semibold h-9 border border-slate-200/80 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-none"
             >
               Cancel
             </Button>
