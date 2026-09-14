@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Infinity, Loader2, Users } from "lucide-react";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -27,11 +28,6 @@ const schema = z.object({
   subject: z.string().min(1, "Subject is required"),
   description: z.string().optional(),
   color: z.string(),
-  maxStudents: z
-    .number({ invalid_type_error: "Must be a number" })
-    .int()
-    .min(1, "At least 1 student")
-    .max(500, "Maximum 500 students"),
 });
 
 export type ClassFormData = z.infer<typeof schema>;
@@ -69,6 +65,8 @@ export const ClassDialog = ({
   const [selectedColor, setSelectedColor] = useState<string>(
     initial?.color || "#3454FB"
   );
+  const [hasLimit, setHasLimit] = useState<boolean>(false);
+  const [limitValue, setLimitValue] = useState<number | string>(30);
 
   const {
     register,
@@ -83,7 +81,6 @@ export const ClassDialog = ({
       subject: "",
       description: "",
       color: "#3454FB",
-      maxStudents: 30,
     },
   });
 
@@ -102,12 +99,17 @@ export const ClassDialog = ({
     if (open) {
       const initialColor = initial?.color || "#3454FB";
       setSelectedColor(initialColor);
+      const initialHasLimit =
+        initial?.maxStudents !== undefined &&
+        initial?.maxStudents !== null &&
+        initial.maxStudents > 0;
+      setHasLimit(initialHasLimit);
+      setLimitValue(initialHasLimit ? initial!.maxStudents! : 30);
       reset({
         name: initial?.name ?? "",
         subject: initial?.subject ?? "",
         description: initial?.description ?? "",
         color: initialColor,
-        maxStudents: initial?.maxStudents ?? 30,
       });
     }
   }, [open, initial, reset]);
@@ -122,11 +124,22 @@ export const ClassDialog = ({
   };
 
   const onSubmit = async (data: ClassFormData) => {
+    let finalMaxStudents: number | null = null;
+    if (hasLimit) {
+      const parsed = Number(limitValue);
+      if (isNaN(parsed) || parsed < 1) {
+        toast.error("Please enter a valid student limit (at least 1)");
+        return;
+      }
+      finalMaxStudents = Math.floor(parsed);
+    }
+
     const cls: CreateClassPayload = {
       name: data.name,
       subject: data.subject,
       description: data.description,
       color: selectedColor || data.color,
+      maxStudents: finalMaxStudents,
     };
     setIsSaving(true);
     try {
@@ -230,6 +243,72 @@ export const ClassDialog = ({
                 );
               })}
             </div>
+          </div>
+
+          {/* Student Capacity Limit */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-semibold text-slate-700">
+                Student Capacity Limit
+              </Label>
+              <span className="text-[11px] text-slate-500 font-medium">
+                {hasLimit ? `${limitValue || 0} students max` : "No limit (unlimited)"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-slate-200/50">
+              <button
+                type="button"
+                onClick={() => setHasLimit(false)}
+                className={cn(
+                  "flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+                  !hasLimit
+                    ? "bg-white text-slate-800 shadow-xs"
+                    : "text-slate-500 hover:text-slate-700"
+                )}
+              >
+                <Infinity className="h-3.5 w-3.5 text-[#3454FB]" />
+                <span>No limit</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setHasLimit(true);
+                  if (!limitValue || limitValue === 0) setLimitValue(30);
+                }}
+                className={cn(
+                  "flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold rounded-lg transition-all cursor-pointer",
+                  hasLimit
+                    ? "bg-white text-slate-800 shadow-xs"
+                    : "text-slate-500 hover:text-slate-700"
+                )}
+              >
+                <Users className="h-3.5 w-3.5 text-blue-600" />
+                <span>Set limit</span>
+              </button>
+            </div>
+
+            {hasLimit && (
+              <div className="space-y-1 pt-1">
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={5000}
+                    placeholder="e.g. 30"
+                    value={limitValue}
+                    onChange={(e) => setLimitValue(e.target.value)}
+                    className="rounded-xl border-slate-200 text-sm focus-visible:ring-[#3454FB]/20 pr-16"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium pointer-events-none">
+                    students
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 font-medium">
+                  Once reached, new students will not be able to join this class.
+                </p>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="pt-3 gap-2">

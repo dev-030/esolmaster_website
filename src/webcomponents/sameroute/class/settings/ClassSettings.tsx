@@ -106,7 +106,7 @@ export const ClassSettings = () => {
 
         <div className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
           <InfoRow label="Teacher" value={cls.teacherName} />
-          <InfoRow label="Maximum students" value={String(cls.maxStudents)} />
+          <InfoRow label="Maximum students" value={cls.maxStudents ? String(cls.maxStudents) : "No limit"} />
           <InfoRow label="Created" value={new Date(cls.createdAt).toLocaleDateString()} />
           <InfoRow label="Description" value={cls.description || "No description"} className="sm:col-span-2 lg:col-span-3" />
         </div>

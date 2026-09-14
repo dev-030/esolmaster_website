@@ -145,11 +145,11 @@ export const TeacherDashboard: React.FC<{ data: TeacherData }> = ({ data }) => {
                     <Badge>{classItem.subject}</Badge>
                   </CardTitle>
                   <CardDescription>
-                    Students: {classItem.students} / {classItem.maxStudents}
+                    Students: {classItem.students} / {classItem.maxStudents || "No limit"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Progress value={(classItem.students / classItem.maxStudents) * 100} className="mb-4" />
+                  <Progress value={classItem.maxStudents ? (classItem.students / classItem.maxStudents) * 100 : 0} className="mb-4" />
                   <div className="flex justify-between text-sm">
                     <span className="flex items-center gap-1">
                       <FileText className="h-4 w-4" />
@@ -244,7 +244,7 @@ export const TeacherDashboard: React.FC<{ data: TeacherData }> = ({ data }) => {
                       <div className="mt-3 flex justify-between text-sm">
                         <span className="flex items-center gap-1">
                           <Users className="h-4 w-4" />
-                          {classItem.totalStudents}/{classItem.maxStudents}
+                          {classItem.totalStudents}/{classItem.maxStudents || "No limit"}
                         </span>
                         <span className="flex items-center gap-1">
                           <FileText className="h-4 w-4" />
@@ -252,7 +252,7 @@ export const TeacherDashboard: React.FC<{ data: TeacherData }> = ({ data }) => {
                         </span>
                       </div>
                       <Progress
-                        value={(classItem.totalStudents / classItem.maxStudents) * 100}
+                        value={classItem.maxStudents ? (classItem.totalStudents / classItem.maxStudents) * 100 : 0}
                         className="mt-3"
                       />
                     </CardContent>

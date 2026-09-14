@@ -6,6 +6,7 @@ export interface CreateClassPayload {
   subject: string;
   description?: string;
   color: string;
+  maxStudents?: number | null;
 
   taskIds?: string[];
 }
@@ -37,7 +38,7 @@ export interface Class {
   subject: string;
   description: string;
   color: string;
-  maxStudents: number;
+  maxStudents?: number | null;
 
   teacherName: string;
   studentCount: number;
@@ -73,7 +74,7 @@ export interface ClassDetails {
   subject: string;
   description: string;
   color: string;
-  maxStudents: number;
+  maxStudents?: number | null;
 
   teacherName: string;
   studentCount: number;
