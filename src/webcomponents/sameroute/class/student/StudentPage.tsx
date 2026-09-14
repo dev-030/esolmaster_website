@@ -14,7 +14,6 @@ import {
   RefreshCw,
   Pause,
   Play,
-  Ban,
   ShieldCheck,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -81,7 +80,8 @@ export const StudentClassPage = () => {
   const startItem = (page - 1) * limit + 1;
   const endItem = Math.min(page * limit, total);
   const joinStatus = classDetails?.joinStatus ?? "OPEN";
-  const joinStatusLabel = joinStatus.charAt(0) + joinStatus.slice(1).toLowerCase();
+  const isJoinOpen = joinStatus === "OPEN";
+  const joinStatusLabel = isJoinOpen ? "Open" : "Paused";
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -100,7 +100,7 @@ export const StudentClassPage = () => {
     try {
       await updateJoinStatus(status);
       await refetchClass();
-      toast.success(status === "OPEN" ? "Class joining reopened" : "Class joining updated");
+      toast.success(status === "OPEN" ? "Class joining resumed" : "Class joining paused");
     } catch {
       toast.error("Unable to update classroom joining status");
     }
@@ -136,20 +136,16 @@ export const StudentClassPage = () => {
                 <span className="text-sm font-semibold text-slate-800">Class Join Code</span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                    joinStatus === "OPEN"
+                    isJoinOpen
                       ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
-                      : joinStatus === "PAUSED"
-                      ? "bg-amber-50 text-amber-700 border border-amber-200/60"
-                      : "bg-slate-100 text-slate-600 border border-slate-200/60"
+                      : "bg-amber-50 text-amber-700 border border-amber-200/60"
                   }`}
                 >
                   <span
                     className={`h-1.5 w-1.5 rounded-full ${
-                      joinStatus === "OPEN"
+                      isJoinOpen
                         ? "bg-emerald-500 animate-pulse"
-                        : joinStatus === "PAUSED"
-                        ? "bg-amber-500"
-                        : "bg-slate-400"
+                        : "bg-amber-500"
                     }`}
                   />
                   {joinStatusLabel}
@@ -182,56 +178,25 @@ export const StudentClassPage = () => {
               </button>
             </div>
 
-            {/* Status Controls */}
-            {classDetails?.joinStatus === "OPEN" ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => changeJoinStatus("PAUSED")}
-                  disabled={isUpdatingJoinStatus}
-                  className="rounded-[10px] text-xs font-semibold h-8 border-slate-200 text-slate-600 hover:bg-slate-50"
-                >
-                  <Pause className="mr-1.5 h-3.5 w-3.5" /> Pause joins
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => changeJoinStatus("CLOSED")}
-                  disabled={isUpdatingJoinStatus}
-                  className="rounded-[10px] text-xs font-semibold h-8 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                >
-                  <Ban className="mr-1.5 h-3.5 w-3.5" /> Stop joins
-                </Button>
-              </>
-            ) : classDetails?.joinStatus === "PAUSED" ? (
-              <>
-                <Button
-                  size="sm"
-                  onClick={() => changeJoinStatus("OPEN")}
-                  disabled={isUpdatingJoinStatus}
-                  className="rounded-[10px] text-xs font-semibold h-8 bg-[#3454FB] hover:bg-[#2842D8] text-white"
-                >
-                  <Play className="mr-1.5 h-3.5 w-3.5" /> Resume joins
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => changeJoinStatus("CLOSED")}
-                  disabled={isUpdatingJoinStatus}
-                  className="rounded-[10px] text-xs font-semibold h-8 border-red-200 text-red-600 hover:bg-red-50"
-                >
-                  <Ban className="mr-1.5 h-3.5 w-3.5" /> Stop joins
-                </Button>
-              </>
+            {/* Status Control (Single Toggle: Pause / Resume) */}
+            {joinStatus === "OPEN" ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => changeJoinStatus("PAUSED")}
+                disabled={isUpdatingJoinStatus}
+                className="rounded-[10px] text-xs font-semibold h-8 border border-slate-200/80 text-slate-600 hover:bg-slate-50 hover:text-slate-900 shadow-none"
+              >
+                <Pause className="mr-1.5 h-3.5 w-3.5" /> Pause joins
+              </Button>
             ) : (
               <Button
                 size="sm"
                 onClick={() => changeJoinStatus("OPEN")}
                 disabled={isUpdatingJoinStatus}
-                className="rounded-[10px] text-xs font-semibold h-8 bg-[#3454FB] hover:bg-[#2842D8] text-white"
+                className="rounded-[10px] text-xs font-semibold h-8 bg-[#3454FB] hover:bg-[#2842D8] text-white shadow-none"
               >
-                <Play className="mr-1.5 h-3.5 w-3.5" /> Reopen joins
+                <Play className="mr-1.5 h-3.5 w-3.5" /> Resume joins
               </Button>
             )}
 
