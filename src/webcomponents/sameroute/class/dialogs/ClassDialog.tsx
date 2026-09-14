@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Check, Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -74,7 +74,6 @@ export const ClassDialog = ({
     register,
     handleSubmit,
     reset,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<ClassFormData>({
@@ -87,9 +86,6 @@ export const ClassDialog = ({
       maxStudents: 30,
     },
   });
-
-  const watchedName = watch("name");
-  const watchedSubject = watch("subject");
 
   // Keep palette inclusive if the class already has a custom/legacy color
   const activePalette = useMemo(() => {
@@ -155,25 +151,6 @@ export const ClassDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Live Color & Header Preview */}
-        <div
-          className="relative rounded-[16px] p-4 text-white flex flex-col justify-between min-h-[90px] transition-colors duration-200 overflow-hidden shadow-xs"
-          style={{ backgroundColor: selectedColor }}
-        >
-          <div className="flex items-start justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-semibold text-white">
-              <BookOpen className="h-3 w-3" />
-              {watchedSubject?.trim() || "Subject"}
-            </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-black/20 backdrop-blur-xs px-2 py-0.5 rounded-full">
-              Live Preview
-            </span>
-          </div>
-          <h3 className="truncate text-base font-bold tracking-tight text-white mt-2.5">
-            {watchedName?.trim() || "Class Name"}
-          </h3>
-        </div>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-1">
           {/* Name */}
           <div className="space-y-1.5">
@@ -225,18 +202,7 @@ export const ClassDialog = ({
 
           {/* Color picker */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold text-slate-700">Class Color</Label>
-              <span className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-                <span
-                  className="h-3 w-3 rounded-full inline-block ring-1 ring-slate-200 transition-colors"
-                  style={{ backgroundColor: selectedColor }}
-                />
-                <span className="font-mono text-[11px] uppercase text-slate-600 font-semibold">
-                  {selectedColor}
-                </span>
-              </span>
-            </div>
+            <Label className="text-xs font-semibold text-slate-700">Class Color</Label>
 
             <div className="flex flex-wrap gap-2.5 pt-0.5">
               {activePalette.map((c) => {
