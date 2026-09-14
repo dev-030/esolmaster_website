@@ -113,7 +113,7 @@ export const TaskCard = ({ task }: { task: BrowseTask }) => {
 
         {/* Title and class info */}
         <div>
-          <h3 className="font-bold text-sm text-slate-900 leading-snug line-clamp-2 group-hover:text-[#3454FB] transition-colors">
+          <h3 className="font-semibold text-sm text-slate-800 leading-snug line-clamp-2 group-hover:text-[#3454FB] transition-colors">
             {task.taskTitle}
           </h3>
           <p className="text-xs text-slate-400 font-medium mt-1 line-clamp-1">

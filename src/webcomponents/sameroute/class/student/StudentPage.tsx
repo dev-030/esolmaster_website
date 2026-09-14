@@ -126,7 +126,7 @@ export const StudentClassPage = () => {
       {/* Action Sub-header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-bold tracking-tight text-slate-900">Enrolled Students</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-slate-800">Enrolled Students</h2>
           <p className="text-xs text-slate-400 font-medium mt-0.5">
             {total} student{total !== 1 ? "s" : ""} enrolled in this classroom
           </p>
@@ -150,7 +150,7 @@ export const StudentClassPage = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-slate-900">Class Join Code</span>
+                <span className="text-sm font-semibold text-slate-800">Class Join Code</span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                     joinStatus === "OPEN"
@@ -182,7 +182,7 @@ export const StudentClassPage = () => {
           <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
             {/* Monospace Code Pill */}
             <div className="flex items-center gap-2 rounded-[12px] border border-blue-100 bg-blue-50/40 px-3.5 py-1.5">
-              <span className="font-mono text-sm font-extrabold tracking-[0.2em] text-[#3454FB]">
+              <span className="font-mono text-sm font-bold tracking-[0.2em] text-[#3454FB]">
                 {classDetails?.joinCode || "------"}
               </span>
               <button
@@ -276,7 +276,7 @@ export const StudentClassPage = () => {
         {/* Table Card Header with Search */}
         <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Class Roster</h3>
+            <h3 className="text-sm font-semibold text-slate-800">Class Roster</h3>
             <p className="text-xs text-slate-400 font-medium mt-0.5">
               Manage student enrollments and monitor individual activity progress
             </p>
@@ -304,7 +304,7 @@ export const StudentClassPage = () => {
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <p className="font-bold text-slate-900 text-sm">No students found</p>
+              <p className="font-semibold text-slate-800 text-sm">No students found</p>
               <p className="text-xs text-slate-400 mt-1">
                 {debouncedSearch
                   ? "Try a different search keyword."

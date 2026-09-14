@@ -61,13 +61,13 @@ export const ClassSettings = () => {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3.5">
             <div
-              className="flex h-12 w-12 items-center justify-center rounded-[14px] text-lg font-black text-white shadow-sm"
+              className="flex h-12 w-12 items-center justify-center rounded-[14px] text-lg font-bold text-white shadow-sm"
               style={{ backgroundColor: cls.color || "#3454FB" }}
             >
               {cls.name[0]?.toUpperCase()}
             </div>
             <div>
-              <p className="text-lg font-bold text-slate-900 tracking-tight">{cls.name}</p>
+              <p className="text-lg font-bold text-slate-800 tracking-tight">{cls.name}</p>
               <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mt-0.5">
                 <BookOpen className="h-3.5 w-3.5 text-[#3454FB]" /> {cls.subject}
               </p>
@@ -110,7 +110,7 @@ export const ClassSettings = () => {
               <AlertTriangle className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-900">Delete classroom</p>
+              <p className="text-sm font-semibold text-slate-800">Delete classroom</p>
               <p className="text-xs text-slate-400 mt-0.5">Removes the classroom, assignments, and student enrolment permanently.</p>
             </div>
           </div>

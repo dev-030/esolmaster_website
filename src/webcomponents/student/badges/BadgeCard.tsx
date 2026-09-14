@@ -34,7 +34,7 @@ export const BadgeCard = ({ badge }: { badge: BadgeItem }) => {
 
         {/* Title and description */}
         <div>
-          <p className="text-sm font-bold text-slate-900 tracking-tight">
+          <p className="text-sm font-semibold text-slate-800 tracking-tight">
             {badge.title}
           </p>
           <p className="text-xs text-slate-400 font-medium mt-1 line-clamp-2">

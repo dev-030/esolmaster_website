@@ -293,7 +293,7 @@ export const ResultScreen = ({ result }: { result: AttemptResult }) => {
         <CardContent className="p-6 text-center space-y-4">
           <div className="text-4xl">{grade.emoji}</div>
           <div>
-            <p className="text-5xl font-black">{percentage}%</p>
+            <p className="text-5xl font-bold text-slate-800">{percentage}%</p>
           </div>
           <p className="text-muted-foreground text-sm">
             {score} out of {total} marks

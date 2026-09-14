@@ -22,7 +22,7 @@ export const GapMCQQuestion = ({
     <div className="space-y-5">
       {/* Question Prompt with clean solid underline gap */}
       <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-5 shadow-2xs">
-        <p className="text-base font-medium text-slate-900 leading-loose flex flex-wrap items-baseline gap-y-2">
+        <p className="text-base font-medium text-slate-800 leading-loose flex flex-wrap items-baseline gap-y-2">
           <span>{parts[0]}</span>
 
           {selected ? (
@@ -31,7 +31,7 @@ export const GapMCQQuestion = ({
             </span>
           ) : (
             <span
-              className="inline-block min-w-[100px] border-b-2 border-slate-800 mx-1.5 h-4 align-baseline"
+              className="inline-block min-w-[100px] border-b-2 border-slate-400 mx-1.5 h-4 align-baseline"
               aria-label="blank space"
             />
           )}

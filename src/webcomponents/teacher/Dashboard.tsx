@@ -48,23 +48,26 @@ export const TeacherDashboard = () => {
     <div className="space-y-8">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800">Dashboard</h1>
+          <p className="text-xs text-slate-400 font-medium mt-0.5">Overview of class activity, progress, and performance.</p>
+        </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="hidden sm:flex items-center gap-2 rounded-[10px] border-slate-200 text-slate-600 font-medium">
-            <Calendar className="h-4 w-4 text-slate-400" />
+          <Button variant="outline" className="hidden sm:flex items-center gap-2 rounded-xl border-slate-200 text-slate-600 font-medium text-xs h-9">
+            <Calendar className="h-3.5 w-3.5 text-slate-400" />
             Jan 1, 2026 - Feb 1, 2026
           </Button>
           <Link
             href="/classes"
-            className="inline-flex items-center gap-2 rounded-[10px] bg-[#3454FB] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#2B44C9]"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#3454FB] px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-500/15 transition-colors hover:bg-[#2B44C9]"
           >
-            <Download className="h-4 w-4" /> Export
+            <Download className="h-3.5 w-3.5" /> Export
           </Link>
         </div>
       </div>
 
       {/* Stats Grid with Animation */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((item, index) => (
           <div
             key={index}
@@ -83,20 +86,20 @@ export const TeacherDashboard = () => {
       </div>
 
       {/* Active Tasks Section */}
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Section Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <h3 className="text-xl font-bold tracking-tight text-slate-900">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-0.5">
+            <h3 className="text-lg font-semibold tracking-tight text-slate-800">
               Active Tasks
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-slate-400 font-medium">
               Track and manage ongoing assignments
             </p>
           </div>
           {scheduledTasks?.meta && (
             <div className="flex items-center gap-2">
-              <div className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-[#3454FB]">
+              <div className="rounded-full bg-blue-50/70 border border-blue-100 px-3 py-1 text-xs font-semibold text-[#3454FB]">
                 Total: {scheduledTasks.meta.total} tasks
               </div>
             </div>

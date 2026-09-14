@@ -159,7 +159,7 @@ export const MatchingQuestion = ({
       {/* Question Prompt */}
       {question.config?.question && (
         <div 
-          className="text-base font-semibold leading-relaxed text-slate-900 prose prose-slate max-w-none prose-p:my-0 break-words"
+          className="text-base font-semibold leading-relaxed text-slate-800 prose prose-slate max-w-none prose-p:my-0 break-words"
           dangerouslySetInnerHTML={{ __html: (question.config.question || "Match the following items.").replace(/&nbsp;/g, ' ') }}
         />
       )}

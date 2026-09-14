@@ -87,7 +87,7 @@ export const TaskMainPage = () => {
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-lg font-bold tracking-tight text-slate-900">Activities</h1>
+          <h1 className="text-lg font-bold tracking-tight text-slate-800">Activities</h1>
           <p className="text-xs text-slate-400 font-medium mt-0.5">{scheduledTasks?.length ?? 0} assigned to this class</p>
         </div>
         {isTeacher && (
@@ -152,7 +152,7 @@ export const TaskMainPage = () => {
                     {selected ? <Check className="h-4 w-4" /> : <ClipboardList className="h-4 w-4" />}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold text-slate-900">{task.title}</span>
+                    <span className="block truncate font-medium text-slate-800">{task.title}</span>
                     <span className="block text-xs capitalize text-slate-500">{task.type.toLowerCase()}</span>
                   </span>
                 </button>

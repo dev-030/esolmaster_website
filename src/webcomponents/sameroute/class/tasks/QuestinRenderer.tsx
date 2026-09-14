@@ -18,7 +18,7 @@ const InstructionQuestion = ({ question }: { question: any }) => {
 
   return (
     <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-slate-800">
-      <h3 className="text-base font-bold text-slate-900 leading-snug">{heading}</h3>
+      <h3 className="text-base font-semibold text-slate-800 leading-snug">{heading}</h3>
       {instruction && (
         <p className="text-sm font-medium text-slate-600 leading-relaxed">{instruction}</p>
       )}

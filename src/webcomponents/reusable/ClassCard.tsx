@@ -55,7 +55,7 @@ export const ClassCard = ({
           )}
         </div>
 
-        <h3 className="truncate text-lg font-extrabold tracking-tight text-white mt-3">
+        <h3 className="truncate text-lg font-bold tracking-tight text-white mt-3">
           {cls.name}
         </h3>
       </div>
@@ -72,13 +72,13 @@ export const ClassCard = ({
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
               <Users className="h-3 w-3 text-[#3454FB]" /> Learners
             </span>
-            <p className="mt-0.5 text-base font-extrabold text-slate-900">{cls.studentCount}</p>
+            <p className="mt-0.5 text-base font-bold text-slate-800">{cls.studentCount}</p>
           </div>
           <div className="px-3 text-center">
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
               <ClipboardList className="h-3 w-3 text-[#3454FB]" /> Activities
             </span>
-            <p className="mt-0.5 text-base font-extrabold text-slate-900">{cls.taskCount}</p>
+            <p className="mt-0.5 text-base font-bold text-slate-800">{cls.taskCount}</p>
           </div>
         </div>
 

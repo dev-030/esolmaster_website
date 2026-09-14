@@ -17,7 +17,7 @@ export const RecentActivity = ({
   <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
     <div className="flex items-center justify-between mb-4">
       <div>
-        <h3 className="text-base font-bold text-slate-900 tracking-tight">
+        <h3 className="text-base font-semibold text-slate-800 tracking-tight">
           Recent Activity
         </h3>
         <p className="text-xs text-slate-400 font-medium mt-0.5">
@@ -50,7 +50,7 @@ export const RecentActivity = ({
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900 truncate">
+              <p className="text-sm font-semibold text-slate-800 truncate">
                 {item.taskTitle}
               </p>
               <span
@@ -63,7 +63,7 @@ export const RecentActivity = ({
             </div>
 
             <div className="text-right shrink-0">
-              <span className="inline-flex items-center gap-1 text-xs font-extrabold text-[#3454FB] bg-blue-50 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-[#3454FB] bg-blue-50 px-2 py-0.5 rounded-full">
                 <Zap className="w-3 h-3 fill-[#3454FB]" />
                 +{item.xpEarned} XP
               </span>

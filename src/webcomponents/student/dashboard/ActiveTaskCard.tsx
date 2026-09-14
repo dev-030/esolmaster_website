@@ -23,7 +23,7 @@ export const ActiveTaskCard = ({ task }: { task: ScheduledTaskOverview }) => {
               {task.type}
             </span>
           </div>
-          <p className="font-bold text-sm text-slate-900 leading-snug mt-1 truncate group-hover:text-[#3454FB] transition-colors">
+          <p className="font-semibold text-sm text-slate-800 leading-snug mt-1 truncate group-hover:text-[#3454FB] transition-colors">
             {task.title}
           </p>
           <p className="text-xs text-slate-400 line-clamp-1 font-medium">

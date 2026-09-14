@@ -63,7 +63,7 @@ export const TeacherTaskResults = () => {
 
       <Card className="gap-0 py-0 shadow-sm">
         <div className="border-b border-slate-100 px-4 py-3.5">
-          <h2 className="font-semibold text-slate-900">Student submissions</h2>
+          <h2 className="font-semibold text-slate-800">Student submissions</h2>
           <p className="mt-0.5 text-xs text-slate-500">Live status and marks for everyone enrolled in this class.</p>
         </div>
         <div className="overflow-x-auto">
@@ -81,7 +81,7 @@ export const TeacherTaskResults = () => {
               {data.students.map((student) => (
                 <tr key={student.id} className="hover:bg-slate-50/60">
                   <td className="px-4 py-3.5">
-                    <div className="font-semibold text-slate-900">{student.name || "Unnamed student"}</div>
+                    <div className="font-semibold text-slate-800">{student.name || "Unnamed student"}</div>
                     <div className="text-xs text-slate-500">{student.email}</div>
                   </td>
                   <td className="px-4 py-3.5">
@@ -89,11 +89,11 @@ export const TeacherTaskResults = () => {
                       {STATUS_LABELS[student.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3.5 font-semibold text-slate-900">{student.score === null ? "—" : `${student.score} / ${data.totalMarks}`}</td>
+                  <td className="px-4 py-3.5 font-semibold text-slate-800">{student.score === null ? "—" : `${student.score} / ${data.totalMarks}`}</td>
                   <td className="px-4 py-3.5">
                     {student.percentage === null ? "—" : (
                       <span className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-900">{student.percentage}%</span>
+                        <span className="font-semibold text-slate-800">{student.percentage}%</span>
                         <span className={`text-xs font-semibold ${student.isPassed ? "text-emerald-600" : "text-red-600"}`}>{student.isPassed ? "Pass" : "Fail"}</span>
                       </span>
                     )}

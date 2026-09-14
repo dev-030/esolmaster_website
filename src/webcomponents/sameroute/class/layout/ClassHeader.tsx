@@ -31,16 +31,16 @@ export const ClassHeader = ({
       <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex min-w-0 items-center gap-3.5">
           <div
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] text-lg font-black text-white shadow-sm"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] text-lg font-bold text-white shadow-sm"
             style={{ backgroundColor: classDetails.color || "#3454FB" }}
           >
             {classDetails.name.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold tracking-tight text-slate-900">
+            <h1 className="truncate text-xl font-bold tracking-tight text-slate-800">
               {classDetails.name}
             </h1>
-            <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mt-0.5">
+            <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mt-0.5">
               <BookOpen className="h-3.5 w-3.5 text-[#3454FB]" />
               {classDetails.subject}
             </p>
@@ -50,14 +50,14 @@ export const ClassHeader = ({
         <div className="flex flex-wrap items-center gap-2.5 sm:justify-end">
           {/* Stats Pills */}
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+            <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-medium text-slate-500">
               <Users className="h-3.5 w-3.5 text-[#3454FB]" />
-              <strong className="text-slate-900">{classDetails.studentCount}</strong>{" "}
+              <strong className="text-slate-700 font-bold">{classDetails.studentCount}</strong>{" "}
               {classDetails.studentCount === 1 ? "learner" : "learners"}
             </span>
-            <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+            <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-medium text-slate-500">
               <ClipboardList className="h-3.5 w-3.5 text-[#3454FB]" />
-              <strong className="text-slate-900">{classDetails.taskCount}</strong>{" "}
+              <strong className="text-slate-700 font-bold">{classDetails.taskCount}</strong>{" "}
               {classDetails.taskCount === 1 ? "activity" : "activities"}
             </span>
           </div>

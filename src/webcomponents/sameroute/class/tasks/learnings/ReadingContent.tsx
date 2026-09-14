@@ -41,7 +41,7 @@ export const ReadingContent = ({ data }: { data: ReadingContentType }) => {
   return (
     <div className="max-w-4xl mx-auto p-5 space-y-6">
       <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-        <h2 className="text-xl font-bold text-slate-900">Reading Stimulus Material</h2>
+        <h2 className="text-xl font-bold text-slate-800">Reading Stimulus Material</h2>
         {data.entryType?.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {data.entryType.map((entry) => (

@@ -20,18 +20,18 @@ export const DashboardStatCard = ({
   const isPositive = change !== undefined && change >= 0;
 
   return (
-    <div className="relative overflow-hidden rounded-[22px] border border-slate-100/90 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+    <Card className="relative overflow-hidden rounded-[20px] border border-slate-100/90 bg-white p-5 shadow-xs transition-all duration-200 hover:shadow-sm">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
           {title}
         </span>
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50/80 text-[#3454FB]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50/70 text-[#3454FB]">
           <Icon className="h-4 w-4" />
         </div>
       </div>
 
-      <div className="mt-3 flex items-baseline gap-2.5">
-        <span className="text-3xl font-black tracking-tight text-slate-900">
+      <div className="mt-2.5 flex items-baseline gap-2.5">
+        <span className="text-2xl font-bold tracking-tight text-slate-800">
           {value}
         </span>
 
@@ -39,8 +39,8 @@ export const DashboardStatCard = ({
           <span
             className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-bold ${
               isPositive
-                ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                : "bg-rose-50 text-rose-600 border border-rose-100"
+                ? "bg-emerald-50 text-emerald-600 border border-emerald-100/80"
+                : "bg-rose-50 text-rose-600 border border-rose-100/80"
             }`}
           >
             {isPositive ? "▲" : "▼"} {Math.abs(change)}%
@@ -51,6 +51,11 @@ export const DashboardStatCard = ({
       <p className="mt-1 text-xs font-medium text-slate-400">
         vs. last period
       </p>
-    </div>
+    </Card>
   );
 };
+
+// Simple inline wrapper so Card doesn't need external import
+function Card({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <div className={className}>{children}</div>;
+}

@@ -79,7 +79,7 @@ export const LocalTaskPreview = ({
   }, [questions]);
 
   const renderMarkText = (val: string | number) => (
-    <span className="font-black text-slate-700">{val}</span>
+    <span className="font-bold text-slate-700">{val}</span>
   );
 
   const criteriaCodesNode = taskCriteria && taskCriteria.length > 0 ? (
@@ -96,7 +96,7 @@ export const LocalTaskPreview = ({
   const renderMarksFraction = () => (
     <span className="inline-flex items-center ml-1">
       {renderMarkText(passMark ?? 0)}
-      <span className="text-slate-400 font-black px-1">/</span>
+      <span className="text-slate-400 font-bold px-1">/</span>
       {renderMarkText(totalCalculatedMarks)}
     </span>
   );
@@ -493,7 +493,7 @@ export const LocalTaskPreview = ({
                         </span>
                       )}
                       <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                        <span className="font-black text-slate-700">
+                        <span className="font-bold text-slate-700">
                           {currentQuestion?.marks ?? 1}
                         </span>
                         {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}
@@ -602,7 +602,7 @@ export const LocalTaskPreview = ({
                       </span>
                     )}
                     <span className="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded flex items-center gap-1">
-                      <span className="font-black text-slate-700">
+                      <span className="font-bold text-slate-700">
                         {currentQuestion?.marks ?? 1}
                       </span>
                       {(currentQuestion?.marks ?? 1) === 1 ? "Mark" : "Marks"}

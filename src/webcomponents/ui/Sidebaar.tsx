@@ -98,7 +98,7 @@ export const Sidebar = () => {
           <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#3454FB] shadow-sm shadow-blue-500/20">
             <Book className="h-4 w-4 text-white" />
           </div>
-          <span className="text-[17px] font-extrabold tracking-tight text-slate-900">
+          <span className="text-[16px] font-bold tracking-tight text-slate-800">
             ESOL Master
           </span>
         </div>
@@ -125,7 +125,7 @@ export const Sidebar = () => {
                 "group relative flex items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-[13.5px] font-semibold transition-all duration-150",
                 active
                   ? "bg-blue-50/70 text-[#3454FB]"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
               )}
             >
               {/* Active left indicator bar (Shopeers style) */}
@@ -168,14 +168,14 @@ export const Sidebar = () => {
         {/* Settings & Help */}
         <Link
           href="/profile"
-          className="flex items-center gap-3 rounded-[12px] px-3.5 py-2 text-[13.5px] font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
+          className="flex items-center gap-3 rounded-[12px] px-3.5 py-2 text-[13.5px] font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-all"
         >
           <Settings className="h-[18px] w-[18px] text-slate-400" />
           Settings
         </Link>
         <Link
           href="/help"
-          className="flex items-center gap-3 rounded-[12px] px-3.5 py-2 text-[13.5px] font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
+          className="flex items-center gap-3 rounded-[12px] px-3.5 py-2 text-[13.5px] font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-all"
         >
           <HelpCircle className="h-[18px] w-[18px] text-slate-400" />
           Help &amp; Support

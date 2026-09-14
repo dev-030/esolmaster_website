@@ -46,7 +46,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
-          className="gap-1 bg-white border-black/20 text-black hover:bg-gray-50 disabled:opacity-40 h-8 px-3 text-xs font-medium"
+          className="gap-1 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 h-8 px-3 text-xs font-medium rounded-xl"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           Prev
@@ -56,7 +56,7 @@ export function Pagination({
           size="sm"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
-          className="gap-1 bg-white border-black/20 text-black hover:bg-gray-50 disabled:opacity-40 h-8 px-3 text-xs font-medium"
+          className="gap-1 bg-white border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 h-8 px-3 text-xs font-medium rounded-xl"
         >
           Next
           <ChevronRight className="w-3.5 h-3.5" />

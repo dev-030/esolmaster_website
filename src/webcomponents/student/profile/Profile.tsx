@@ -109,7 +109,7 @@ export const Profile = () => {
       {/* Heading Section */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800">
             Account Profile
           </h1>
           <p className="text-xs text-slate-400 font-medium mt-0.5">
@@ -145,11 +145,11 @@ export const Profile = () => {
       <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 md:p-8 space-y-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
         {/* Avatar Section */}
         <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
-          <div className="w-16 h-16 rounded-full bg-[#3454FB] text-white flex items-center justify-center font-extrabold text-2xl shadow-md shadow-blue-500/20 ring-4 ring-blue-50">
+          <div className="w-16 h-16 rounded-full bg-[#3454FB] text-white flex items-center justify-center font-bold text-2xl shadow-md shadow-blue-500/20 ring-4 ring-blue-50">
             {profile?.firstName?.charAt(0)?.toUpperCase() ?? "U"}
           </div>
           <div>
-            <p className="text-lg font-bold text-slate-900 tracking-tight">
+            <p className="text-lg font-semibold text-slate-800 tracking-tight">
               {fullName || "—"}
             </p>
             <p className="text-xs text-slate-400 font-medium">
@@ -215,7 +215,7 @@ export const Profile = () => {
         <div className="pt-2">
           <Separator className="bg-slate-100" />
           <div className="mt-6 mb-4">
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+            <h3 className="text-sm font-semibold text-slate-800 tracking-tight">
               Change Password
             </h3>
             <p className="text-xs text-slate-400 font-medium">

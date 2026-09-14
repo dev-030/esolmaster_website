@@ -25,7 +25,7 @@ export const ProgressCard = ({
       </div>
 
       <div className="mt-3 flex items-baseline justify-between">
-        <span className="text-3xl font-black tracking-tight text-slate-900">
+        <span className="text-2xl font-bold tracking-tight text-slate-800">
           {safeValue}%
         </span>
         <span className="text-xs font-semibold text-slate-400">

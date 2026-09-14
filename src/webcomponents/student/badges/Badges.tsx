@@ -53,7 +53,7 @@ export const Badges = () => {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800">
             Badges & Achievements
           </h1>
           <p className="text-xs text-slate-400 font-medium mt-0.5">

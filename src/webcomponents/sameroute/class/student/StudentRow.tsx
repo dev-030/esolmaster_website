@@ -46,7 +46,7 @@ export const StudentRow = ({ student, onRemove }: StudentRowProps) => {
             )}
           </Avatar>
           <div className="min-w-0">
-            <div className="font-semibold text-slate-900 text-sm tracking-tight truncate">
+            <div className="font-medium text-slate-800 text-sm tracking-tight truncate">
               {student.firstName} {student.lastName}
             </div>
             <div className="text-xs text-slate-400 md:hidden truncate">

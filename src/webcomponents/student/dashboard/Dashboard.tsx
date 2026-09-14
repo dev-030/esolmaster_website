@@ -305,7 +305,7 @@ export const StudentDashboard = () => {
       {/* Shopeers-style Top Header Action Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800">
             Dashboard
           </h1>
           <p className="text-xs text-slate-400 font-medium mt-0.5">
@@ -334,7 +334,7 @@ export const StudentDashboard = () => {
 
           <button
             type="button"
-            className="flex items-center gap-1.5 rounded-xl bg-[#3454FB] hover:bg-[#2842D8] px-4 py-1.5 text-xs font-bold text-white shadow-sm shadow-blue-500/20 transition-all"
+            className="flex items-center gap-1.5 rounded-xl bg-[#3454FB] hover:bg-[#2842D8] px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-blue-500/15 transition-all"
           >
             Export
           </button>
@@ -354,7 +354,7 @@ export const StudentDashboard = () => {
         <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-base text-slate-900 tracking-tight">
+              <h3 className="font-semibold text-base text-slate-800 tracking-tight">
                 Active Tasks
               </h3>
               <p className="text-xs text-slate-400 font-medium mt-0.5">
@@ -424,7 +424,7 @@ export const StudentDashboard = () => {
         {/* Current Level Widget */}
         <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
-            <h3 className="font-bold text-base text-slate-900 tracking-tight">
+            <h3 className="font-semibold text-base text-slate-800 tracking-tight">
               Current Level
             </h3>
             <p className="text-xs text-slate-400 font-medium mt-0.5">
@@ -433,19 +433,19 @@ export const StudentDashboard = () => {
           </div>
 
           <div className="flex flex-col items-center justify-center my-6">
-            <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-tr from-[#3454FB] to-[#5572FF] shadow-lg shadow-blue-500/25">
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-tr from-[#3454FB] to-[#5572FF] shadow-lg shadow-blue-500/20">
               <div className="flex flex-col items-center justify-center text-white">
                 <GraduationCap className="w-7 h-7 mb-0.5" />
-                <span className="text-xl font-black leading-none">
+                <span className="text-xl font-bold leading-none">
                   {dashboardData?.level?.level?.toString() ?? "1"}
                 </span>
               </div>
             </div>
 
-            <p className="mt-3 text-sm font-bold text-slate-900">
+            <p className="mt-3 text-sm font-semibold text-slate-800">
               Level {dashboardData?.level?.level?.toString() ?? "1"}
             </p>
-            <span className="mt-0.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-[#3454FB]">
+            <span className="mt-0.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-[#3454FB]">
               {dashboardData?.level?.level && dashboardData.level.level > 10
                 ? "Master Learner"
                 : dashboardData?.level?.level && dashboardData.level.level > 5

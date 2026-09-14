@@ -82,7 +82,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
             <X className="h-6 w-6 text-red-500" />
           </div>
-          <p className="font-bold text-slate-900">Activity unavailable</p>
+          <p className="font-semibold text-slate-800">Activity unavailable</p>
           <p className="mt-1 text-sm text-slate-500">{startError}</p>
           <Button onClick={handleBack} className="mt-5 bg-[#3454FB] hover:bg-[#2B44C9]">
             <ArrowLeft className="h-4 w-4 mr-1" /> Go back
@@ -178,7 +178,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
           <Button variant="ghost" size="sm" onClick={handleBack} className="gap-1.5 text-slate-600">
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
-          <span className="text-base font-bold text-slate-900">{task.title}</span>
+          <span className="text-base font-semibold text-slate-800">{task.title}</span>
         </div>
         <div className="flex-1 overflow-y-auto p-6">
           <ResultScreen result={attempt.result} />
@@ -200,7 +200,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
           </Button>
           <div className="h-5 w-px bg-slate-200 shrink-0" />
           <div className="min-w-0">
-            <p className="truncate text-[15px] font-bold text-slate-900">{task.title}</p>
+            <p className="truncate text-[15px] font-semibold text-slate-800">{task.title}</p>
             <p className="text-[11px] font-medium text-slate-400">
               Question {currentIndex + 1} of {totalQuestions} &middot; {answeredCount} answered
             </p>
@@ -211,9 +211,9 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
         <div className="hidden sm:flex items-center gap-2">
           {task.readingContent?.passMark != null && (
             <span className="rounded-full bg-slate-50 border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">
-              Pass: <span className="font-black text-slate-800">{task.readingContent.passMark}</span>
+              Pass: <span className="font-bold text-slate-700">{task.readingContent.passMark}</span>
               <span className="text-slate-400 mx-1">/</span>
-              <span className="font-black text-slate-800">{questions.reduce((s: number, q: any) => s + (q.config?.marks ?? 1), 0)}</span>
+              <span className="font-bold text-slate-700">{questions.reduce((s: number, q: any) => s + (q.config?.marks ?? 1), 0)}</span>
               {" "}marks
             </span>
           )}

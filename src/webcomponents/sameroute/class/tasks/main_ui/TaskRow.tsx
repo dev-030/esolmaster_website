@@ -94,7 +94,7 @@ export const TaskRow = ({
             {isCompleted && (
               <div className="mt-2 flex items-center gap-2 text-sm flex-wrap">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span className="font-semibold text-slate-900">{task.score} / {task.totalMarks} marks</span>
+                <span className="font-semibold text-slate-800">{task.score} / {task.totalMarks} marks</span>
                 <span className="text-slate-500">· {task.percentage}%</span>
                 {task.isPassed === true && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-bold text-emerald-700">

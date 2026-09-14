@@ -109,7 +109,7 @@ export const Class = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800">
             {isTeacher ? "My Classes" : "Classes"}
           </h1>
           <p className="text-xs text-slate-400 font-medium mt-0.5">

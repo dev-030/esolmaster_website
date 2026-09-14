@@ -75,7 +75,7 @@ const NotificationDropdown = () => {
       <DropdownMenuContent align="end" className="w-80 p-0 overflow-hidden rounded-2xl border border-slate-100 shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-          <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
             Notifications
           </span>
           {unreadCount > 0 && (
@@ -118,7 +118,7 @@ const NotificationDropdown = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p
-                  className={`text-xs leading-snug ${notif.isRead ? "text-slate-500 font-normal" : "text-slate-900 font-bold"}`}
+                  className={`text-xs leading-snug ${notif.isRead ? "text-slate-500 font-normal" : "text-slate-800 font-semibold"}`}
                 >
                   {notif.title}
                 </p>
@@ -217,7 +217,7 @@ export const Navbar = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52 rounded-2xl border border-slate-100 shadow-xl p-1.5">
             <div className="px-3 py-2 border-b border-slate-100 mb-1">
-              <p className="text-xs font-bold text-slate-900 truncate">
+              <p className="text-xs font-semibold text-slate-800 truncate">
                 {myProfile?.firstName} {myProfile?.lastName}
               </p>
               <p className="text-[11px] text-slate-400 truncate">{myProfile?.email}</p>

@@ -38,11 +38,11 @@ const CustomLineTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white border border-slate-100 rounded-xl shadow-xl p-3 text-xs">
-        <p className="font-bold text-slate-900 mb-2">{label}</p>
+        <p className="font-semibold text-slate-800 mb-2">{label}</p>
         {payload.map((entry, index) => (
           <p key={index} className="flex items-center gap-1.5 py-0.5" style={{ color: entry.color }}>
-            <span className="font-semibold">{entry.name}:</span>
-            <span className="font-extrabold">{entry.value}%</span>
+            <span className="font-medium text-slate-600">{entry.name}:</span>
+            <span className="font-bold text-slate-800">{entry.value}%</span>
           </p>
         ))}
       </div>
@@ -55,9 +55,9 @@ const CustomPieTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white border border-slate-100 rounded-xl shadow-xl p-3 text-xs">
-        <p className="font-bold text-slate-900">{payload[0].name}</p>
+        <p className="font-semibold text-slate-800">{payload[0].name}</p>
         <p className="text-slate-500 mt-0.5">
-          Proficiency: <strong className="text-slate-900 font-extrabold">{payload[0].value}%</strong>
+          Proficiency: <strong className="text-slate-800 font-bold">{payload[0].value}%</strong>
         </p>
       </div>
     );
@@ -101,7 +101,7 @@ export const Progress = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black tracking-tight text-slate-900">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-800">
           Progress Tracker
         </h1>
         <p className="text-xs text-slate-400 font-medium mt-0.5">
@@ -121,7 +121,7 @@ export const Progress = () => {
         {/* Line Chart */}
         <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <div className="mb-6">
-            <h3 className="text-base font-bold text-slate-900 tracking-tight">
+            <h3 className="text-base font-semibold text-slate-800 tracking-tight">
               Score Trend
             </h3>
             <p className="text-xs text-slate-400 font-medium mt-0.5">
@@ -185,7 +185,7 @@ export const Progress = () => {
         {/* Skill Distribution Donut */}
         <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
           <div className="mb-6">
-            <h3 className="text-base font-bold text-slate-900 tracking-tight">
+            <h3 className="text-base font-semibold text-slate-800 tracking-tight">
               Skill Distribution
             </h3>
             <p className="text-xs text-slate-400 font-medium mt-0.5">

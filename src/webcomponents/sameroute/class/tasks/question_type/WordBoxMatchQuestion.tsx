@@ -65,7 +65,7 @@ export const WordBoxMatchQuestion = ({
       {/* Question Prompt */}
       {question.config.question && (
         <div 
-          className="text-base font-semibold leading-relaxed text-slate-900 prose prose-slate max-w-none prose-p:my-0 break-words"
+          className="text-base font-semibold leading-relaxed text-slate-800 prose prose-slate max-w-none prose-p:my-0 break-words"
           dangerouslySetInnerHTML={{ __html: (question.config.question).replace(/&nbsp;/g, ' ') }}
         />
       )}
@@ -113,7 +113,7 @@ export const WordBoxMatchQuestion = ({
             >
               {/* Item Label & Dotted Leader */}
               <div className="flex items-center gap-2 flex-1 min-w-0">
-                <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                <span className="text-sm font-bold text-slate-800 whitespace-nowrap">
                   {sentence.text}
                 </span>
                 <div className="hidden sm:block flex-1 border-b-2 border-dotted border-slate-300 mx-2" />
@@ -138,7 +138,7 @@ export const WordBoxMatchQuestion = ({
                               {selectedLetter}
                             </span>
                           )}
-                          <span className="truncate text-slate-900 font-semibold">{value}</span>
+                          <span className="truncate text-slate-800 font-semibold">{value}</span>
                         </span>
                       )}
                     </SelectValue>

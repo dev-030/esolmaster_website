@@ -81,7 +81,7 @@ function StatCard({
           <p className={cn("text-xs font-semibold uppercase tracking-wide", colorClass.replace(/bg-\S+/, "").trim())}>
             {title}
           </p>
-          <p className={cn("text-3xl font-black mt-0.5 leading-none", colorClass.replace(/bg-\S+/, "").trim())}>
+          <p className={cn("text-2xl font-bold mt-0.5 leading-none", colorClass.replace(/bg-\S+/, "").trim())}>
             {value}
           </p>
           {subtitle && (
@@ -207,7 +207,7 @@ export const StudentInfo = () => {
         <CardContent className="p-6">
           <div className="flex items-start gap-5">
             <Avatar className="h-16 w-16 rounded-full shrink-0">
-              <AvatarFallback className="bg-primary/15 text-primary text-xl font-black rounded-full">
+              <AvatarFallback className="bg-primary/15 text-primary text-xl font-bold rounded-full">
                 {initials(student.name)}
               </AvatarFallback>
             </Avatar>
