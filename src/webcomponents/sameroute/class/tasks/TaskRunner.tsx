@@ -84,7 +84,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
           </div>
           <p className="font-semibold text-slate-800">Activity unavailable</p>
           <p className="mt-1 text-sm text-slate-500">{startError}</p>
-          <Button onClick={handleBack} className="mt-5 bg-[#3454FB] hover:bg-[#2B44C9]">
+          <Button onClick={handleBack} className="mt-5 bg-primary hover:bg-primary/90">
             <ArrowLeft className="h-4 w-4 mr-1" /> Go back
           </Button>
         </div>
@@ -96,7 +96,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
   if (isLoading || !attempt) {
     return (
       <div className="fixed inset-0 z-50 bg-[#F7F9FC] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#3454FB]" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -234,7 +234,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
         <div className="flex items-center gap-3">
           <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#3454FB] rounded-full transition-all duration-500"
+              className="h-full bg-primary rounded-full transition-all duration-500"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -247,9 +247,9 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
               key={i}
               className={`rounded-full transition-all duration-200 ${
                 i === currentIndex
-                  ? "bg-[#3454FB] w-5 h-2"
+                  ? "bg-primary w-5 h-2"
                   : answeredArray[i]
-                  ? "bg-[#3454FB]/30 w-2 h-2"
+                  ? "bg-primary/30 w-2 h-2"
                   : "bg-slate-200 w-2 h-2"
               }`}
             />
@@ -280,7 +280,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
             {hasStimulus && (
               <div className="border-r border-slate-100 bg-white overflow-y-auto">
                 <div className="flex items-center gap-2 border-b border-slate-100 bg-slate-50/70 px-5 py-3">
-                  <span className="rounded-lg bg-[#3454FB] px-2.5 py-1 text-xs font-bold text-white">
+                  <span className="rounded-lg bg-primary px-2.5 py-1 text-xs font-bold text-white">
                     {activeSection?.title || "Task 1"}
                   </span>
                   <span className="truncate text-sm font-medium text-slate-500">
@@ -310,7 +310,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
 
                 {/* Question header */}
                 <div className="mb-5 flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#3454FB]">
+                  <span className="text-xs font-bold uppercase tracking-widest text-primary">
                     Question {currentIndex + 1}
                   </span>
                   <span className="rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">
@@ -353,7 +353,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
                     <Button
                       onClick={handleSubmit}
                       disabled={!( currentQuestion?.type === "INSTRUCTION" || answer !== null) || isFinalizing}
-                      className="gap-1.5 bg-[#3454FB] hover:bg-[#2B44C9] font-semibold rounded-[10px]"
+                      className="gap-1.5 bg-primary hover:bg-primary/90 font-semibold rounded-[10px]"
                       size="sm"
                     >
                       {isFinalizing
@@ -365,7 +365,7 @@ export const TaskRunner = ({ taskIdProp }: { taskIdProp?: string }) => {
                     <Button
                       onClick={handleSubmit}
                       disabled={!( currentQuestion?.type === "INSTRUCTION" || answer !== null) || isFinalizing}
-                      className="gap-1.5 bg-[#3454FB] hover:bg-[#2B44C9] font-semibold rounded-[10px]"
+                      className="gap-1.5 bg-primary hover:bg-primary/90 font-semibold rounded-[10px]"
                       size="sm"
                     >
                       {isFinalizing

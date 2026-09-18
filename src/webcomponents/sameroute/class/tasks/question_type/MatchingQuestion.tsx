@@ -169,7 +169,7 @@ export const MatchingQuestion = ({
         <div className="text-xs bg-slate-50 border border-slate-200/80 rounded-xl px-4 py-2.5 text-slate-700 font-medium flex items-center justify-between shadow-2xs">
           <span>
             {selectedLeftPair ? (
-              <>Matching term: <strong className="text-blue-700 underline underline-offset-2">{selectedLeftPair.left}</strong>. Click its definition on the right to connect them.</>
+              <>Matching term: <strong className="text-primary underline underline-offset-2">{selectedLeftPair.left}</strong>. Click its definition on the right to connect them.</>
             ) : (
               "Click a term on the left, then click its matching definition on the right."
             )}
@@ -238,10 +238,10 @@ export const MatchingQuestion = ({
                     className={cn(
                       "flex items-center justify-between gap-2 p-2 rounded-xl border bg-white transition-all cursor-pointer select-none",
                       isSelected
-                        ? "border-blue-400 ring-2 ring-blue-400/20 shadow-xs bg-blue-50/30"
+                        ? "border-primary/40 ring-2 ring-primary/20 shadow-xs bg-primary/10"
                         : isConnected
                           ? "border-slate-200 hover:border-slate-300 shadow-2xs"
-                          : "border-slate-200 hover:border-blue-300 hover:bg-slate-50/50 shadow-2xs"
+                          : "border-slate-200 hover:border-primary/30 hover:bg-slate-50/50 shadow-2xs"
                     )}
                   >
                     <div className="flex items-center gap-2 min-w-0 truncate flex-1">
@@ -262,16 +262,16 @@ export const MatchingQuestion = ({
                       className={cn(
                         "w-5 h-5 rounded-full border flex items-center justify-center transition-all shrink-0 cursor-pointer",
                         isSelected
-                          ? "bg-blue-50 border-blue-500 ring-2 ring-blue-400/40 shadow-xs"
+                          ? "bg-primary/5 border-primary ring-2 ring-primary/40 shadow-xs"
                           : isConnected
-                            ? "border-blue-300 bg-blue-50/50"
+                            ? "border-primary/30 bg-primary/10"
                             : "border-slate-200 bg-slate-50 hover:border-slate-300"
                       )}
                     >
                       <span
                         className={cn(
                           "w-1.5 h-1.5 rounded-full transition-colors",
-                          isSelected ? "bg-blue-600 scale-125" : isConnected ? "bg-blue-500" : "bg-slate-300"
+                          isSelected ? "bg-primary scale-125" : isConnected ? "bg-primary" : "bg-slate-300"
                         )}
                       />
                     </button>
@@ -303,7 +303,7 @@ export const MatchingQuestion = ({
                       isConnected
                         ? "border-slate-200 hover:border-slate-300 shadow-2xs"
                         : selectedLeft
-                          ? "border-slate-200 hover:border-blue-400 hover:bg-blue-50/30 shadow-2xs"
+                          ? "border-slate-200 hover:border-primary/40 hover:bg-primary/10 shadow-2xs"
                           : "border-slate-200 hover:border-slate-300 shadow-2xs"
                     )}
                   >
@@ -317,9 +317,9 @@ export const MatchingQuestion = ({
                       className={cn(
                         "w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold transition-all shrink-0 cursor-pointer",
                         isConnected
-                          ? "bg-blue-50 border-blue-200 text-blue-700 shadow-2xs"
+                          ? "bg-primary/5 border-primary/20 text-primary shadow-2xs"
                           : "bg-white text-transparent border border-dashed border-slate-300 hover:border-slate-400 hover:bg-slate-50",
-                        selectedLeft ? "ring-2 ring-blue-400/30 animate-pulse" : ""
+                        selectedLeft ? "ring-2 ring-primary/30 animate-pulse" : ""
                       )}
                       title={
                         selectedLeft

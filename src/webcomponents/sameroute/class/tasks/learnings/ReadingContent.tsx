@@ -47,7 +47,7 @@ export const ReadingContent = ({ data }: { data: ReadingContentType }) => {
             {data.entryType.map((entry) => (
               <span
                 key={entry}
-                className="text-xs bg-blue-50 text-blue-700 border border-blue-200 font-semibold px-2.5 py-0.5 rounded-full"
+                className="text-xs bg-primary/5 text-primary border border-primary/20 font-semibold px-2.5 py-0.5 rounded-full"
               >
                 {entry}
               </span>

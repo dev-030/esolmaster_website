@@ -4,6 +4,7 @@ import { YearlyTaskPerformance } from "./YearlyTaskPerfomance";
 import { MonthlyAssignmentCompletion } from "./MonthlyAssignMent";
 import { OverallScoreDistribution } from "./OverallScore";
 import { TopPerformers } from "./TopPerfomer";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetReportsOverviewQuery } from "@/api/analytics";
 
 export const Report = () => {
@@ -17,10 +18,16 @@ export const Report = () => {
           subheading="Track performance metrics across all your classes."
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="h-96 bg-muted animate-pulse rounded-lg" />
-          <div className="h-96 bg-muted animate-pulse rounded-lg" />
-          <div className="h-96 bg-muted animate-pulse rounded-lg" />
-          <div className="h-96 bg-muted animate-pulse rounded-lg" />
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-slate-200/70 bg-white shadow-none overflow-hidden">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <Skeleton className="h-4 w-40 rounded" />
+              </div>
+              <div className="p-5">
+                <Skeleton className="h-[350px] w-full rounded-lg" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );

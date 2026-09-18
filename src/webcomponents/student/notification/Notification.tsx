@@ -47,7 +47,7 @@ const ICON: Record<NotificationType, React.ReactNode> = {
 };
 
 const ICON_BG: Record<NotificationType, string> = {
-  TASK_OPENED: "bg-blue-100 text-blue-600",
+  TASK_OPENED: "bg-primary/10 text-primary",
   TASK_ENDING_SOON: "bg-amber-100 text-amber-600",
   SUBSCRIPTION_EXPIRING: "bg-red-100 text-red-600",
   BADGE_EARNED: "bg-yellow-100 text-yellow-600",

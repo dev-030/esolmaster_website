@@ -40,17 +40,17 @@ export const MCQQuestion = ({
                 "w-full text-left px-4 py-3.5 rounded-xl border flex items-center gap-3.5 transition-all cursor-pointer shadow-2xs",
                 !submitted &&
                   !isSelected &&
-                  "border-slate-200/90 bg-white hover:border-blue-400 hover:bg-blue-50/20 text-slate-700",
+                  "border-slate-200/90 bg-white hover:border-primary/40 hover:bg-primary/10 text-slate-700",
                 isSelected &&
                   !submitted &&
-                  "border-[#3454FB] bg-blue-50/70 text-blue-950 font-semibold ring-1 ring-[#3454FB]/25 shadow-xs",
+                  "border-primary bg-primary/10 text-blue-950 font-semibold ring-1 ring-primary/25 shadow-xs",
               )}
             >
               <span
                 className={cn(
                   "w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center shrink-0 border transition-colors",
                   isSelected
-                    ? "bg-[#3454FB] text-white border-[#3454FB]"
+                    ? "bg-primary text-white border-primary"
                     : "bg-slate-50 text-slate-600 border-slate-200/90",
                 )}
               >

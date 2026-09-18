@@ -8,13 +8,18 @@ import {
   checkUsername,
   completeProfile,
   forgetPassword,
+  getSessions,
   myProfile,
   refreshToken,
   resetPassword,
+  revokeAllOtherSessions,
+  revokeSession,
+  sendEmailOtp,
   signIn,
   signOut,
   signUp,
   updateMyProfile,
+  verifyEmailOtp,
   verifyResetCode,
 } from "./api";
 
@@ -104,8 +109,8 @@ export const useGetMyProfileQuery = () => {
       const data = await myProfile();
       return data;
     },
-  })
-}
+  });
+};
 
 export const useUpdateMyProfileMutation = () => {
   const queryClient = useQueryClient();
@@ -133,3 +138,55 @@ export const useChangePasswordMutation = () => {
     }) => changePassword(payload),
   });
 };
+
+export const useSendEmailOtpMutation = () => {
+  return useMutation({
+    mutationKey: ["auth", "send-email-otp"],
+    mutationFn: async (payload: { newEmail: string }) => sendEmailOtp(payload),
+  });
+};
+
+export const useVerifyEmailOtpMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["auth", "verify-email-otp"],
+    mutationFn: async (payload: { newEmail: string; code: string }) =>
+      verifyEmailOtp(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auth", "my-profile"] });
+    },
+  });
+};
+
+export const useGetSessionsQuery = () => {
+  return useQuery({
+    queryKey: ["auth", "sessions"],
+    queryFn: async () => {
+      const data = await getSessions();
+      return data;
+    },
+  });
+};
+
+export const useRevokeSessionMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["auth", "revoke-session"],
+    mutationFn: async (sessionId: string) => revokeSession(sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auth", "sessions"] });
+    },
+  });
+};
+
+export const useRevokeAllOtherSessionsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ["auth", "revoke-all-other-sessions"],
+    mutationFn: async () => revokeAllOtherSessions(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["auth", "sessions"] });
+    },
+  });
+};
+

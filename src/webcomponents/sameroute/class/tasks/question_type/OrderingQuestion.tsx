@@ -86,7 +86,7 @@ export const OrderingQuestion = ({
                       className={cn(
                         "flex items-center gap-3 rounded-xl border bg-white px-3.5 py-2.5 transition-shadow select-none",
                         snapshot.isDragging
-                          ? "border-blue-400 shadow-md ring-2 ring-blue-400/20 bg-blue-50/30 z-50"
+                          ? "border-primary/40 shadow-md ring-2 ring-primary/20 bg-primary/10 z-50"
                           : "border-slate-200 shadow-2xs hover:border-slate-300"
                       )}
                     >
@@ -119,7 +119,7 @@ export const OrderingQuestion = ({
                             type="button"
                             size="icon"
                             variant="ghost"
-                            className="h-7 w-7 text-slate-400 hover:text-blue-600 hover:bg-blue-50 disabled:opacity-30 rounded-lg cursor-pointer"
+                            className="h-7 w-7 text-slate-400 hover:text-primary/90 hover:bg-primary/5 disabled:opacity-30 rounded-lg cursor-pointer"
                             disabled={submitted || i === 0}
                             onClick={() => move(i, -1)}
                             title="Move up"
@@ -130,7 +130,7 @@ export const OrderingQuestion = ({
                             type="button"
                             size="icon"
                             variant="ghost"
-                            className="h-7 w-7 text-slate-400 hover:text-blue-600 hover:bg-blue-50 disabled:opacity-30 rounded-lg cursor-pointer"
+                            className="h-7 w-7 text-slate-400 hover:text-primary/90 hover:bg-primary/5 disabled:opacity-30 rounded-lg cursor-pointer"
                             disabled={submitted || i === order.length - 1}
                             onClick={() => move(i, 1)}
                             title="Move down"

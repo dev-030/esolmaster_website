@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Crown, X } from "lucide-react";
 import { toast } from "sonner";
@@ -80,44 +79,56 @@ export const PremiumTasksDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Crown className="h-4 w-4 text-amber-500" />
-            Premium Tasks · {pkg?.name}
-          </DialogTitle>
+      <DialogContent className="sm:max-w-lg w-full p-6 sm:p-7 rounded-[24px] border border-slate-200/80 bg-white shadow-xl max-h-[92vh] overflow-y-auto">
+        <DialogHeader className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
+              <Crown className="w-5 h-5 text-amber-500" />
+            </div>
+            <div>
+              <DialogTitle className="text-lg font-bold text-slate-900 tracking-tight">
+                Premium Activities · {pkg?.name}
+              </DialogTitle>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Attach interactive premium tasks that are gated to this package.
+              </p>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-5 max-h-[65vh] overflow-y-auto pr-1">
+        <div className="space-y-5 py-2 max-h-[60vh] overflow-y-auto pr-1">
           {/* Attached tasks */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
               Included in this package
             </p>
             {loadingAttached && (
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <div className="flex items-center gap-2 text-xs text-slate-400 py-2">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Loading attached activities...
+              </div>
             )}
             {!loadingAttached && (attached ?? []).length === 0 && (
-              <p className="text-sm text-muted-foreground italic">
-                No premium tasks attached yet.
+              <p className="text-xs text-slate-400 italic py-1">
+                No premium activities attached yet.
               </p>
             )}
             <div className="space-y-1.5">
               {(attached ?? []).map((link: PlanPremiumTaskLink) => (
                 <div
                   key={link.id}
-                  className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                  className="flex items-center justify-between rounded-xl border border-slate-200/70 bg-slate-50/60 px-3.5 py-2 text-xs"
                 >
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-[10px]">
+                    <span className="rounded-md bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-600 border border-slate-200/60 uppercase">
                       {link.task.type}
-                    </Badge>
-                    <span>{link.task.title}</span>
+                    </span>
+                    <span className="font-semibold text-slate-800">{link.task.title}</span>
                   </div>
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                    className="h-7 w-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer"
                     disabled={detaching}
                     onClick={() => handleDetach(link.taskId)}
                   >
@@ -130,45 +141,63 @@ export const PremiumTasksDialog = ({
 
           {/* Available premium tasks */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Available premium tasks
+            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              Available premium activities
             </p>
             {loadingPremium && (
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <div className="flex items-center gap-2 text-xs text-slate-400 py-2">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Loading available activities...
+              </div>
             )}
             {!loadingPremium && availableTasks.length === 0 && (
-              <p className="text-sm text-muted-foreground italic">
-                No unattached premium tasks. Mark a task as premium when
-                creating it (admin only) to see it here.
+              <p className="text-xs text-slate-400 italic py-1">
+                No unattached premium activities found. Mark an activity as premium in Content Library.
               </p>
             )}
             <div className="space-y-1.5">
               {availableTasks.map((t: Task) => (
                 <label
                   key={t.id}
-                  className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm cursor-pointer hover:bg-muted/50"
+                  className={`flex items-center gap-2.5 rounded-xl border px-3.5 py-2 text-xs cursor-pointer transition-colors ${
+                    selected.includes(t.id)
+                      ? "border-primary/50 bg-primary/5"
+                      : "border-slate-200/70 bg-white hover:bg-slate-50/70"
+                  }`}
                 >
                   <Checkbox
                     checked={selected.includes(t.id)}
                     onCheckedChange={() => toggleSelected(t.id)}
+                    className="rounded-md"
                   />
-                  <Badge variant="secondary" className="text-[10px]">
+                  <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 border border-slate-200/60 uppercase">
                     {t.type}
-                  </Badge>
-                  <span>{t.title}</span>
+                  </span>
+                  <span className="font-medium text-slate-800">{t.title}</span>
                 </label>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            className="h-9 px-4 rounded-xl border-slate-200 text-xs font-semibold text-slate-600 shadow-none hover:bg-slate-50 cursor-pointer"
+          >
+            Close
+          </Button>
           <Button
             onClick={handleAttach}
             disabled={!selected.length || attaching}
-            className="gap-2"
+            size="sm"
+            className="h-9 px-5 rounded-xl text-xs font-semibold bg-[#007EEF] hover:bg-[#0066cc] text-white shadow-none gap-1.5 cursor-pointer"
+            style={{ boxShadow: "none" }}
           >
-            {attaching && <Loader2 className="h-4 w-4 animate-spin" />}
+            {attaching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
             Add {selected.length > 0 ? `${selected.length} ` : ""}to Package
           </Button>
         </div>

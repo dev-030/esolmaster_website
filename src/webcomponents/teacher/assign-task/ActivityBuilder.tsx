@@ -115,12 +115,12 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
     <Card 
       id={`card-${q.id}`} 
       className={cn(
-        "shadow-none relative group bg-white overflow-hidden transition-all rounded-xl",
-        isInvalid ? "border-red-400 ring-2 ring-red-400/20 shadow-xs" : "border-slate-200 hover:border-slate-300"
+        "shadow-none relative group bg-white overflow-hidden transition-colors rounded-xl",
+        isInvalid ? "border-red-400 ring-2 ring-red-400/20 shadow-none" : "border-slate-200/70 hover:border-slate-300"
       )}
     >
       {isInvalid && (
-        <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-xs text-red-700 font-semibold flex items-center gap-1.5 animate-pulse">
+        <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-xs text-red-700 font-semibold flex items-center gap-1.5">
           <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
           <span>{errorMsg || "This question is incomplete or contains invalid fields."}</span>
         </div>
@@ -132,9 +132,9 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
         <GripVertical size={18} />
       </div>
       <div className="pl-7">
-        <CardHeader className="py-2.5 px-4 bg-slate-50/30 border-b border-slate-100 flex flex-row items-center justify-between flex-wrap gap-2">
+        <CardHeader className="py-2.5 px-4 bg-slate-50/50 border-b border-slate-100 flex flex-row items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
-            <CardTitle className="text-[13px] font-semibold text-slate-700 tracking-wide">
+            <CardTitle className="text-[13px] font-semibold text-slate-800 tracking-normal">
               {q.type === "INSTRUCTION" ? "Instruction Line" : `${questionNumber ?? (index + 1)}. ${q.type.replace(/_/g, " ")}`}
             </CardTitle>
           </div>
@@ -149,15 +149,15 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
                       onValueChange={(val) => updateQuestion(q.id, { criterionId: val === "unmapped" ? undefined : val })}
                     >
                       <SelectTrigger className={cn(
-                        "h-7 text-xs border transition-all rounded-md max-w-[170px]",
+                        "h-7 text-xs border transition-colors rounded-md max-w-[170px] shadow-none",
                         q.criterionId 
-                          ? "bg-slate-50 text-slate-800 border-slate-300 font-bold px-2 shadow-2xs" 
-                          : "bg-white text-slate-400 border-dashed border-slate-300 hover:border-slate-400 font-medium px-2"
+                          ? "bg-slate-50 text-slate-800 border-slate-200/90 font-semibold px-2" 
+                          : "bg-white text-slate-400 border-dashed border-slate-200/80 hover:border-slate-400 font-medium px-2"
                       )}>
                         <SelectValue placeholder="+ Select Criterion">
                           {currentCriterion ? (
                             <span className="truncate flex items-center gap-1">
-                              <span className="font-bold text-slate-800">{currentCriterion.code}</span>
+                              <span className="font-semibold text-slate-800">{currentCriterion.code}</span>
                               {currentCriterion.description && (
                                 <span className="text-[10px] text-slate-500 font-normal truncate">({currentCriterion.description})</span>
                               )}
@@ -173,7 +173,7 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
                         </SelectItem>
                         {criteriaList?.map((crit: any) => (
                           <SelectItem key={crit.id} value={crit.id} className="text-xs">
-                            <span className="font-bold text-slate-800 mr-1.5">{crit.code}</span>
+                            <span className="font-semibold text-slate-800 mr-1.5">{crit.code}</span>
                             {crit.description && <span className="text-slate-600">{crit.description}</span>}
                           </SelectItem>
                         ))}
@@ -189,13 +189,13 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
                     <Input 
                       type="number" 
                       min="0" 
-                      className="w-14 h-7 text-xs text-center px-1 py-0 bg-white" 
+                      className="w-14 h-7 text-xs text-center px-1 py-0 bg-white border-slate-200 rounded-md font-medium shadow-none" 
                       value={q.marks ?? 1} 
                       onChange={(e) => updateQuestion(q.id, { marks: parseInt(e.target.value) || 0 })}
                     />
                   </div>
                 ) : (
-                  <div className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                  <div className="text-[11px] font-medium bg-slate-100/80 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200/60">
                     {q.marks ?? 1} {q.marks === 1 ? 'Mark' : 'Marks'}
                   </div>
                 )}
@@ -205,7 +205,7 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
               <Button type="button" 
                 variant="ghost" 
                 size="sm" 
-                className="text-slate-500 hover:text-slate-700 h-7 text-xs px-2" 
+                className="text-slate-500 hover:text-slate-700 h-7 text-xs px-2 cursor-pointer font-medium" 
                 onClick={() => updateQuestion(q.id, { isExpanded: !isExpanded })}
               >
                 {isExpanded ? "Collapse" : "Edit"}
@@ -227,7 +227,7 @@ const QuestionCard = React.memo(({ q, index, questionNumber, dragHandleProps, up
                   updateQuestion(q.id, { content: val, config: { ...q.config, heading: val } });
                 }}
                 placeholder="e.g. Questions 1–8: Choose the correct answer."
-                className="h-8 text-xs bg-white border-slate-200 font-medium text-slate-800 focus-visible:border-blue-400 focus-visible:ring-[3px] focus-visible:ring-blue-400/20"
+                className="h-8 text-xs bg-white border-slate-200 font-medium text-slate-800 focus-visible:border-primary/40 focus-visible:ring-[3px] focus-visible:ring-primary/20"
               />
             </CardContent>
           ) : (
@@ -1398,7 +1398,7 @@ const playSuccessSound = () => {
   if (taskId ? (!isLoaded || isLoadingTask) : !isLoaded) {
     return (
       <div className="w-full min-h-screen flex flex-col items-center justify-center bg-slate-50/50 gap-3">
-        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
         <p className="text-xs text-slate-500 font-medium animate-pulse">Loading assessment...</p>
       </div>
     );
@@ -1418,14 +1418,14 @@ const playSuccessSound = () => {
           variant="outline"
           size="sm"
           onClick={() => router.push(backUrl)}
-          className="h-8 px-2.5 rounded-lg border-slate-200 hover:bg-white hover:text-slate-800 transition-colors shadow-2xs flex items-center gap-1.5 font-medium text-xs text-slate-600 cursor-pointer"
+          className="h-8 px-3 rounded-lg border border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700 transition-colors shadow-none flex items-center gap-1.5 font-medium text-xs cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back
         </Button>
 
         <div className="flex items-center gap-2 overflow-x-auto text-xs text-slate-500 font-medium py-1">
-          <Link href="/content-library" className="hover:text-slate-800 transition-colors flex items-center gap-1.5">
+          <Link href="/content-library" className="hover:text-slate-900 transition-colors flex items-center gap-1.5">
             <School className="w-3.5 h-3.5 text-slate-400" />
             <span>Content Library</span>
           </Link>
@@ -1433,7 +1433,7 @@ const playSuccessSound = () => {
           {currentFolder?.ancestors?.map((anc) => (
             <div key={anc.id} className="flex items-center gap-2">
               <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <Link href={`/content-library?folderId=${anc.id}`} className="hover:text-slate-800 transition-colors">
+              <Link href={`/content-library?folderId=${anc.id}`} className="hover:text-slate-900 transition-colors">
                 {anc.name}
               </Link>
             </div>
@@ -1442,24 +1442,24 @@ const playSuccessSound = () => {
           {currentFolder && (
             <div key={currentFolder.id} className="flex items-center gap-2">
               <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <Link href={`/content-library?folderId=${currentFolder.id}`} className="hover:text-slate-800 transition-colors">
+              <Link href={`/content-library?folderId=${currentFolder.id}`} className="hover:text-slate-900 transition-colors">
                 {currentFolder.name}
               </Link>
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-slate-800 font-bold">
+          <div className="flex items-center gap-2">
             <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span className="truncate max-w-[240px]">{taskId ? (title || "Edit Assessment") : "New Assessment"}</span>
+            <span className="truncate max-w-[240px] text-slate-900 font-semibold">{taskId ? (title || "Edit Assessment") : "New Assessment"}</span>
           </div>
         </div>
       </div>
 
       {/* Page Header */}
-      <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between pb-4 border-b border-slate-200/60 gap-4">
+      <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between pb-4 border-b border-slate-200/70 gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-800">
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
               {taskId ? "Edit ESOL Assessment" : "ESOL Activity Builder"}
             </h1>
           </div>
@@ -1478,22 +1478,22 @@ const playSuccessSound = () => {
             variant="outline" 
             onClick={() => fileInputRef.current?.click()}
             disabled={isImporting || !!pdfFileForSnipping}
-            className={`border-blue-200 text-blue-500 min-w-0 flex-1 sm:flex-none transition-colors cursor-pointer ${
+            className={`h-9 px-3.5 rounded-lg border border-primary/25 text-primary bg-primary/10 hover:bg-primary/15 hover:border-primary/40 text-xs sm:text-[13px] font-medium transition-colors shadow-none cursor-pointer flex-1 sm:flex-none ${
               isImporting 
-                ? "bg-blue-50 animate-pulse border-blue-300 shadow-inner cursor-not-allowed opacity-90" 
+                ? "bg-primary/15 animate-pulse border-primary/30 cursor-not-allowed opacity-90" 
                 : !!pdfFileForSnipping 
-                  ? "opacity-50 cursor-not-allowed bg-slate-50 border-slate-200 text-slate-500" 
-                  : "hover:bg-blue-50 hover:text-blue-600"
+                  ? "opacity-50 cursor-not-allowed bg-slate-50 border-slate-200 text-slate-400" 
+                  : ""
             }`}
           >
             {isImporting ? (
               <div className="flex items-center space-x-2 animate-in fade-in zoom-in duration-300">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm font-medium">{importProgressText}</span>
+                <span className="text-xs sm:text-[13px] font-medium">{importProgressText}</span>
               </div>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Sparkles className="w-4 h-4 mr-2 text-primary" />
                 Import Document
               </>
             )}
@@ -1501,30 +1501,30 @@ const playSuccessSound = () => {
 
           <Button
             variant="outline" 
-            className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex-1 sm:flex-none" 
+            className="group h-9 px-3.5 rounded-lg border border-slate-200/80 text-slate-700 bg-white hover:bg-primary/5 hover:text-primary hover:border-primary/30 text-xs sm:text-[13px] font-medium transition-colors shadow-none cursor-pointer flex-1 sm:flex-none disabled:opacity-50" 
             disabled={Boolean(isSaving) || isChangingStatus}
             onClick={handlePreview}
           >
-            <Eye className="w-4 h-4 mr-2" />
+            <Eye className="w-4 h-4 mr-2 text-slate-400 group-hover:text-primary transition-colors" />
             Preview Assessment
           </Button>
           <Button 
             type="button" 
             variant="outline" 
-            className="font-medium border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-800 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex-1 sm:flex-none" 
+            className="group h-9 px-3.5 rounded-lg border border-slate-200/80 text-slate-700 bg-white hover:bg-primary/5 hover:text-primary hover:border-primary/30 text-xs sm:text-[13px] font-medium transition-colors shadow-none cursor-pointer flex-1 sm:flex-none disabled:opacity-50" 
             disabled={Boolean(isSaving) || isChangingStatus}
             onClick={() => handleSave("DRAFT", false)}
           >
             {isSaving === "DRAFT" ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
-              <Save className="w-4 h-4 mr-2" />
+              <Save className="w-4 h-4 mr-2 text-slate-400 group-hover:text-primary transition-colors" />
             )}
             {isSaving === "DRAFT" ? "Saving Draft..." : "Save Draft"}
           </Button>
           <Button 
             type="button" 
-            className="font-medium bg-blue-500 hover:bg-blue-600 text-white shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors flex-1 sm:flex-none" 
+            className="h-9 px-4 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs sm:text-[13px] font-medium transition-colors shadow-none cursor-pointer flex-1 sm:flex-none disabled:opacity-50" 
             disabled={Boolean(isSaving) || isChangingStatus}
             onClick={() => handleSave("PUBLISHED")}
           >
@@ -1541,9 +1541,9 @@ const playSuccessSound = () => {
               variant="outline"
               disabled={Boolean(isSaving) || isChangingStatus}
               onClick={() => handleLifecycleChange("ARCHIVED")}
-              className="border-slate-300 text-slate-700 hover:bg-slate-100"
+              className="group h-9 px-3.5 rounded-lg border border-slate-200/80 text-slate-700 bg-white hover:bg-primary/5 hover:text-primary hover:border-primary/30 text-xs sm:text-[13px] font-medium transition-colors shadow-none cursor-pointer disabled:opacity-50"
             >
-              {isChangingStatus ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Archive className="w-4 h-4 mr-2" />}
+              {isChangingStatus ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Archive className="w-4 h-4 mr-2 text-slate-400 group-hover:text-primary transition-colors" />}
               Archive
             </Button>
           )}
@@ -1553,7 +1553,7 @@ const playSuccessSound = () => {
               variant="outline"
               disabled={Boolean(isSaving) || isChangingStatus}
               onClick={() => handleLifecycleChange("APPROVED")}
-              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+              className="h-9 px-3.5 rounded-lg border border-primary/25 text-primary bg-primary/10 hover:bg-primary/15 hover:border-primary/40 text-xs sm:text-[13px] font-medium transition-colors shadow-none cursor-pointer disabled:opacity-50"
             >
               {isChangingStatus ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArchiveRestore className="w-4 h-4 mr-2" />}
               Restore
@@ -1566,18 +1566,18 @@ const playSuccessSound = () => {
         {/* Main Canvas Area */}
         <div className="col-span-1 xl:col-span-9 flex flex-col gap-6 xl:gap-8 min-w-0">
           {/* Activity Settings Card */}
-          <Card className="border-slate-200 overflow-hidden shadow-none rounded-xl bg-white">
-            <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 px-6 pt-5 flex flex-row items-center justify-between">
+          <Card className="border border-slate-200/70 overflow-hidden shadow-none rounded-xl bg-white">
+            <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-3.5 px-5 sm:px-6 pt-4 sm:pt-5 flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
-                <CardTitle className="text-base font-semibold text-slate-800">
+                <CardTitle className="text-sm sm:text-base font-semibold text-slate-900">
                   UK Qualification & Assessment Settings
                 </CardTitle>
               </div>
-              <div className="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md border border-slate-200">
-                Total Marks: <span className="text-blue-500 font-bold">{totalCalculatedMarks}</span>
+              <div className="text-[11px] font-medium px-2 py-0.5 bg-slate-100/80 text-slate-600 rounded-md border border-slate-200/60">
+                Total Marks: <span className="text-slate-900 font-semibold">{totalCalculatedMarks}</span>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3 px-6 py-6">
+            <CardContent className="space-y-3 px-5 sm:px-6 py-5 sm:py-6">
               {/* Row 1: Title */}
               <div className="relative">
                 {invalidFieldKeys.title && (
@@ -1588,8 +1588,8 @@ const playSuccessSound = () => {
                 <Textarea 
                   id="field-title"
                   className={cn(
-                    "min-h-9 resize-none focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 shadow-none py-2 transition-all font-medium",
-                    invalidFieldKeys.title ? "border-red-400 ring-2 ring-red-400/20 bg-red-50/20" : "border-slate-200"
+                    "min-h-10 resize-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary shadow-none py-2 px-3.5 text-sm transition-colors font-medium rounded-lg",
+                    invalidFieldKeys.title ? "border-red-400 ring-2 ring-red-400/20 bg-red-50/20" : "border-slate-200 text-slate-800"
                   )}
                   placeholder="Assessment / Activity Title * (e.g. Ascentis Entry 1 Reading)" 
                   value={title} 
@@ -1624,10 +1624,9 @@ const playSuccessSound = () => {
                     <SelectTrigger 
                       id="field-taskType"
                       className={cn(
-                        "w-full text-xs shadow-none transition-all bg-white font-medium",
-                        invalidFieldKeys.taskType ? "border-red-400 ring-2 ring-red-400/20" : "border-slate-200"
+                        "w-full text-xs sm:text-[13px] shadow-none transition-colors bg-white font-medium rounded-lg h-10 px-3",
+                        invalidFieldKeys.taskType ? "border-red-400 ring-2 ring-red-400/20" : "border-slate-200 text-slate-800"
                       )} 
-                      style={{ height: '40px' }}
                     >
                       <SelectValue placeholder="Primary Skill Area *">
                         {taskType ? (
@@ -1644,7 +1643,7 @@ const playSuccessSound = () => {
                         )}
                       </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="min-w-[200px]">
+                    <SelectContent className="min-w-[200px] rounded-lg border border-slate-200/80 shadow-none">
                       <SelectItem value="READING" className="text-xs">📖 Reading</SelectItem>
                       <SelectItem value="WRITING" className="text-xs">✍️ Writing</SelectItem>
                       <SelectItem value="SPEAKING" className="text-xs">🗣️ Speaking</SelectItem>
@@ -1657,8 +1656,8 @@ const playSuccessSound = () => {
                 {/* 2. Minimum Mark Threshold */}
                 <div className="flex flex-col w-full flex-1">
                   <div className={cn(
-                    "px-3.5 py-1 rounded-lg border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 h-auto sm:h-[40px]",
-                    requirePassMark ? "bg-blue-50/40 border-blue-200" : "bg-white border-slate-200"
+                    "px-3.5 py-1.5 rounded-lg border transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-h-[40px]",
+                    requirePassMark ? "bg-slate-50/70 border-slate-200/80" : "bg-white border-slate-200/70"
                   )}>
                     <div className="flex items-center gap-2.5 shrink-0 py-1 sm:py-0">
                       <Checkbox 
@@ -1666,7 +1665,7 @@ const playSuccessSound = () => {
                         checked={requirePassMark}
                         onCheckedChange={(checked) => setRequirePassMark(checked === true)}
                       />
-                      <Label htmlFor="requirePassMark" className="text-xs font-semibold text-slate-800 cursor-pointer">
+                      <Label htmlFor="requirePassMark" className="text-xs sm:text-[13px] font-medium text-slate-800 cursor-pointer">
                         Minimum Mark Threshold
                       </Label>
                     </div>
@@ -1679,17 +1678,17 @@ const playSuccessSound = () => {
                             type="number" 
                             value={passMark}
                             onChange={(e) => setPassMark(e.target.value)}
-                            className="w-14 h-7 text-xs font-bold text-blue-500 border-slate-200 text-center px-1 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 bg-white rounded-md shadow-none"
+                            className="w-14 h-7 text-xs font-semibold text-slate-900 border-slate-200 rounded-md text-center px-1 bg-white shadow-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
                             placeholder="18"
                             min="0"
                             max={totalCalculatedMarks || 100}
                           />
-                          <span className="text-xs text-slate-500 font-semibold">
+                          <span className="text-xs text-slate-500 font-medium">
                             / {totalCalculatedMarks}
                           </span>
                         </div>
                         {totalCalculatedMarks > 0 && passMark && Number(passMark) > 0 && (
-                          <span className="text-[11px] font-bold text-blue-500 bg-blue-100/70 px-2 py-1 rounded-md">
+                          <span className="text-[11px] font-medium text-slate-700 bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded-md">
                             {Math.round((Number(passMark) / totalCalculatedMarks) * 100)}%
                           </span>
                         )}
@@ -1702,8 +1701,8 @@ const playSuccessSound = () => {
               {/* Row 3: Skill Criteria Checklist */}
               <div className="pt-2 space-y-3">
                 <div className={cn(
-                  "p-3.5 rounded-lg border transition-all flex flex-col justify-between gap-3",
-                  mustPassAllSkills ? "bg-blue-50/40 border-blue-200" : "bg-white border-slate-200"
+                  "p-3.5 sm:p-4 rounded-lg border transition-colors flex flex-col justify-between gap-3",
+                  mustPassAllSkills ? "bg-slate-50/60 border-slate-200/80" : "bg-white border-slate-200/70"
                 )}>
                   <div className="flex items-start justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2.5">
@@ -1712,115 +1711,115 @@ const playSuccessSound = () => {
                         checked={mustPassAllSkills}
                         onCheckedChange={(checked) => setMustPassAllSkills(checked === true)}
                       />
-                      <Label htmlFor="mustPassAllSkills" className="text-xs font-semibold text-slate-800 cursor-pointer">
+                      <Label htmlFor="mustPassAllSkills" className="text-xs sm:text-[13px] font-medium text-slate-800 cursor-pointer">
                         Skill Criteria Checklist
                       </Label>
                     </div>
 
-                      {mustPassAllSkills && (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setIsAddingCrit(prev => !prev)}
-                          className="h-7 text-xs font-semibold cursor-pointer shadow-2xs bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                        >
-                          <Plus className="w-3.5 h-3.5 mr-1" />
-                          {isAddingCrit ? "Cancel" : "Create Criterion"}
-                        </Button>
-                      )}
-                    </div>
-
-                    {mustPassAllSkills && (isAddingCrit || taskCriteria.length > 0) && (
-                      <div className="pl-6 pt-1 space-y-3">
-                        {/* Inline Create Criterion Form */}
-                        {isAddingCrit && (
-                          <div className="flex flex-col sm:flex-row gap-2 animate-in fade-in-50 duration-150 pb-1">
-                            <Input 
-                              placeholder="Code (e.g. 1.1, Ra, S1)"
-                              value={newCritCode}
-                              onChange={(e) => setNewCritCode(e.target.value)}
-                              className="w-full sm:w-[130px] h-8 text-xs font-medium text-slate-800 border-slate-200 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 shadow-none bg-white"
-                              autoFocus
-                            />
-                            <Input 
-                              placeholder="Description (Optional)"
-                              value={newCritDesc}
-                              onChange={(e) => setNewCritDesc(e.target.value)}
-                              className="flex-1 h-8 text-xs border-slate-200 focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20 shadow-none bg-white"
-                            />
-                            <Button 
-                              type="button" 
-                              size="sm" 
-                              onClick={handleAddCriterion}
-                              className="h-8 text-xs font-semibold bg-blue-500 hover:bg-blue-500 text-white shadow-none px-4"
-                            >
-                              Add
-                            </Button>
-                          </div>
-                        )}
-
-                        {/* Created Criteria Grid */}
-                        {taskCriteria.length > 0 && (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
-                            {[...taskCriteria].sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true, sensitivity: 'base' })).map((crit) => {
-                              const mappedCount = criteriaCoverage.map[crit.id] || 0;
-                              const isCovered = mappedCount > 0;
-                              return (
-                                <div 
-                                  key={crit.id} 
-                                  className={cn(
-                                    "p-2 rounded-lg border text-xs flex items-center justify-between gap-2 transition-all group bg-white shadow-xs hover:shadow-sm",
-                                    isCovered 
-                                      ? "border-blue-300" 
-                                      : "border-slate-200"
-                                  )}
-                                >
-                                  <div className="flex flex-col min-w-0">
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="font-bold text-slate-700 text-[13px]">{crit.code}</span>
-                                      {crit.description && (
-                                        <span className="text-[11px] text-slate-500 truncate" title={crit.description}>
-                                          {crit.description}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-2 shrink-0">
-                                    {isCovered ? (
-                                      <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">
-                                        {mappedCount} ✓
-                                      </span>
-                                    ) : (
-                                      <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
-                                        Unmapped
-                                      </span>
-                                    )}
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRemoveCriterion(crit.id)}
-                                      className="text-slate-400 hover:text-red-600 p-0.5 rounded hover:bg-red-50 transition-colors cursor-pointer"
-                                      title="Remove from this paper"
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
+                    {mustPassAllSkills && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsAddingCrit(prev => !prev)}
+                        className="h-7 px-2.5 text-xs font-medium cursor-pointer shadow-none bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 rounded-md transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5 mr-1" />
+                        {isAddingCrit ? "Cancel" : "Create Criterion"}
+                      </Button>
                     )}
                   </div>
+
+                  {mustPassAllSkills && (isAddingCrit || taskCriteria.length > 0) && (
+                    <div className="pt-1 space-y-3">
+                      {/* Inline Create Criterion Form */}
+                      {isAddingCrit && (
+                        <div className="flex flex-col sm:flex-row gap-2 animate-in fade-in-50 duration-150 pb-1">
+                          <Input 
+                            placeholder="Code (e.g. 1.1, Ra, S1)"
+                            value={newCritCode}
+                            onChange={(e) => setNewCritCode(e.target.value)}
+                            className="w-full sm:w-[130px] h-8 text-xs font-medium text-slate-800 border-slate-200 rounded-md focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary shadow-none bg-white"
+                            autoFocus
+                          />
+                          <Input 
+                            placeholder="Description (Optional)"
+                            value={newCritDesc}
+                            onChange={(e) => setNewCritDesc(e.target.value)}
+                            className="flex-1 h-8 text-xs border-slate-200 rounded-md focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary shadow-none bg-white"
+                          />
+                          <Button 
+                            type="button" 
+                            size="sm" 
+                            onClick={handleAddCriterion}
+                            className="h-8 text-xs font-medium bg-primary hover:bg-primary/90 text-white rounded-md shadow-none px-4 cursor-pointer"
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Created Criteria Grid */}
+                      {taskCriteria.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+                          {[...taskCriteria].sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true, sensitivity: 'base' })).map((crit) => {
+                            const mappedCount = criteriaCoverage.map[crit.id] || 0;
+                            const isCovered = mappedCount > 0;
+                            return (
+                              <div 
+                                key={crit.id} 
+                                className={cn(
+                                  "p-2 rounded-lg border text-xs flex items-center justify-between gap-2 transition-colors group bg-white shadow-none",
+                                  isCovered 
+                                    ? "border-primary/30" 
+                                    : "border-slate-200/70"
+                                )}
+                              >
+                                <div className="flex flex-col min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-semibold text-slate-800 text-xs">{crit.code}</span>
+                                    {crit.description && (
+                                      <span className="text-[11px] text-slate-500 truncate" title={crit.description}>
+                                        {crit.description}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {isCovered ? (
+                                    <span className="text-[10px] font-medium text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded">
+                                      {mappedCount} ✓
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] font-medium text-slate-400 bg-slate-100 border border-slate-200/60 px-1.5 py-0.5 rounded">
+                                      Unmapped
+                                    </span>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveCriterion(crit.id)}
+                                    className="text-slate-400 hover:text-red-600 p-0.5 rounded hover:bg-red-50 transition-colors cursor-pointer"
+                                    title="Remove from this paper"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
+              </div>
 
               {/* Custom Skill Input (when Custom / Non-Preset is selected) */}
               {taskType === "GRAMMAR" && (
-                <div className="space-y-2 pt-2 pb-2 p-4 mt-2 bg-white border border-slate-200 rounded-lg shadow-none">
+                <div className="space-y-2 pt-2 pb-2 p-4 mt-2 bg-white border border-slate-200/70 rounded-lg shadow-none">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                    <Label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-primary" />
                       Custom Skill Area Name
                     </Label>
                   </div>
@@ -1828,9 +1827,9 @@ const playSuccessSound = () => {
                     value={customSkillName}
                     onChange={(e) => setCustomSkillName(e.target.value)}
                     placeholder="e.g. Pronunciation & Phonics, Spelling & Punctuation..."
-                    className="h-10 text-xs border-slate-200 bg-white shadow-2xs focus-visible:border-blue-500 focus-visible:ring-[3px] focus-visible:ring-blue-500/20"
+                    className="h-9 text-xs border-slate-200 rounded-lg bg-white shadow-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
                   />
-                  <p className="text-[11px] text-slate-500 font-medium pt-1">
+                  <p className="text-[11px] text-slate-500 font-normal pt-1">
                     Define a custom skill area outside the standard four UK ESOL skill presets.
                   </p>
                 </div>
@@ -1843,9 +1842,9 @@ const playSuccessSound = () => {
         {/* PDF SNIPPING TOOL INTEGRATION                                             */}
         {/* ========================================================================= */}
         {pdfFileForSnipping && (
-          <div className="mb-6 w-full mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-blue-50 border border-blue-200 p-3 sm:p-4 rounded-xl shadow-sm">
+          <div className="mb-6 w-full mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-primary/5 border border-primary/20 p-3 sm:p-4 rounded-xl shadow-none">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="p-2 bg-blue-100 rounded-lg text-blue-500">
+              <div className="p-2 bg-primary/10 rounded-lg text-primary">
                 <FileText className="w-5 h-5" />
               </div>
               <div className="min-w-0">
@@ -1853,7 +1852,7 @@ const playSuccessSound = () => {
                 <p className="text-xs text-slate-500">Open the snipping tool to capture images from the PDF for task contexts.</p>
               </div>
             </div>
-            <Button onClick={() => setShowSnippingOverlay(true)} className="w-full sm:w-auto shrink-0 bg-blue-500 hover:bg-blue-500 text-white shadow-sm">
+            <Button onClick={() => setShowSnippingOverlay(true)} className="w-full sm:w-auto shrink-0 bg-primary hover:bg-primary/90 text-white shadow-none rounded-lg text-xs font-medium h-9">
               <Scissors className="w-4 h-4 mr-2" /> Open Snipping Tool
             </Button>
           </div>
@@ -1883,10 +1882,8 @@ const playSuccessSound = () => {
         )}
 
         {/* ========================================================================= */}
-        {/* MASTER ACTIVITY TASKS CONTAINER CARD (Single box containing all tasks)    */}
+        {/* ACTIVITY TASK SECTIONS (Individual White Cards)                          */}
         {/* ========================================================================= */}
-        <Card className="border-slate-200 shadow-sm rounded-2xl bg-slate-50/50 overflow-hidden">
-          <CardContent className="p-4 sm:p-6 lg:p-8">
         <div className="space-y-6">
           <DragDropContext onDragEnd={onDragEnd}>
           {taskSections.map((section, secIdx) => {
@@ -1894,33 +1891,33 @@ const playSuccessSound = () => {
             const sectionMarks = sectionQuestions.reduce((sum, q) => sum + (q.marks ?? 1), 0);
 
             return (
-              <div key={section.id} className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-none">
+              <div key={section.id} className="border border-slate-200/70 rounded-xl bg-white overflow-hidden shadow-none">
                 
-                {/* Section Header (Grey Background) */}
-                <div className="bg-slate-50/80 border-b border-slate-200 p-3 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                {/* Section Header */}
+                <div className="bg-slate-50/50 border-b border-slate-100 p-3.5 sm:px-5 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                   <div className="flex-1 w-full max-w-2xl flex items-center gap-3">
                     <div className="flex items-center gap-1.5 shrink-0">
                       <Folder className="w-4 h-4 text-slate-400" />
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Task {secIdx + 1}</span>
+                      <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider whitespace-nowrap">Task {secIdx + 1}</span>
                     </div>
                     <div className="w-px h-4 bg-slate-200 shrink-0 hidden sm:block"></div>
                     <Input
                       value={section.title}
                       onChange={(e) => updateTaskSection(section.id, { title: e.target.value })}
                       placeholder="Title (Optional)"
-                      className="bg-white border-slate-200 text-slate-800 font-semibold text-xs h-8 focus-visible:border-blue-400 focus-visible:ring-[3px] focus-visible:ring-blue-400/20 placeholder:text-slate-400 flex-1 min-w-0"
+                      className="bg-white border-slate-200 text-slate-800 font-semibold text-xs h-8 focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary placeholder:text-slate-400 flex-1 min-w-0 shadow-none rounded-lg"
                     />
                   </div>
 
                   <div className="flex items-center justify-between xl:justify-end gap-2.5 w-full xl:w-auto shrink-0">
-                    <span className="text-[11px] font-medium text-slate-600 bg-white px-2 py-1 rounded-md border border-slate-200 whitespace-nowrap">
+                    <span className="text-[11px] font-medium text-slate-600 bg-white px-2 py-0.5 rounded-md border border-slate-200/70 whitespace-nowrap shadow-none">
                       {sectionQuestions.length} {sectionQuestions.length === 1 ? 'Question' : 'Questions'} ({sectionMarks} {sectionMarks === 1 ? 'Mark' : 'Marks'})
                     </span>
                     <Button 
                       type="button" 
                       variant="ghost" 
                       size="sm" 
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 px-2.5 text-xs font-medium whitespace-nowrap"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 px-2.5 text-xs font-medium whitespace-nowrap cursor-pointer transition-colors"
                       onClick={() => removeTaskSection(section.id)}
                     >
                       <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete Task
@@ -1931,37 +1928,37 @@ const playSuccessSound = () => {
                       <div className="p-5 space-y-5">
                         {/* Section Instruction Field */}
                         <div className="space-y-1.5">
-                          <Label className="text-xs font-semibold text-slate-700">
+                          <Label className="text-xs font-medium text-slate-700">
                             Task Instruction
                           </Label>
                           <Input 
                             value={section.instruction}
                             onChange={(e) => updateTaskSection(section.id, { instruction: e.target.value })}
                             placeholder="e.g. Read the text and answer questions."
-                            className="text-xs border-slate-200 h-9 bg-slate-50/50 font-medium text-slate-800 focus-visible:border-blue-400 focus-visible:ring-[3px] focus-visible:ring-blue-400/20"
+                            className="text-xs border-slate-200 h-9 bg-white font-normal text-slate-800 focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary shadow-none rounded-lg"
                           />
                         </div>
 
                         {/* Reading Context Area */}
                         {taskType === "READING" && (
-                          <div className="p-4 bg-slate-50/60 border border-slate-200/80 rounded-xl space-y-3">
+                          <div className="p-4 bg-slate-50/30 border border-slate-200/60 rounded-xl space-y-3">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/60 pb-3">
                               <div className="flex items-center gap-2">
-                                <BookOpen className="w-4 h-4 text-blue-500" />
+                                <BookOpen className="w-4 h-4 text-slate-500" />
                                 <span className="text-xs font-semibold text-slate-800">
                                   Context for {section.title}
                                 </span>
                               </div>
                               
                               {/* Dual Mode Switcher */}
-                              <div className="flex items-center bg-white p-0.5 rounded-lg border border-slate-200 shadow-2xs self-start sm:self-auto">
+                              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/60 shadow-none self-start sm:self-auto">
                                 <button
                                   type="button"
                                   onClick={() => updateTaskSection(section.id, { stimulusType: "IMAGE" })}
-                                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-md transition-all ${
+                                  className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-md transition-colors ${
                                     section.stimulusType === "IMAGE" 
-                                      ? "bg-blue-500 text-white shadow-2xs" 
-                                      : "text-slate-600 hover:text-slate-800"
+                                      ? "bg-white text-slate-900 shadow-none border border-slate-200/50 font-semibold" 
+                                      : "text-slate-600 hover:text-slate-900"
                                   }`}
                                 >
                                   🖼️ Image / Poster Scan
@@ -1969,10 +1966,10 @@ const playSuccessSound = () => {
                                 <button
                                   type="button"
                                   onClick={() => updateTaskSection(section.id, { stimulusType: "RICH_TEXT" })}
-                                  className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-md transition-all ${
+                                  className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-md transition-colors ${
                                     section.stimulusType === "RICH_TEXT" 
-                                      ? "bg-blue-500 text-white shadow-2xs" 
-                                      : "text-slate-600 hover:text-slate-800"
+                                      ? "bg-white text-slate-900 shadow-none border border-slate-200/50 font-semibold" 
+                                      : "text-slate-600 hover:text-slate-900"
                                   }`}
                                 >
                                   📝 Formatted Text & Tables
@@ -1985,9 +1982,9 @@ const playSuccessSound = () => {
                               <div className="space-y-3">
                                 {/* Inline Snipped Images Gallery */}
                                 {snippedImages.length > 0 && !section.imageUrl && (
-                                  <div className="w-full bg-indigo-50/50 border border-indigo-100 rounded-xl p-3">
-                                    <p className="text-xs font-semibold text-indigo-700 mb-2 flex items-center">
-                                      <Sparkles className="w-3.5 h-3.5 mr-1" />
+                                  <div className="w-full bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+                                    <p className="text-xs font-semibold text-slate-700 mb-2 flex items-center">
+                                      <Sparkles className="w-3.5 h-3.5 mr-1 text-slate-500" />
                                       Select from Snipped Images
                                     </p>
                                     <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
@@ -1995,7 +1992,7 @@ const playSuccessSound = () => {
                                         <div 
                                           key={idx} 
                                           onClick={() => updateTaskSection(section.id, { imageUrl: img })}
-                                          className="flex-shrink-0 w-24 h-24 border-2 border-transparent hover:border-indigo-400 rounded-lg overflow-hidden cursor-pointer shadow-sm bg-white transition-all hover:scale-105"
+                                          className="flex-shrink-0 w-24 h-24 border border-slate-200 hover:border-slate-400 rounded-lg overflow-hidden cursor-pointer bg-white transition-colors"
                                         >
                                           <img src={img} className="w-full h-full object-contain p-1" />
                                         </div>
@@ -2004,18 +2001,18 @@ const playSuccessSound = () => {
                                   </div>
                                 )}
                                 {section.imageUrl ? (
-                                  <div className="relative rounded-xl border border-slate-200 bg-white p-3 flex flex-col items-center gap-3">
+                                  <div className="relative rounded-xl border border-slate-200/70 bg-white p-3 flex flex-col items-center gap-3">
                                     <img 
                                       src={section.imageUrl} 
                                       alt="Stimulus Graphic Preview" 
-                                      className="max-h-72 object-contain rounded-lg border border-slate-100 shadow-2xs"
+                                      className="max-h-72 object-contain rounded-lg border border-slate-100"
                                     />
                                     <div className="flex items-center gap-2">
                                       <Button 
                                         type="button" 
                                         variant="outline" 
                                         size="sm" 
-                                        className="text-xs text-red-600 border-red-200 hover:bg-red-50 h-7"
+                                        className="text-xs text-red-600 border-red-200 hover:bg-red-50 h-7 rounded-md cursor-pointer"
                                         onClick={() => {
                                           const img = section.imageUrl;
                                           if (typeof img === "string" && img.length > 0) {
@@ -2042,9 +2039,9 @@ const playSuccessSound = () => {
                                       handleDropImage(section.id, e);
                                     }}
                                     onDragOver={(e) => e.preventDefault()}
-                                    className="border-2 border-dashed border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none rounded-xl p-6 bg-white flex flex-col items-center justify-center text-center gap-3 transition-all cursor-default group"
+                                    className="border border-dashed border-slate-200 hover:border-slate-300 outline-none rounded-xl p-6 bg-white flex flex-col items-center justify-center text-center gap-3 transition-colors cursor-default group"
                                   >
-                                    <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform">
+                                    <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-lg">
                                       🖼️
                                     </div>
                                     <div className="space-y-1">
@@ -2053,7 +2050,7 @@ const playSuccessSound = () => {
                                       </p>
                                       <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 flex-wrap">
                                         <span>Click box and paste directly with</span>
-                                        <kbd className="px-1.5 py-0.5 text-[10px] font-semibold bg-slate-100 border border-slate-300 rounded text-slate-700 shadow-2xs">
+                                        <kbd className="px-1.5 py-0.5 text-[10px] font-medium bg-slate-100 border border-slate-200 rounded text-slate-700 shadow-none">
                                           Ctrl + V / ⌘ + V
                                         </kbd>
                                         <span>or drag & drop</span>
@@ -2061,7 +2058,7 @@ const playSuccessSound = () => {
                                     </div>
 
                                     <div className="pt-1">
-                                      <label className="inline-flex items-center justify-center rounded-md text-xs font-semibold bg-blue-50 text-blue-500 border border-blue-200 hover:bg-blue-100 cursor-pointer h-8 px-4 transition-colors shadow-2xs">
+                                      <label className="inline-flex items-center justify-center rounded-lg text-xs font-medium bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50 cursor-pointer h-8 px-3.5 transition-colors shadow-none">
                                         📁 Choose Image File
                                         <input 
                                           type="file" 
@@ -2093,11 +2090,11 @@ const playSuccessSound = () => {
                             <h4 className="text-xs font-semibold text-slate-700 flex items-center gap-2">
                               Questions for {section.title} ({sectionQuestions.filter(q => q.type !== "INSTRUCTION").length})
                             </h4>
-                            <span className="text-[11px] text-slate-400">Drag to reorder within this task</span>
+                            <span className="text-[11px] text-slate-400 font-normal">Drag to reorder within this task</span>
                           </div>
 
                           {sectionQuestions.length === 0 ? (
-                            <div className="py-8 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                            <div className="py-8 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
                               <p className="text-xs font-medium text-slate-600 mb-1">
                                 No questions or instructions added to {section.title} yet.
                               </p>
@@ -2143,35 +2140,35 @@ const playSuccessSound = () => {
                           )}
 
                           {/* Quick Add Question Bar for this specific Task Section */}
-                          <div className="bg-slate-50 p-3 rounded-xl border border-slate-200/70 flex flex-wrap items-center justify-between gap-2">
+                          <div className="bg-slate-50/40 p-3 rounded-xl border border-slate-200/60 flex flex-wrap items-center justify-between gap-2 shadow-none">
                             <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
-                              <PlusCircle className="w-3.5 h-3.5 text-blue-500" />
+                              <PlusCircle className="w-3.5 h-3.5 text-slate-400" />
                               Add to {section.title}:
                             </span>
 
                             <div className="flex flex-wrap items-center gap-1.5">
-                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-blue-200 hover:border-blue-300 hover:bg-blue-50/40 text-blue-500 font-semibold" onClick={() => addQuestion("INSTRUCTION", section.id)}>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-medium rounded-md shadow-none cursor-pointer" onClick={() => addQuestion("INSTRUCTION", section.id)}>
                                 + Instruction Line
                               </Button>
-                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("MCQ", section.id)}>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-medium rounded-md shadow-none cursor-pointer" onClick={() => addQuestion("MCQ", section.id)}>
                                 + Multiple Choice
                               </Button>
-                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("TRUE_FALSE", section.id)}>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-medium rounded-md shadow-none cursor-pointer" onClick={() => addQuestion("TRUE_FALSE", section.id)}>
                                 + True / False
                               </Button>
-                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("GAP_FILL", section.id)}>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-medium rounded-md shadow-none cursor-pointer" onClick={() => addQuestion("GAP_FILL", section.id)}>
                                 + Fill Blanks
                               </Button>
-                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("WORD_BOX_MATCH", section.id)}>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-medium rounded-md shadow-none cursor-pointer" onClick={() => addQuestion("WORD_BOX_MATCH", section.id)}>
                                 + Word Box
                               </Button>
-                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("MATCHING", section.id)}>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-medium rounded-md shadow-none cursor-pointer" onClick={() => addQuestion("MATCHING", section.id)}>
                                 + Matching
                               </Button>
-                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("QUESTION_ANSWER", section.id)}>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-medium rounded-md shadow-none cursor-pointer" onClick={() => addQuestion("QUESTION_ANSWER", section.id)}>
                                 + Short Fact
                               </Button>
-                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border-slate-200 hover:border-blue-300 hover:bg-blue-50/40 text-slate-700" onClick={() => addQuestion("ORDERING", section.id)}>
+                              <Button type="button" variant="outline" size="sm" className="h-7 text-xs bg-white border border-slate-200/80 hover:bg-slate-50 text-slate-700 font-medium rounded-md shadow-none cursor-pointer" onClick={() => addQuestion("ORDERING", section.id)}>
                                 + Ordering
                               </Button>
                             </div>
@@ -2184,7 +2181,7 @@ const playSuccessSound = () => {
               </DragDropContext>
 
               {taskSections.length === 0 && (
-                <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 p-6 flex flex-col items-center justify-center gap-3">
+                <div className="py-12 text-center border border-dashed border-slate-200/80 rounded-xl bg-white p-6 flex flex-col items-center justify-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-base">
                     📋
                   </div>
@@ -2192,7 +2189,7 @@ const playSuccessSound = () => {
                   <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
                     Click below to create a task section and attach reading stimulus materials and questions.
                   </p>
-                  <Button type="button" onClick={addTaskSection} className="bg-blue-500 hover:bg-blue-500 text-white text-xs mt-1">
+                  <Button type="button" onClick={addTaskSection} className="bg-primary hover:bg-primary/90 text-white text-xs mt-1 rounded-lg h-9 px-4 font-medium shadow-none cursor-pointer">
                     <PlusCircle className="w-4 h-4 mr-1.5" /> Add Task 1 Section
                   </Button>
                 </div>
@@ -2202,46 +2199,44 @@ const playSuccessSound = () => {
                 <button
                   type="button"
                   onClick={addTaskSection}
-                  className="w-full py-3.5 border-2 border-dashed border-slate-200 hover:border-blue-300 rounded-xl bg-slate-50 hover:bg-blue-50/30 transition-all flex items-center justify-center gap-2 text-slate-700 hover:text-blue-500 font-semibold text-xs group cursor-pointer"
+                  className="w-full py-3.5 border border-dashed border-slate-200/90 hover:border-slate-300 rounded-xl bg-white hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 text-slate-700 hover:text-slate-900 font-medium text-xs group cursor-pointer shadow-none"
                 >
-                  <PlusCircle className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" />
+                  <PlusCircle className="w-4 h-4 text-slate-500" />
                   Add Another Task Section (Task {taskSections.length + 1})
                 </button>
               )}
-            </div>
-            </CardContent>
-          </Card>
+        </div>
         </div>
 
         {/* Right Sticky Sidebar: Overview & Global Question Palette */}
         <div className="col-span-1 xl:col-span-3 xl:sticky xl:top-6 flex flex-col gap-5 min-w-0">
           {/* 1. Quick Overview Summary Card (FIRST) */}
-          <Card className="border-slate-200 shadow-none rounded-xl bg-white overflow-hidden">
+          <Card className="border border-slate-200/70 shadow-none rounded-xl bg-white overflow-hidden">
             <div className="p-4 space-y-4">
-              <div className="text-xs font-bold text-slate-800 uppercase flex items-start justify-between border-b border-slate-100 pb-3 gap-2">
+              <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider flex items-start justify-between border-b border-slate-100 pb-3 gap-2">
                 <span className="flex items-center gap-1.5 leading-snug">
-                  <Award className="w-4 h-4 text-blue-500 shrink-0" />
+                  <Award className="w-4 h-4 text-slate-500 shrink-0" />
                   Assessment Summary
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold shrink-0">
+                <span className="px-2 py-0.5 rounded-md bg-slate-100/80 text-slate-500 border border-slate-200/60 text-[10px] font-medium shrink-0">
                   {questions.length} Items
                 </span>
               </div>
-              <div className="space-y-2.5 text-xs text-slate-600">
-                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
-                  <span className="font-medium">Awarding Board:</span>
+              <div className="space-y-2 text-xs text-slate-600">
+                <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border border-slate-200/60">
+                  <span className="font-normal text-slate-500">Awarding Board:</span>
                   <span className="font-semibold text-slate-800">{awardingBody}</span>
                 </div>
-                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
-                  <span className="font-medium">Regulated Level:</span>
+                <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border border-slate-200/60">
+                  <span className="font-normal text-slate-500">Regulated Level:</span>
                   <span className="font-semibold text-slate-800">{entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}</span>
                 </div>
-                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
-                  <span className="font-medium">Task Sections:</span>
+                <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border border-slate-200/60">
+                  <span className="font-normal text-slate-500">Task Sections:</span>
                   <span className="font-semibold text-slate-800">{taskSections.length} {taskSections.length === 1 ? 'Task' : 'Tasks'}</span>
                 </div>
-                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
-                  <span className="font-medium">Skill Focus:</span>
+                <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border border-slate-200/60">
+                  <span className="font-normal text-slate-500">Skill Focus:</span>
                   <span className="font-semibold text-slate-800 truncate max-w-[120px] text-right" title={taskType === "GRAMMAR" && customSkillName.trim() ? customSkillName : taskType === "GRAMMAR" ? "Custom Practice" : taskType}>
                     {taskType === "GRAMMAR" && customSkillName.trim()
                       ? customSkillName
@@ -2250,9 +2245,9 @@ const playSuccessSound = () => {
                       : taskType}
                   </span>
                 </div>
-                <div className="flex justify-between items-center bg-slate-50/60 p-2 rounded-lg border border-slate-100">
-                  <span className="font-medium">Pass Criteria:</span>
-                  <span className="font-semibold text-blue-500 text-right text-xs">
+                <div className="flex justify-between items-center bg-slate-50/50 p-2 rounded-lg border border-slate-200/60">
+                  <span className="font-normal text-slate-500">Pass Criteria:</span>
+                  <span className="font-semibold text-slate-700 text-right text-xs">
                     {requirePassMark && mustPassAllSkills
                       ? `${passMark}/${totalCalculatedMarks} & Checklist`
                       : requirePassMark
@@ -2262,19 +2257,19 @@ const playSuccessSound = () => {
                       : 'N/A (Ungraded)'}
                   </span>
                 </div>
-                <div className="flex justify-between items-center bg-blue-500 p-2.5 rounded-lg text-white mt-1">
-                  <span className="font-semibold text-blue-100">Total Marks:</span>
-                  <span className="font-bold text-lg leading-none">{totalCalculatedMarks}</span>
+                <div className="flex justify-between items-center bg-slate-100/80 p-2.5 rounded-lg border border-slate-200/60 mt-1">
+                  <span className="font-medium text-slate-700 text-xs">Total Marks:</span>
+                  <span className="font-semibold text-base text-slate-900 leading-none">{totalCalculatedMarks}</span>
                 </div>
               </div>
             </div>
           </Card>
 
           {/* 2. Global Question Palette */}
-          <Card className="border-slate-200 shadow-none rounded-xl bg-white overflow-hidden">
-            <CardHeader className="py-3 px-4 bg-slate-50/70 border-b border-slate-100">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+          <Card className="border border-slate-200/70 shadow-none rounded-xl bg-white overflow-hidden">
+            <CardHeader className="py-3 px-4 bg-slate-50/50 border-b border-slate-100">
+              <CardTitle className="text-xs font-semibold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-slate-500" />
                 Quick Question Palette
               </CardTitle>
             </CardHeader>
@@ -2282,137 +2277,137 @@ const playSuccessSound = () => {
               <button
                 type="button"
                 onClick={() => addQuestion("INSTRUCTION")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-blue-100 bg-blue-50/20 hover:border-blue-300 hover:bg-blue-50/50 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2 rounded-lg border border-slate-200/70 bg-white hover:border-slate-300 hover:bg-slate-50 text-left transition-colors group cursor-pointer shadow-none"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-blue-100 text-blue-500 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60 flex items-center justify-center font-semibold text-xs group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
                     📄
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-blue-900">Instruction Line</div>
-                    <div className="text-[10px] text-slate-500">e.g. Questions 1–8</div>
+                    <div className="text-xs font-medium text-slate-800 group-hover:text-primary transition-colors">Instruction Line</div>
+                    <div className="text-[10px] text-slate-400 font-normal">e.g. Questions 1–8</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-blue-400 group-hover:text-blue-500" />
+                <PlusCircle className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("MCQ")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2 rounded-lg border border-slate-200/70 bg-white hover:border-slate-300 hover:bg-slate-50 text-left transition-colors group cursor-pointer shadow-none"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60 flex items-center justify-center font-semibold text-xs group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
                     M
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-800">Multiple Choice</div>
-                    <div className="text-[10px] text-slate-400">Single or multi-select</div>
+                    <div className="text-xs font-medium text-slate-800 group-hover:text-primary transition-colors">Multiple Choice</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Single or multi-select</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
+                <PlusCircle className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("TRUE_FALSE")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2 rounded-lg border border-slate-200/70 bg-white hover:border-slate-300 hover:bg-slate-50 text-left transition-colors group cursor-pointer shadow-none"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60 flex items-center justify-center font-semibold text-xs group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
                     TF
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-800">True / False</div>
-                    <div className="text-[10px] text-slate-400">Statement verification</div>
+                    <div className="text-xs font-medium text-slate-800 group-hover:text-primary transition-colors">True / False</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Statement verification</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
+                <PlusCircle className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("GAP_FILL")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2 rounded-lg border border-slate-200/70 bg-white hover:border-slate-300 hover:bg-slate-50 text-left transition-colors group cursor-pointer shadow-none"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60 flex items-center justify-center font-semibold text-xs group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
                     G
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-800">Fill in the Blanks</div>
-                    <div className="text-[10px] text-slate-400">Grammar & verb drills</div>
+                    <div className="text-xs font-medium text-slate-800 group-hover:text-primary transition-colors">Fill in the Blanks</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Grammar & verb drills</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
+                <PlusCircle className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("WORD_BOX_MATCH")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2 rounded-lg border border-slate-200/70 bg-white hover:border-slate-300 hover:bg-slate-50 text-left transition-colors group cursor-pointer shadow-none"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60 flex items-center justify-center font-semibold text-xs group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
                     W
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-800">Word Box Match</div>
-                    <div className="text-[10px] text-slate-400">Word bank selection</div>
+                    <div className="text-xs font-medium text-slate-800 group-hover:text-primary transition-colors">Word Box Match</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Word bank selection</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
+                <PlusCircle className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("MATCHING")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2 rounded-lg border border-slate-200/70 bg-white hover:border-slate-300 hover:bg-slate-50 text-left transition-colors group cursor-pointer shadow-none"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60 flex items-center justify-center font-semibold text-xs group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
                     M
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-800">Pair Matching</div>
-                    <div className="text-[10px] text-slate-400">Headings & text types</div>
+                    <div className="text-xs font-medium text-slate-800 group-hover:text-primary transition-colors">Pair Matching</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Headings & text types</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
+                <PlusCircle className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("QUESTION_ANSWER")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2 rounded-lg border border-slate-200/70 bg-white hover:border-slate-300 hover:bg-slate-50 text-left transition-colors group cursor-pointer shadow-none"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60 flex items-center justify-center font-semibold text-xs group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
                     Q
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-800">Short Fact Answer</div>
-                    <div className="text-[10px] text-slate-400">Dates, prices, postcodes</div>
+                    <div className="text-xs font-medium text-slate-800 group-hover:text-primary transition-colors">Short Fact Answer</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Dates, prices, postcodes</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
+                <PlusCircle className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
               </button>
 
               <button
                 type="button"
                 onClick={() => addQuestion("ORDERING")}
-                className="w-full flex items-center justify-between p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/30 text-left transition-all group"
+                className="w-full flex items-center justify-between p-2 rounded-lg border border-slate-200/70 bg-white hover:border-slate-300 hover:bg-slate-50 text-left transition-colors group cursor-pointer shadow-none"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <div className="w-7 h-7 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60 flex items-center justify-center font-semibold text-xs group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
                     O
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-slate-800">Step Ordering</div>
-                    <div className="text-[10px] text-slate-400">Chronological sequencing</div>
+                    <div className="text-xs font-medium text-slate-800 group-hover:text-primary transition-colors">Step Ordering</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Chronological sequencing</div>
                   </div>
                 </div>
-                <PlusCircle className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
+                <PlusCircle className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
               </button>
             </CardContent>
           </Card>
@@ -2423,13 +2418,13 @@ const playSuccessSound = () => {
       {isPreviewOpen && (
         <div className="fixed inset-0 z-50 bg-slate-50 flex flex-col overflow-y-auto animate-in fade-in duration-200">
           {/* Top Sticky Bar with Title and Exit Preview Button */}
-          <div className="sticky top-0 z-40 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-2xs">
+          <div className="sticky top-0 z-40 bg-white border-b border-slate-200/80 px-6 py-3 flex items-center justify-between shadow-none">
             <div className="flex items-center gap-3">
-              <span className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-500">
+              <span className="w-8 h-8 rounded-lg bg-primary/5 border border-primary/20 flex items-center justify-center text-primary">
                 <Eye className="w-4 h-4" />
               </span>
               <div>
-                <h2 className="text-sm font-bold text-slate-800 leading-tight">Student Examination Preview</h2>
+                <h2 className="text-sm font-semibold text-slate-900 leading-tight">Student Examination Preview</h2>
                 <p className="text-[11px] text-slate-500">Live interactive split-screen simulation</p>
               </div>
             </div>
@@ -2438,7 +2433,7 @@ const playSuccessSound = () => {
               type="button" 
               variant="outline"
               onClick={() => setIsPreviewOpen(false)} 
-              className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200 font-semibold text-xs px-3.5 h-8.5 rounded-lg flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              className="bg-white hover:bg-slate-50 text-slate-700 border-slate-200/80 font-medium text-xs px-3.5 h-8.5 rounded-lg flex items-center gap-1.5 shadow-none cursor-pointer"
             >
               <X className="w-4 h-4 text-slate-500" />
               Exit Preview

@@ -20,6 +20,11 @@ export const createCheckoutSession = async (checkoutBody: CheckOutBody) => {
    return data;
 };
 
+export const confirmCheckoutSession = async (sessionId: string) => {
+   const { data } = await axios.post('/payment/confirm-session', { sessionId });
+   return data;
+};
+
 export const getMySubscription = async () => {
    const { data } = await axios.get('/payment/me');
    return data;

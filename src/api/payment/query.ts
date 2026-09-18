@@ -3,6 +3,7 @@ import {
     attachPremiumTasks,
     cancelSubscription,
     changeUserPlan,
+    confirmCheckoutSession,
     createCheckoutSession,
     createBillingPortalSession,
     createPlan,
@@ -39,6 +40,19 @@ export const useCreateCheckoutSessionMutation = () => {
         mutationFn: async (checkoutBody: CheckOutBody) => createCheckoutSession(checkoutBody),
     })
 }
+
+export const useConfirmCheckoutSessionMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: ['confirmCheckoutSession'],
+        mutationFn: async (sessionId: string) => confirmCheckoutSession(sessionId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['mySubscription'] });
+            queryClient.invalidateQueries({ queryKey: ['billingInfo'] });
+            queryClient.invalidateQueries({ queryKey: ['subscriptionPlans'] });
+        },
+    });
+};
 
 export const useCreateBillingPortalSessionMutation = () => {
     return useMutation({

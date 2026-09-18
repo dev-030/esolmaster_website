@@ -8,10 +8,7 @@ export default function SettingsLayout({
 }) {
   return (
     <div className="flex flex-col w-full">
-      <SectionHeading
-        heading="Account Settings"
-        subheading="Manage your account settings and preferences"
-      />
+      <SectionHeading heading="Account Settings" className="mb-4" />
 
       <div className="flex items-start max-md:flex-col gap-3.5 w-full">
         <SettingsBar />

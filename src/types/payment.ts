@@ -107,3 +107,25 @@ export interface CreatePlanBody {
 }
 
 export type UpdatePlanBody = Partial<CreatePlanBody> & { isActive?: boolean };
+
+export interface TeacherSubscription {
+  id: string;
+  userId: string;
+  planId: string;
+  billingCycle: 'MONTHLY' | 'ANNUAL' | null;
+  billingStatus: 'ACTIVE' | 'PAST_DUE' | 'TRIALING' | 'CANCELED' | 'CANCELING' | 'PAYMENT_ACTION_REQUIRED';
+  boughtPrice: number;
+  discountAmount: number;
+  finalPrice: number;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  stripePriceId?: string | null;
+  currentPeriodStart?: string | null;
+  currentPeriodEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
+  plan?: AdminBillingPlan | null;
+  usage?: {
+    classesCount: number;
+  };
+  allowedPremiumTaskIds?: string[];
+}

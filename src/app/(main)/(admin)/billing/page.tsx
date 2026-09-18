@@ -1,6 +1,5 @@
-import { AdminBillingManager } from "@/webcomponents/admin";
+import { redirect } from "next/navigation";
 
-export default function BillingManager() {
-
-    return <AdminBillingManager />
+export default function BillingRedirectPage() {
+  redirect("/packages");
 }

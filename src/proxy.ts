@@ -12,15 +12,16 @@ const ADMIN_PATHS = [
   "/admin_reports",
   "/analysis",
   "/billing",
+  "/packages",
   "/perfomance",
   "/users",
 ];
 const TEACHER_PATHS = ["/profile_teacher", "/report", "/students"];
-const STUDENT_PATHS = ["/progress", "/tasks"];
+const STUDENT_PATHS = ["/progress", "/tasks", "/notification"];
 
 // Shared paths
 const ADMIN_TEACHER_PATHS = ["/assign-task", "/content-library"];
-const ADMIN_STUDENT_PATHS = ["/badges"];
+const ADMIN_STUDENT_PATHS = ["/badges", "/help"];
 const TEACHER_STUDENT_PATHS = ["/classes"];
 
 export async function proxy(request: NextRequest) {
@@ -28,8 +29,12 @@ export async function proxy(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken")?.value;
   const { pathname } = request.nextUrl;
 
-  // Skip Next.js internals and API routes
-  if (pathname.startsWith("/_next") || pathname.startsWith("/api")) {
+  // Skip Next.js internals, API routes, and public static files
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    /\.(png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|eot)$/i.test(pathname)
+  ) {
     return NextResponse.next();
   }
 
@@ -82,14 +87,6 @@ export async function proxy(request: NextRequest) {
       NextResponse.redirect(new URL("/dashboard", request.url));
 
     if (matches(ADMIN_PATHS) && role !== "admin") {
-      return toDashboard();
-    }
-
-    if (
-      pathname.startsWith("/assign-task") &&
-      !pathname.startsWith("/assign-task/preview") &&
-      role !== "admin"
-    ) {
       return toDashboard();
     }
 
@@ -147,5 +144,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff2?)).*)"],
 };

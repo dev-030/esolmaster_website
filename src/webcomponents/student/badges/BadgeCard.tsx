@@ -58,7 +58,7 @@ export const BadgeCard = ({ badge }: { badge: BadgeItem }) => {
             </div>
             <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#3454FB] rounded-full transition-all duration-500"
+                className="h-full bg-primary rounded-full transition-all duration-500"
                 style={{ width: `${badge.progress ?? 0}%` }}
               />
             </div>

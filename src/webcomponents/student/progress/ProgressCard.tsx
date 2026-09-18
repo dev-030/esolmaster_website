@@ -2,7 +2,7 @@ export const ProgressCard = ({
   title,
   value,
   label,
-  color = "#3454FB",
+  color = "#2563EB",
 }: {
   title: string;
   value: number;

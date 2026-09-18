@@ -251,49 +251,49 @@ export const LocalTaskPreview = ({
     const correctCount = resultRows.filter((result) => result.correct).length;
     return (
       <div className="max-w-4xl mx-auto space-y-6 pb-8">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="bg-[#2F7EDA] px-6 py-8 sm:px-10 sm:py-10 text-white">
+        <div className="overflow-hidden rounded-xl border border-slate-200/70 bg-white shadow-none">
+          <div className="bg-slate-900 px-6 py-8 sm:px-10 sm:py-10 text-white">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
               <div className="space-y-2">
-                <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-wider"><CheckCircle2 className="w-4 h-4" />Assessment complete</span>
-                <h2 className="text-3xl font-bold tracking-tight">{percentage}% score</h2>
-                <p className="text-blue-100">{correctCount} of {totalQuestions} questions correct · {earnedMarks} of {totalCalculatedMarks} marks</p>
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider"><CheckCircle2 className="w-4 h-4 text-emerald-400" />Assessment complete</span>
+                <h2 className="text-3xl font-semibold tracking-tight">{percentage}% score</h2>
+                <p className="text-slate-300 text-sm">{correctCount} of {totalQuestions} questions correct · {earnedMarks} of {totalCalculatedMarks} marks</p>
                 {(usesScore || usesCriteria) && (
-                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${assessmentPassed ? "bg-emerald-400 text-emerald-950" : "bg-red-100 text-red-700"}`}>
+                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider ${assessmentPassed ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-red-500/20 text-red-300 border border-red-500/30"}`}>
                     {assessmentPassed ? "Pass" : "Not yet passed"}
                   </span>
                 )}
               </div>
-              <div className="w-28 h-28 rounded-full bg-white/15 border-[10px] border-white/25 flex flex-col items-center justify-center shrink-0">
-                <span className="text-3xl font-bold leading-none">{earnedMarks}</span>
-                <span className="text-xs text-blue-100 mt-1">/ {totalCalculatedMarks}</span>
+              <div className="w-24 h-24 rounded-full bg-white/10 border-4 border-white/20 flex flex-col items-center justify-center shrink-0">
+                <span className="text-2xl font-bold leading-none">{earnedMarks}</span>
+                <span className="text-xs text-slate-400 mt-1">/ {totalCalculatedMarks}</span>
               </div>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4 bg-slate-50">
-            <p className="text-sm text-slate-600">Review each answer below and use the explanations to learn from mistakes.</p>
-            <Button variant="outline" onClick={restart} className="bg-white shrink-0"><RotateCcw className="w-4 h-4 mr-2" />Try again</Button>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4 bg-slate-50/60 border-t border-slate-200/70">
+            <p className="text-xs sm:text-[13px] text-slate-500">Review each answer below and use the explanations to learn from mistakes.</p>
+            <Button variant="outline" onClick={restart} className="bg-white border-slate-200/80 hover:bg-slate-50 text-slate-700 h-8.5 rounded-lg text-xs font-medium shadow-none shrink-0"><RotateCcw className="w-3.5 h-3.5 mr-1.5" />Try again</Button>
           </div>
         </div>
 
         {usesCriteria && (
-          <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-b border-slate-200 bg-slate-50">
+          <div className="rounded-xl border border-slate-200/70 bg-white overflow-hidden shadow-none">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-b border-slate-200/70 bg-slate-50/60">
               <div>
-                <h3 className="font-bold text-slate-800">Skill criteria checklist</h3>
-                <p className="text-sm text-slate-500">Every mapped question must be correct for a criterion to be fulfilled.</p>
+                <h3 className="text-sm font-semibold text-slate-900">Skill criteria checklist</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Every mapped question must be correct for a criterion to be fulfilled.</p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-bold ${criteriaPassed ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>{criteriaResults.filter((criterion: any) => criterion.fulfilled).length} / {criteriaResults.length} fulfilled</span>
+              <span className={`rounded-full px-3 py-1 text-xs font-medium ${criteriaPassed ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}>{criteriaResults.filter((criterion: any) => criterion.fulfilled).length} / {criteriaResults.length} fulfilled</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-5">
               {criteriaResults.map((criterion: any) => (
-                <div key={criterion.id} className={`rounded-xl border p-4 ${criterion.fulfilled ? "border-emerald-200 bg-emerald-50/50" : "border-red-200 bg-red-50/50"}`}>
+                <div key={criterion.id} className={`rounded-lg border p-4 ${criterion.fulfilled ? "border-emerald-200/80 bg-emerald-50/40" : "border-red-200/80 bg-red-50/40"}`}>
                   <div className="flex items-start gap-3">
                     {criterion.fulfilled ? <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />}
                     <div className="min-w-0">
-                      <p className="font-bold text-slate-800">{criterion.code}</p>
-                      {criterion.description && <p className="text-sm text-slate-600 mt-0.5">{criterion.description}</p>}
-                      <p className={`text-xs font-semibold mt-2 ${criterion.fulfilled ? "text-emerald-700" : "text-red-700"}`}>{criterion.correct} of {criterion.total} mapped questions correct · {criterion.fulfilled ? "Fulfilled" : "Not fulfilled"}</p>
+                      <p className="font-semibold text-slate-900 text-xs">{criterion.code}</p>
+                      {criterion.description && <p className="text-xs text-slate-500 mt-0.5">{criterion.description}</p>}
+                      <p className={`text-xs font-medium mt-2 ${criterion.fulfilled ? "text-emerald-700" : "text-red-700"}`}>{criterion.correct} of {criterion.total} mapped questions correct · {criterion.fulfilled ? "Fulfilled" : "Not fulfilled"}</p>
                     </div>
                   </div>
                 </div>
@@ -304,27 +304,27 @@ export const LocalTaskPreview = ({
 
         <div className="space-y-4">
           {resultRows.map(({ question, index, correct }) => (
-            <div key={question.id} className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
-              <div className={`flex items-center gap-3 px-5 py-3 border-b ${correct ? "bg-emerald-50 border-emerald-100" : "bg-red-50 border-red-100"}`}>
-                {correct ? <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" /> : <XCircle className="w-5 h-5 text-red-600 shrink-0" />}
-                <span className={`text-xs font-bold uppercase tracking-wider ${correct ? "text-emerald-700" : "text-red-700"}`}>Question {index + 1} · {correct ? "Correct" : "Review needed"}</span>
-                <span className="ml-auto text-xs font-semibold text-slate-500">{question.marks || 1} {question.marks === 1 ? "mark" : "marks"}</span>
+            <div key={question.id} className="rounded-xl border border-slate-200/70 bg-white overflow-hidden shadow-none">
+              <div className={`flex items-center gap-3 px-5 py-3 border-b ${correct ? "bg-emerald-50/60 border-emerald-100" : "bg-red-50/60 border-red-100"}`}>
+                {correct ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> : <XCircle className="w-4 h-4 text-red-600 shrink-0" />}
+                <span className={`text-xs font-semibold uppercase tracking-wider ${correct ? "text-emerald-700" : "text-red-700"}`}>Question {index + 1} · {correct ? "Correct" : "Review needed"}</span>
+                <span className="ml-auto text-xs font-medium text-slate-500">{question.marks || 1} {question.marks === 1 ? "mark" : "marks"}</span>
               </div>
               <div className="p-5 sm:p-6 space-y-5">
-                <p className="text-lg font-semibold leading-relaxed text-slate-800">{toPlainText(question.content)}</p>
+                <p className="text-base font-semibold leading-relaxed text-slate-900">{toPlainText(question.content)}</p>
                 <div className={`grid gap-3 ${correct ? "grid-cols-1" : "sm:grid-cols-2"}`}>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Your answer</p>
-                    <p className="font-semibold text-slate-800">{toPlainText(Array.isArray(answers[question.id]) ? answers[question.id].join(", ") : answers[question.id])}</p>
+                  <div className="rounded-lg border border-slate-200/80 bg-slate-50/50 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Your answer</p>
+                    <p className="font-medium text-slate-800 text-sm">{toPlainText(Array.isArray(answers[question.id]) ? answers[question.id].join(", ") : answers[question.id])}</p>
                   </div>
-                  {!correct && <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 mb-1.5">Correct answer</p>
-                    <p className="font-semibold text-emerald-800">{toPlainText(correctAnswer(question))}</p>
+                  {!correct && <div className="rounded-lg border border-emerald-200/80 bg-emerald-50/40 p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 mb-1.5">Correct answer</p>
+                    <p className="font-semibold text-emerald-900 text-sm">{toPlainText(correctAnswer(question))}</p>
                   </div>}
                 </div>
-                {question.explanation && <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-blue-700 mb-1.5">Why this is the answer</p>
-                  <p className="text-sm leading-relaxed text-slate-700">{toPlainText(question.explanation)}</p>
+                {question.explanation && <div className="rounded-lg border border-slate-200/70 bg-slate-50/50 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Why this is the answer</p>
+                  <p className="text-xs sm:text-[13px] leading-relaxed text-slate-600">{toPlainText(question.explanation)}</p>
                 </div>
                 }
               </div>
@@ -340,43 +340,43 @@ export const LocalTaskPreview = ({
       {/* Header Bar */}
       <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-slate-200/80">
         <div className="flex items-center gap-2.5 flex-wrap">
-          <h1 className="text-xl font-bold text-slate-800 tracking-tight">
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
             {title || "Untitled Activity"}
           </h1>
-          <span className="px-3 py-0.5 rounded-full text-xs font-semibold bg-blue-50/70 text-[#3454FB] border border-blue-200/80 flex items-center gap-1.5 shadow-2xs">
+          <span className="px-3 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 flex items-center gap-1.5 shadow-none">
             <span>{currentSkill.emoji}</span> {currentSkill.label}
           </span>
           {awardingBody && awardingBody !== "CUSTOM" && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-600 border border-slate-200/80 shadow-2xs">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200/80 shadow-none">
               {awardingBody}
             </span>
           )}
           {entryLevel && (
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-600 border border-slate-200/80 shadow-2xs">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200/80 shadow-none">
               {entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")}
             </span>
           )}
           {passRequirementNode !== "N/A (Ungraded)" && (
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-50 text-slate-600 border border-slate-200/80 flex items-center gap-1.5 shadow-2xs ml-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#3454FB]"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-50 text-slate-600 border border-slate-200/80 flex items-center gap-1.5 shadow-none ml-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
               {passRequirementNode}
             </span>
           )}
         </div>
-        <div className="text-xs font-semibold text-slate-600 bg-white px-3 py-1 rounded-full border border-slate-200/80 shadow-2xs">
+        <div className="text-xs font-medium text-slate-600 bg-white px-3 py-1 rounded-full border border-slate-200/80 shadow-none">
           Question {currentIndex + 1} of {totalQuestions}
         </div>
       </div>
 
       {/* Progress Bar */}
       <div className="flex items-center gap-4">
-        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/70 shadow-2xs">
+        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/70 shadow-none">
           <div
-            className="h-full bg-[#3454FB] transition-all duration-300 ease-out"
+            className="h-full bg-primary transition-all duration-300 ease-out"
             style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
           />
         </div>
-        <span className="text-xs font-bold text-slate-500 min-w-[3rem] text-right">
+        <span className="text-xs font-semibold text-slate-500 min-w-[3rem] text-right">
           {Math.round(((currentIndex + 1) / totalQuestions) * 100)}%
         </span>
       </div>
@@ -386,34 +386,34 @@ export const LocalTaskPreview = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Panel: Persistent Stimulus Material (50%) */}
           <div className="lg:col-span-6 flex flex-col gap-3 sticky top-4 max-h-[75vh] overflow-y-auto pr-1">
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col">
+            <div className="bg-white rounded-xl border border-slate-200/70 shadow-none overflow-hidden flex flex-col">
               {/* Task Section Banner */}
               <div className="px-5 py-3.5 bg-white border-b border-slate-100 text-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="h-6 px-2.5 rounded-lg bg-[#3454FB] text-white text-[11px] font-bold flex items-center shadow-xs">
+                  <span className="h-6 px-2.5 rounded-lg bg-primary text-white text-[11px] font-semibold flex items-center shadow-none">
                     {activeSection.title || "Task 1"}
                   </span>
-                  <span className="text-xs font-semibold text-slate-600 truncate max-w-[280px]">
+                  <span className="text-xs font-medium text-slate-600 truncate max-w-[280px]">
                     {activeSection.instruction || "Read the text and answer questions."}
                   </span>
                 </div>
                 {activeSection.stimulusType === "IMAGE" && (
-                  <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1 text-xs text-slate-700 shadow-2xs">
+                  <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 rounded-lg px-2.5 py-1 text-xs text-slate-700 shadow-none">
                     <button
                       type="button"
                       onClick={() => setImageZoom((z) => Math.max(0.5, z - 0.25))}
-                      className="w-5 h-5 flex items-center justify-center rounded hover:bg-white text-slate-600 hover:text-blue-600 font-bold text-base transition-colors cursor-pointer"
+                      className="w-5 h-5 flex items-center justify-center rounded hover:bg-white text-slate-600 hover:text-primary/90 font-bold text-base transition-colors cursor-pointer"
                       title="Zoom Out"
                     >
                       −
                     </button>
-                    <span className="min-w-[42px] text-center font-bold text-slate-800 text-xs select-none">
+                    <span className="min-w-[42px] text-center font-semibold text-slate-800 text-xs select-none">
                       {Math.round(imageZoom * 100)}%
                     </span>
                     <button
                       type="button"
                       onClick={() => setImageZoom((z) => Math.min(2.5, z + 0.25))}
-                      className="w-5 h-5 flex items-center justify-center rounded hover:bg-white text-slate-600 hover:text-blue-600 font-bold text-base transition-colors cursor-pointer"
+                      className="w-5 h-5 flex items-center justify-center rounded hover:bg-white text-slate-600 hover:text-primary/90 font-bold text-base transition-colors cursor-pointer"
                       title="Zoom In"
                     >
                       +
@@ -426,7 +426,7 @@ export const LocalTaskPreview = ({
               <div className="p-5 bg-slate-50/50 min-h-[340px] flex items-center justify-center">
                 {activeSection.stimulusType === "IMAGE" && activeSection.imageUrl ? (
                   <div className="overflow-auto max-h-[60vh] w-full flex justify-center p-1">
-                    <div className="rounded-xl bg-white p-3 border border-slate-200/90 shadow-xs flex items-center justify-center">
+                    <div className="rounded-xl bg-white p-3 border border-slate-200/70 shadow-none flex items-center justify-center">
                       <img
                         src={activeSection.imageUrl}
                         alt="Exam Stimulus Graphic"
@@ -440,7 +440,7 @@ export const LocalTaskPreview = ({
                   </div>
                 ) : (
                   <div
-                    className="prose prose-sm prose-slate max-w-none w-full bg-white p-6 rounded-xl border border-slate-200/80 shadow-xs leading-relaxed"
+                    className="prose prose-sm prose-slate max-w-none w-full bg-white p-6 rounded-xl border border-slate-200/70 shadow-none leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: activeSection.content }}
                   />
                 )}
@@ -450,14 +450,14 @@ export const LocalTaskPreview = ({
 
           {/* Right Panel: Active Question (50%) */}
           <div className="lg:col-span-6 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-7 flex flex-col gap-6">
+            <div className="bg-white rounded-xl border border-slate-200/70 shadow-none p-6 sm:p-7 flex flex-col gap-6">
               {/* Section Instruction Line Banner */}
               {currentQuestion?.type !== "INSTRUCTION" && sectionInstructions.length > 0 && (
                 <div className="space-y-2">
                   {sectionInstructions.map((inst: any) => (
                     <div
                       key={inst.id}
-                      className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl"
+                      className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-lg"
                     >
                       <p className="text-xs font-semibold text-slate-800 leading-snug">
                         {inst.content || inst.config?.heading || "Instruction"}
@@ -469,10 +469,10 @@ export const LocalTaskPreview = ({
 
               {currentQuestion?.type === "INSTRUCTION" ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     <span>📄 Instruction Line</span>
                   </div>
-                  <div className="p-4 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-1 text-slate-800">
+                  <div className="p-4 bg-slate-50/70 border border-slate-200/70 rounded-lg space-y-1 text-slate-800">
                     <p className="text-sm font-semibold text-slate-800 leading-snug">
                       {currentQuestion.content || currentQuestion.config?.heading || "Instruction"}
                     </p>
@@ -481,20 +481,20 @@ export const LocalTaskPreview = ({
               ) : (
                 <>
                   <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-                    <span className="text-xs font-bold text-[#3454FB] uppercase tracking-wider">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wider">
                       Question {currentIndex + 1}
                     </span>
                     <div className="flex items-center gap-2">
                       {currentQuestion?.criterionId && taskCriteria && (
                         <span 
-                          className="text-[10px] font-semibold text-[#3454FB] bg-blue-50/70 border border-blue-200/80 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs" 
+                          className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-none" 
                           title={taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.description}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
                           {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                         </span>
                       )}
-                      <span className="text-[10px] font-semibold text-slate-600 bg-slate-100/80 border border-slate-200/80 px-2 py-0.5 rounded-md shadow-2xs">
+                      <span className="text-[10px] font-semibold text-slate-600 bg-slate-100/80 border border-slate-200/80 px-2 py-0.5 rounded-md shadow-none">
                         <span className="font-bold text-slate-800 mr-0.5">
                           {currentQuestion?.marks ?? 1}
                         </span>
@@ -521,7 +521,7 @@ export const LocalTaskPreview = ({
                 variant="outline"
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
-                className="border-slate-200/90 hover:bg-slate-50 text-slate-600 font-semibold text-xs px-4 h-9 rounded-xl shadow-2xs cursor-pointer"
+                className="border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs px-4 h-9 rounded-lg shadow-none cursor-pointer"
               >
                 Previous
               </Button>
@@ -530,7 +530,7 @@ export const LocalTaskPreview = ({
                 <Button
                   onClick={handleNext}
                   disabled={!isAnswered(currentQuestion)}
-                  className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-5 h-9 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                  className="bg-primary hover:bg-primary/90 text-white font-medium text-xs px-5 h-9 rounded-lg shadow-none transition-colors cursor-pointer disabled:opacity-50"
                 >
                   Next Question
                 </Button>
@@ -538,7 +538,7 @@ export const LocalTaskPreview = ({
                 <Button
                   onClick={() => setSubmitted(true)}
                   disabled={!isAnswered(currentQuestion)}
-                  className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-5 h-9 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                  className="bg-primary hover:bg-primary/90 text-white font-medium text-xs px-5 h-9 rounded-lg shadow-none transition-colors cursor-pointer disabled:opacity-50"
                 >
                   Submit Assessment
                 </Button>
@@ -549,15 +549,15 @@ export const LocalTaskPreview = ({
       ) : (
         /* Focused Centered Layout for Tasks without Stimulus */
         <div className="max-w-3xl mx-auto space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 md:p-8 flex flex-col gap-6">
+          <div className="bg-white rounded-xl border border-slate-200/70 shadow-none p-6 md:p-8 flex flex-col gap-6">
             {/* Task Banner */}
             {activeSection?.title && (
               <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                <span className="h-6 px-2.5 rounded-lg bg-[#3454FB] text-white text-[11px] font-bold flex items-center shadow-xs">
+                <span className="h-6 px-2.5 rounded-lg bg-primary text-white text-[11px] font-semibold flex items-center shadow-none">
                   {activeSection.title}
                 </span>
                 {activeSection.instruction && (
-                  <span className="text-xs font-semibold text-slate-600">
+                  <span className="text-xs font-medium text-slate-600">
                     {activeSection.instruction}
                   </span>
                 )}
@@ -570,7 +570,7 @@ export const LocalTaskPreview = ({
                 {sectionInstructions.map((inst: any) => (
                   <div
                     key={inst.id}
-                    className="p-3.5 bg-slate-50/70 border border-slate-200/80 rounded-xl"
+                    className="p-3.5 bg-slate-50/70 border border-slate-200/70 rounded-lg"
                   >
                     <p className="text-xs font-semibold text-slate-800 leading-snug">
                       {inst.content || inst.config?.heading || "Instruction"}
@@ -582,10 +582,10 @@ export const LocalTaskPreview = ({
 
             {currentQuestion?.type === "INSTRUCTION" ? (
               <div className="space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   <span>📄 Instruction Line</span>
                 </div>
-                <div className="p-4 bg-slate-50/70 border border-slate-200/80 rounded-xl space-y-1 text-slate-800">
+                <div className="p-4 bg-slate-50/70 border border-slate-200/70 rounded-lg space-y-1 text-slate-800">
                   <p className="text-sm font-semibold text-slate-800 leading-snug">
                     {currentQuestion.content || currentQuestion.config?.heading || "Instruction"}
                   </p>
@@ -594,20 +594,20 @@ export const LocalTaskPreview = ({
             ) : (
               <>
                 <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-                  <span className="text-xs font-bold text-[#3454FB] uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-primary uppercase tracking-wider">
                     Question {currentIndex + 1}
                   </span>
                   <div className="flex items-center gap-2">
                     {currentQuestion?.criterionId && taskCriteria && (
                       <span 
-                        className="text-[10px] font-semibold text-[#3454FB] bg-blue-50/70 border border-blue-200/80 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs" 
+                        className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-none" 
                         title={taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.description}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
                         {taskCriteria.find((c: any) => c.id === currentQuestion.criterionId)?.code || "Mapped"}
                       </span>
                     )}
-                    <span className="text-[10px] font-semibold text-slate-600 bg-slate-100/80 border border-slate-200/80 px-2 py-0.5 rounded-md shadow-2xs">
+                    <span className="text-[10px] font-semibold text-slate-600 bg-slate-100/80 border border-slate-200/80 px-2 py-0.5 rounded-md shadow-none">
                       <span className="font-bold text-slate-800 mr-0.5">
                         {currentQuestion?.marks ?? 1}
                       </span>
@@ -633,7 +633,7 @@ export const LocalTaskPreview = ({
               variant="outline"
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className="border-slate-200/90 hover:bg-slate-50 text-slate-600 font-semibold text-xs px-4 h-9 rounded-xl shadow-2xs cursor-pointer"
+              className="border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs px-4 h-9 rounded-lg shadow-none cursor-pointer"
             >
               Previous
             </Button>
@@ -642,7 +642,7 @@ export const LocalTaskPreview = ({
               <Button
                 onClick={handleNext}
                 disabled={!isAnswered(currentQuestion)}
-                className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-5 h-9 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                className="bg-primary hover:bg-primary/90 text-white font-medium text-xs px-5 h-9 rounded-lg shadow-none transition-colors cursor-pointer disabled:opacity-50"
               >
                 Next Question
               </Button>
@@ -650,7 +650,7 @@ export const LocalTaskPreview = ({
               <Button
                 onClick={() => setSubmitted(true)}
                 disabled={!isAnswered(currentQuestion)}
-                className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-5 h-9 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                className="bg-primary hover:bg-primary/90 text-white font-medium text-xs px-5 h-9 rounded-lg shadow-none transition-colors cursor-pointer disabled:opacity-50"
               >
                 Submit Assessment
               </Button>

@@ -9,6 +9,7 @@ import {
   Loader2,
   Lock,
   Send,
+  Sparkles,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export default function PreviewTaskPage() {
     passLogic?: string;
     awardingBody?: string;
     entryLevel?: string;
+    isPremium?: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -157,6 +159,7 @@ export default function PreviewTaskPage() {
             passLogic: task.readingContent?.passLogic || task.passLogic || undefined,
             awardingBody: task.readingContent?.awardingBody || undefined,
             entryLevel: task.readingContent?.entryType?.[0] || undefined,
+            isPremium: !!task.isPremium,
           });
           setIsLoading(false);
         })
@@ -182,7 +185,7 @@ export default function PreviewTaskPage() {
   if (isLoading) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center bg-slate-50 gap-3">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-xs text-slate-500 font-medium animate-pulse">Loading activity preview...</p>
       </div>
     );
@@ -210,6 +213,11 @@ export default function PreviewTaskPage() {
               <h1 className="text-sm font-bold text-slate-900 truncate leading-tight max-w-[280px] sm:max-w-md">
                 {taskData.title}
               </h1>
+              {taskData.isPremium && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-200 shrink-0">
+                  <Sparkles className="w-2.5 h-2.5 text-amber-500 fill-amber-500" /> PRO
+                </span>
+              )}
               <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 border border-slate-200 shrink-0">
                 <Lock className="w-2.5 h-2.5" /> Read-Only
               </span>
@@ -230,7 +238,7 @@ export default function PreviewTaskPage() {
               className={cn(
                 "flex items-center justify-center gap-1.5 py-1.5 px-3.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
                 activeTab === "preview"
-                  ? "bg-white text-[#3454FB] shadow-xs"
+                  ? "bg-white text-primary shadow-xs"
                   : "text-slate-500 hover:text-slate-800",
               )}
             >
@@ -243,7 +251,7 @@ export default function PreviewTaskPage() {
               className={cn(
                 "flex items-center justify-center gap-1.5 py-1.5 px-3.5 text-xs font-semibold rounded-lg transition-all cursor-pointer",
                 activeTab === "overview"
-                  ? "bg-white text-[#3454FB] shadow-xs"
+                  ? "bg-white text-primary shadow-xs"
                   : "text-slate-500 hover:text-slate-800",
               )}
             >
@@ -258,7 +266,7 @@ export default function PreviewTaskPage() {
           <Button
             type="button"
             onClick={() => setIsAssignOpen(true)}
-            className="bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs px-3.5 h-8.5 rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer transition-all"
+            className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs px-3.5 h-8.5 rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer transition-all"
           >
             <Send className="w-3.5 h-3.5" />
             Assign to Class
@@ -306,6 +314,7 @@ export default function PreviewTaskPage() {
           onOpenChange={setIsAssignOpen}
           taskId={params.taskId}
           taskTitle={taskData.title}
+          isPremium={taskData.isPremium}
         />
       )}
     </div>

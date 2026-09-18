@@ -77,7 +77,7 @@ export const Tasks = () => {
       <div className="rounded-[20px] border border-slate-100/90 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] space-y-3">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-bold shrink-0">
-            <Filter className="w-3.5 h-3.5 text-[#3454FB]" />
+            <Filter className="w-3.5 h-3.5 text-primary" />
             Filters:
           </div>
 
@@ -95,7 +95,7 @@ export const Tasks = () => {
                   className={cn(
                     "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer",
                     isActive
-                      ? "bg-[#3454FB] text-white shadow-sm shadow-blue-500/20 font-bold"
+                      ? "bg-primary text-white shadow-sm shadow-primary/20 font-bold"
                       : "bg-slate-50 border border-slate-200/80 text-slate-600 hover:border-slate-300 hover:bg-slate-100/60"
                   )}
                 >
@@ -153,12 +153,12 @@ export const Tasks = () => {
       {/* Task Sections */}
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 rounded-[22px] border border-dashed border-slate-200 bg-white">
-          <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl text-[#3454FB]">
+          <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center text-2xl text-primary">
             📚
           </div>
           <p className="font-semibold text-slate-800 text-sm">No tasks found</p>
           <p className="text-xs text-slate-400 max-w-xs">
-            Try adjusting your filters or check back later for newly scheduled tasks.
+            Try adjusting your filters or check back later for newly assigned activities.
           </p>
           <Button
             variant="outline"
@@ -177,7 +177,7 @@ export const Tasks = () => {
           {grammarTasks.length > 0 && (
             <div>
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-1.5 h-5 bg-[#3454FB] rounded-full" />
+                <div className="w-1.5 h-5 bg-primary rounded-full" />
                 <h2 className="text-base font-semibold text-slate-800">Grammar Activities</h2>
                 <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
                   {grammarTasks.length}

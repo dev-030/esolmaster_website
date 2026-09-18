@@ -13,9 +13,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Plus, BookOpen, ChevronLeft, ChevronRight, LogIn } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useRole } from "@/provider/RoleProvider";
-import { ClassCard, EmptyState } from "@/webcomponents/reusable";
+import { useTeacherSubscription } from "@/provider/SubscriptionProvider";
+import { ClassCard, EmptyState, SectionHeading } from "@/webcomponents/reusable";
 import { ClassDialog, DeleteDialog } from "./dialogs";
 import {
   useCreateClassMutation,
@@ -28,6 +30,7 @@ import { Class as ClassRoom, CreateClassPayload } from "@/types/class";
 
 export const Class = () => {
   const { role } = useRole();
+  const { planType, limits, canCreateClass, openUpgradeModal } = useTeacherSubscription();
   const [page, setPage] = useState(1);
   const [joinOpen, setJoinOpen] = useState(false);
   const [joinCode, setJoinCode] = useState("");
@@ -107,38 +110,71 @@ export const Class = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-800">
-            {isTeacher ? "My Classes" : "Classes"}
-          </h1>
-          <p className="text-xs text-slate-400 font-medium mt-0.5">
-            {totalItems} class{totalItems !== 1 ? "es" : ""} enrolled
-          </p>
-        </div>
-        {isTeacher ? (
-          <Button
-            onClick={() => setClassDialog({ open: true, initial: null })}
-            className="gap-2 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[12px] h-9 px-4 text-xs shadow-sm shadow-blue-500/15"
-          >
-            <Plus className="w-4 h-4" />
-            New Class
-          </Button>
-        ) : (
-          <Button
-            onClick={() => setJoinOpen(true)}
-            className="gap-2 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[12px] h-9 px-4 text-xs shadow-sm shadow-blue-500/15"
-          >
-            <LogIn className="w-4 h-4" />
-            Join Class
-          </Button>
-        )}
-      </div>
+      <SectionHeading
+        heading={isTeacher ? "My Classes" : "Classes"}
+        subheading={
+          isTeacher
+            ? `${totalItems} of ${limits.maxClasses} classes used (${planType} Plan)`
+            : `${totalItems} class${totalItems !== 1 ? "es" : ""} enrolled`
+        }
+        action={
+          isTeacher ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline-flex items-center text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200/70">
+                {totalItems} / {limits.maxClasses} Classes Used
+              </span>
+              <Button
+                onClick={() => {
+                  if (!canCreateClass) {
+                    openUpgradeModal(
+                      "Class Limit Reached",
+                      `You have reached your limit of ${limits.maxClasses} classes on the ${planType} plan. Upgrade to Basic or Pro to create more classrooms.`
+                    );
+                    return;
+                  }
+                  setClassDialog({ open: true, initial: null });
+                }}
+                className="gap-2 bg-[#007EEF] hover:bg-[#0066cc] text-white font-semibold rounded-xl h-9 px-4 text-xs border-none shadow-none cursor-pointer"
+                style={{ boxShadow: "none" }}
+              >
+                <Plus className="w-4 h-4" />
+                New Class
+              </Button>
+            </div>
+          ) : (
+            <Button
+              onClick={() => setJoinOpen(true)}
+              className="gap-2 bg-[#007EEF] hover:bg-[#0066cc] text-white font-semibold rounded-xl h-9 px-4 text-xs border-none shadow-none"
+              style={{ boxShadow: "none" }}
+            >
+              <LogIn className="w-4 h-4" />
+              Join Class
+            </Button>
+          )
+        }
+      />
 
       {/* Grid */}
       {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4.5">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-slate-200/70 bg-white shadow-none overflow-hidden flex flex-col justify-between"
+            >
+              <div className="p-5 space-y-3 bg-slate-100/70 min-h-[104px]">
+                <Skeleton className="h-5 w-20 rounded-full" />
+                <Skeleton className="h-6 w-36 rounded" />
+              </div>
+              <div className="p-4 space-y-3.5 flex-1 flex flex-col justify-between">
+                <div className="grid grid-cols-2 gap-2.5">
+                  <Skeleton className="h-14 rounded-xl" />
+                  <Skeleton className="h-14 rounded-xl" />
+                </div>
+                <Skeleton className="h-9 w-full rounded-xl" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : classesData?.data.length === 0 ? (
         <EmptyState
@@ -153,12 +189,17 @@ export const Class = () => {
             isTeacher ? (
               <Button
                 onClick={() => setClassDialog({ open: true, initial: null })}
-                className="gap-2"
+                className="gap-2 bg-[#007EEF] hover:bg-[#0066cc] text-white font-semibold rounded-xl h-9 px-4 text-xs border-none shadow-none"
+                style={{ boxShadow: "none" }}
               >
                 <Plus className="w-4 h-4" /> New Class
               </Button>
             ) : (
-              <Button onClick={() => setJoinOpen(true)} className="gap-2">
+              <Button
+                onClick={() => setJoinOpen(true)}
+                className="gap-2 bg-[#007EEF] hover:bg-[#0066cc] text-white font-semibold rounded-xl h-9 px-4 text-xs border-none shadow-none"
+                style={{ boxShadow: "none" }}
+              >
                 <LogIn className="w-4 h-4" /> Join Class
               </Button>
             )

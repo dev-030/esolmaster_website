@@ -75,7 +75,7 @@ export const Progress = () => {
       title: "Grammar Mastery",
       value: studentProgress?.grammar || 0,
       label: "Grammar",
-      color: "#3454FB",
+      color: "#2563EB",
     },
     {
       title: "Reading Comprehension",
@@ -157,9 +157,9 @@ export const Progress = () => {
               <Line
                 type="monotone"
                 dataKey="Grammar"
-                stroke="#3454FB"
+                stroke="#2563EB"
                 strokeWidth={2.5}
-                dot={{ r: 3.5, fill: "#3454FB" }}
+                dot={{ r: 3.5, fill: "#2563EB" }}
                 activeDot={{ r: 6 }}
               />
               <Line
@@ -208,7 +208,7 @@ export const Progress = () => {
                 {(skillDistribution ?? []).map((entry: { name: string; color: string }, index: number) => (
                   <Cell
                     key={entry.name ?? index}
-                    fill={entry.color || "#3454FB"}
+                    fill={entry.color || "#2563EB"}
                     className="cursor-pointer hover:opacity-85 transition-opacity"
                   />
                 ))}

@@ -75,7 +75,7 @@ useEffect(() => {
         "rounded-xl border p-4 space-y-4 transition-all duration-200",
         isDisabled
           ? "bg-muted/30 border-border"
-          : "bg-background border-border shadow-sm",
+          : "bg-background border-border shadow-none",
       )}
     >
       {/* Header */}

@@ -15,7 +15,7 @@ interface TaskWord {
 }
 
 const WordCard = ({ word }: { word: TaskWord }) => (
-  <div className="bg-white border border-gray-100 rounded-xl overflow-hidden flex flex-col hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+  <div className="bg-white border border-slate-200/70 rounded-xl overflow-hidden flex flex-col hover:border-slate-300 shadow-none transition-all duration-200">
     <div className="w-full h-28 bg-gray-50 overflow-hidden">
       {word.imageUrl ? (
         <Image

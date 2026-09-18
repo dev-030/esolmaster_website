@@ -5,7 +5,7 @@ export const typeColor: Record<string, string> = {
 };
 
 export const statusColor: Record<string, string> = {
-  GRAMMAR: "bg-blue-100 text-blue-700",
+  GRAMMAR: "bg-primary/10 text-primary",
   READING: "bg-green-100 text-green-700",
   VOCABULARY: "bg-purple-100 text-purple-700",
 };

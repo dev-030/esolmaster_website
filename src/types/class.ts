@@ -127,6 +127,7 @@ export interface ScheduledTaskStudentResult {
   id: string;
   name: string;
   email: string;
+  attemptId: string | null;
   status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "OVERDUE";
   score: number | null;
   percentage: number | null;

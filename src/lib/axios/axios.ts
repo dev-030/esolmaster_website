@@ -5,6 +5,22 @@ const api = axios.create({
   withCredentials: true, // Include cookies in requests
 });
 
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    try {
+      let deviceId = localStorage.getItem("esol_device_id");
+      if (!deviceId) {
+        deviceId = "dev_" + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+        localStorage.setItem("esol_device_id", deviceId);
+      }
+      config.headers["x-device-id"] = deviceId;
+    } catch {
+      // ignore storage access issues
+    }
+  }
+  return config;
+});
+
 let isRefreshing = false;
 let failedQueue: any[] = [];
 

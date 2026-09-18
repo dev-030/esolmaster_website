@@ -43,7 +43,7 @@ export const Badges = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-24">
-        <Loader2 className="w-8 h-8 animate-spin text-[#3454FB]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -61,7 +61,7 @@ export const Badges = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 rounded-full bg-blue-50 border border-blue-100 px-3.5 py-1.5 text-xs font-bold text-[#3454FB]">
+        <div className="flex items-center gap-2 rounded-full bg-primary/5 border border-primary/10 px-3.5 py-1.5 text-xs font-bold text-primary">
           <Award className="w-4 h-4" />
           <span>
             {completed} of {badges.length} unlocked

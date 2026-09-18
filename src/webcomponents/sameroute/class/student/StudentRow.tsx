@@ -40,7 +40,7 @@ export const StudentRow = ({ student, onRemove }: StudentRowProps) => {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <AvatarFallback className="text-xs font-bold bg-blue-50 text-[#3454FB]">
+              <AvatarFallback className="text-xs font-bold bg-primary/5 text-primary">
                 {getInitials(student.firstName + " " + student.lastName)}
               </AvatarFallback>
             )}
@@ -68,7 +68,7 @@ export const StudentRow = ({ student, onRemove }: StudentRowProps) => {
         <div className="flex items-center gap-3 min-w-[120px] max-w-[160px]">
           <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#3454FB] rounded-full transition-all duration-300"
+              className="h-full bg-primary rounded-full transition-all duration-300"
               style={{ width: `${progressVal}%` }}
             />
           </div>

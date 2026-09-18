@@ -91,7 +91,7 @@ export function MCQConfigUI({ config, onChange }: ConfigProps) {
         })}
       </div>
       <Button type="button" variant="outline" size="sm" className="mt-1 text-xs border-slate-200 bg-white hover:bg-slate-50" onClick={addOption}>
-        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-blue-600" /> Add Option ({String.fromCharCode(65 + items.length)})
+        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-primary" /> Add Option ({String.fromCharCode(65 + items.length)})
       </Button>
     </div>
   );
@@ -114,13 +114,13 @@ export function TrueFalseConfigUI({ config, onChange }: ConfigProps) {
       <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Correct Answer</Label>
       <div className="flex items-center gap-4">
         <Button type="button" variant={correctAnswer === "TRUE" ? "default" : "outline"} 
-          className={correctAnswer === "TRUE" ? "bg-emerald-600 hover:bg-emerald-700" : "border-slate-200"}
+          className={`h-8 px-4 text-xs font-medium shadow-none ${correctAnswer === "TRUE" ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700"}`}
           onClick={() => setAnswer("TRUE")}
         >
           True
         </Button>
         <Button type="button" variant={correctAnswer === "FALSE" ? "default" : "outline"} 
-          className={correctAnswer === "FALSE" ? "bg-red-600 hover:bg-red-700" : "border-slate-200"}
+          className={`h-8 px-4 text-xs font-medium shadow-none ${correctAnswer === "FALSE" ? "bg-rose-600 hover:bg-rose-700 text-white" : "border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700"}`}
           onClick={() => setAnswer("FALSE")}
         >
           False
@@ -177,8 +177,8 @@ export function GapFillConfigUI({ config, onChange }: ConfigProps) {
           </div>
         ))}
       </div>
-      <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200" onClick={addOption}>
-        <PlusCircle className="w-3.5 h-3.5 mr-1.5" /> Add Option
+      <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700 shadow-none" onClick={addOption}>
+        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-primary" /> Add Option
       </Button>
     </div>
   );
@@ -231,13 +231,13 @@ export function WordBoxMatchConfigUI({ config, onChange }: ConfigProps) {
         <div className="space-y-2 relative">
           <div className="absolute left-3 top-4 bottom-4 w-px bg-slate-200 z-0"></div>
           {sentences.map((sentence, index) => (
-            <div key={sentence.id} className="flex gap-2 relative z-10 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
+            <div key={sentence.id} className="flex gap-2 relative z-10 bg-white p-3 rounded-lg border border-slate-200/70 shadow-none">
               <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-semibold text-slate-500 shrink-0 mt-1">
                 {index + 1}
               </div>
               <div className="flex-1 space-y-2">
                 <Textarea 
-                  className="shadow-none border-slate-200 focus-visible:ring-primary/20 min-h-[60px]"
+                  className="shadow-none border-slate-200/80 focus-visible:ring-primary/20 min-h-[60px]"
                   placeholder="The quick brown __ jumps over the lazy dog."
                   value={sentence.text} onChange={(e) => updateSentence(sentence.id, "text", e.target.value)}
                 />
@@ -253,8 +253,8 @@ export function WordBoxMatchConfigUI({ config, onChange }: ConfigProps) {
             </div>
           ))}
         </div>
-        <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200 ml-9" onClick={addSentence}>
-          <PlusCircle className="w-3.5 h-3.5 mr-1.5" /> Add Sentence
+        <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700 shadow-none ml-9" onClick={addSentence}>
+          <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-primary" /> Add Sentence
         </Button>
       </div>
       
@@ -265,7 +265,7 @@ export function WordBoxMatchConfigUI({ config, onChange }: ConfigProps) {
           {words.map((w) => (
             <div key={w.id} className="flex items-center gap-1">
               <Input 
-                className="shadow-none h-8 text-sm border-slate-200 focus-visible:ring-primary/20"
+                className="shadow-none h-8 text-sm border-slate-200/80 focus-visible:ring-primary/20"
                 placeholder="Distractor word..." value={w.word} onChange={(e) => updateWord(w.id, e.target.value)}
               />
               <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-500" onClick={() => removeWord(w.id)}>
@@ -274,8 +274,8 @@ export function WordBoxMatchConfigUI({ config, onChange }: ConfigProps) {
             </div>
           ))}
         </div>
-        <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200 h-8" onClick={addWord}>
-          <PlusCircle className="w-3 h-3 mr-1.5" /> Add Distractor
+        <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700 shadow-none h-8" onClick={addWord}>
+          <PlusCircle className="w-3 h-3 mr-1.5 text-primary" /> Add Distractor
         </Button>
       </div>
     </div>
@@ -284,7 +284,7 @@ export function WordBoxMatchConfigUI({ config, onChange }: ConfigProps) {
 
 // 5. Matching
 const PAIR_THEMES = [
-  { stroke: "#3b82f6", bg: "bg-blue-500 text-white", border: "border-blue-300", light: "bg-blue-50 text-blue-700", ring: "ring-blue-400" },
+  { stroke: "#3b82f6", bg: "bg-primary text-white", border: "border-primary/30", light: "bg-primary/5 text-primary", ring: "ring-blue-400" },
   { stroke: "#6366f1", bg: "bg-indigo-500 text-white", border: "border-indigo-300", light: "bg-indigo-50 text-indigo-700", ring: "ring-indigo-400" },
   { stroke: "#0d9488", bg: "bg-teal-600 text-white", border: "border-teal-300", light: "bg-teal-50 text-teal-700", ring: "ring-teal-400" },
   { stroke: "#f59e0b", bg: "bg-amber-500 text-white", border: "border-amber-300", light: "bg-amber-50 text-amber-700", ring: "ring-amber-400" },
@@ -440,14 +440,14 @@ export function MatchingConfigUI({ config, onChange }: ConfigProps) {
       </div>
 
       {activeLeftIdx !== null && (
-        <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 font-medium flex items-center justify-between animate-in fade-in duration-150">
+        <div className="p-2.5 bg-primary/5 border border-primary/20 rounded-xl text-xs text-primary font-medium flex items-center justify-between animate-in fade-in duration-150">
           <span>
             Connecting Left Item <strong className="underline">#{activeLeftIdx + 1}</strong> — Click an empty Right anchor to connect!
           </span>
           <button
             type="button"
             onClick={() => setActiveLeftIdx(null)}
-            className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold cursor-pointer ml-2"
+            className="text-xs text-primary hover:text-primary/90 underline font-semibold cursor-pointer ml-2"
           >
             Cancel
           </button>
@@ -501,7 +501,7 @@ export function MatchingConfigUI({ config, onChange }: ConfigProps) {
                   <div
                     key={left.id}
                     className={`flex items-center gap-2 p-1.5 rounded-xl border bg-white transition-all ${
-                      isSelected ? "border-blue-400 ring-2 ring-blue-400/20 shadow-xs" : "border-slate-200 shadow-2xs"
+                      isSelected ? "border-primary/40 ring-2 ring-primary/20 shadow-none" : "border-slate-200/70 shadow-none"
                     }`}
                   >
                     {/* Left Order Number Circle Badge (Small & Subtle) */}
@@ -522,14 +522,14 @@ export function MatchingConfigUI({ config, onChange }: ConfigProps) {
                       onClick={() => handleLeftAnchorClick(lIdx)}
                       className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                         isSelected
-                          ? "bg-blue-50 border-blue-500 ring-2 ring-blue-400/40 shadow-xs"
+                          ? "bg-primary/5 border-primary ring-2 ring-primary/40 shadow-none"
                           : isConnected
-                            ? "border-blue-300 bg-blue-50/50 hover:bg-blue-50"
+                            ? "border-primary/30 bg-primary/10 hover:bg-primary/5"
                             : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100"
                       }`}
                       title={`Click to connect Left #${lIdx + 1}`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isSelected ? "bg-blue-600 scale-125" : isConnected ? "bg-blue-500" : "bg-slate-300"}`} />
+                      <span className={`w-1.5 h-1.5 rounded-full transition-colors ${isSelected ? "bg-primary scale-125" : isConnected ? "bg-primary" : "bg-slate-300"}`} />
                     </button>
                   </div>
                 );
@@ -552,7 +552,7 @@ export function MatchingConfigUI({ config, onChange }: ConfigProps) {
                 return (
                   <div
                     key={right.id}
-                    className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200 bg-white shadow-2xs transition-all hover:border-slate-300"
+                    className="flex items-center gap-2 p-1.5 rounded-xl border border-slate-200/70 bg-white shadow-none transition-all hover:border-slate-300"
                   >
                     {/* Right Anchor Button (Small, empty until connected with left order number) */}
                     <button
@@ -560,9 +560,9 @@ export function MatchingConfigUI({ config, onChange }: ConfigProps) {
                       onClick={() => handleRightAnchorClick(rIdx)}
                       className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold transition-all shrink-0 cursor-pointer ${
                         isConnected
-                          ? "bg-blue-50 border-blue-200 text-blue-700 shadow-2xs"
+                          ? "bg-primary/5 border-primary/20 text-primary shadow-none"
                           : "bg-white text-transparent border border-dashed border-slate-300 hover:border-slate-400 hover:bg-slate-50"
-                      } ${activeLeftIdx !== null ? "animate-pulse ring-2 ring-blue-400/30" : ""}`}
+                      } ${activeLeftIdx !== null ? "animate-pulse ring-2 ring-primary/30" : ""}`}
                       title={
                         activeLeftIdx !== null
                           ? `Click to connect with Left #${activeLeftIdx + 1}`
@@ -603,10 +603,10 @@ export function MatchingConfigUI({ config, onChange }: ConfigProps) {
         type="button"
         variant="outline"
         size="sm"
-        className="text-xs border-slate-200 hover:bg-slate-50 text-slate-700"
+        className="text-xs border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700 shadow-none"
         onClick={addPair}
       >
-        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-blue-600" />
+        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-primary" />
         Add Matching Pair
       </Button>
     </div>
@@ -684,7 +684,7 @@ export function OrderingConfigUI({ config, onChange }: ConfigProps) {
                       ref={dragProvided.innerRef}
                       {...dragProvided.draggableProps}
                       className={`flex items-center gap-2.5 p-1.5 rounded-xl border bg-white transition-all ${
-                        snapshot.isDragging ? "border-blue-400 shadow-md ring-2 ring-blue-400/20 bg-blue-50/20 z-50" : "border-slate-200 shadow-2xs"
+                        snapshot.isDragging ? "border-primary/40 shadow-none ring-2 ring-primary/20 bg-primary/10 z-50" : "border-slate-200/70 shadow-none"
                       }`}
                     >
                       {/* Drag Grip Handle */}
@@ -728,8 +728,8 @@ export function OrderingConfigUI({ config, onChange }: ConfigProps) {
         </Droppable>
       </DragDropContext>
 
-      <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200 text-slate-700 hover:bg-slate-50" onClick={addItem}>
-        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-blue-600" /> Add Step
+      <Button type="button" variant="outline" size="sm" className="mt-2 text-xs border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50 shadow-none" onClick={addItem}>
+        <PlusCircle className="w-3.5 h-3.5 mr-1.5 text-primary" /> Add Step
       </Button>
     </div>
   );

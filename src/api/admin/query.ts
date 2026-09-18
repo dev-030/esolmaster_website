@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query"
 import { adminPerformance, exportAdminPerformanceData, exportAdminReport, getAdminDashboard, getAdminPlatformAnalytics, getAdminUserInfo, getAdminUsers } from "./api";
 import { AdminUser } from "@/types/admin";
 
@@ -6,15 +6,28 @@ export const useGetAdminDashboardQuery = () => {
 
     return useQuery({
         queryKey: ['adminDashboard'],
-        queryFn: async () =>getAdminDashboard()
+        queryFn: async () =>getAdminDashboard(),
+        placeholderData: keepPreviousData
     });
 }
 
-export const useGetAdminUsersQuery = (params:AdminUser) => {
-
+export const useGetAdminUsersQuery = (params: AdminUser) => {
     return useQuery({
-        queryKey: ['adminUsers',params],
-        queryFn: async () =>getAdminUsers(params)
+        queryKey: ['adminUsers', params],
+        queryFn: async () => getAdminUsers(params),
+        placeholderData: (previousData, previousQuery) => {
+            // Only keep previous data when navigating pages within the exact same role and search filter
+            const prevParams = previousQuery?.queryKey?.[1] as AdminUser | undefined;
+            if (
+                prevParams &&
+                prevParams.role === params.role &&
+                prevParams.search === params.search
+            ) {
+                return previousData;
+            }
+            return undefined;
+        },
+        staleTime: 1000 * 60 * 3, // 3 minutes cache for instant tab switching
     });
 }
 

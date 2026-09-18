@@ -36,35 +36,23 @@ interface MonthlyAssignmentCompletionProps {
   data: MonthlyDataPoint[];
 }
 
-// Custom Dot Component
 const CustomDot = (props: any) => {
   const { cx, cy, payload } = props;
-
-  const radius = payload.rate > 800 ? 6 : 4; // Adjust threshold based on your data scale
-
+  const radius = payload.rate > 800 ? 6 : 4;
   return (
-    <Dot
-      cx={cx}
-      cy={cy}
-      r={radius}
-      fill="#22c55e"
-      stroke="#fff"
-      strokeWidth={2}
-    />
+    <Dot cx={cx} cy={cy} r={radius} fill="#22c55e" stroke="#fff" strokeWidth={2} />
   );
 };
 
 export const MonthlyAssignmentCompletion = ({ data }: MonthlyAssignmentCompletionProps) => {
   if (!data || data.length === 0) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">
-            Monthly Assignment Completion Rate
-          </CardTitle>
+      <Card className="w-full rounded-xl border border-slate-200/70 shadow-none">
+        <CardHeader className="px-5 py-4 border-b border-slate-100">
+          <CardTitle className="text-sm font-semibold text-slate-800">Monthly Assignment Completion Rate</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[350px] flex items-center justify-center text-muted-foreground">
+          <div className="h-[350px] flex items-center justify-center text-sm text-slate-400">
             No data available
           </div>
         </CardContent>
@@ -73,32 +61,27 @@ export const MonthlyAssignmentCompletion = ({ data }: MonthlyAssignmentCompletio
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">
-          Monthly Assignment Completion Rate
-        </CardTitle>
+    <Card className="w-full rounded-xl border border-slate-200/70 shadow-none">
+      <CardHeader className="px-5 py-4 border-b border-slate-100">
+        <CardTitle className="text-sm font-semibold text-slate-800">Monthly Assignment Completion Rate</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <ChartContainer config={chartConfig} className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={data}
-              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-            >
-              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
+            <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis
                 dataKey="month"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 12, fill: "#64748b" }}
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
                 dy={10}
               />
               <YAxis
-                domain={[0, 'auto']}
+                domain={[0, "auto"]}
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 12, fill: "#64748b" }}
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
                 tickFormatter={(v) => `${v}%`}
               />
               <Tooltip content={<ChartTooltipContent />} />
@@ -106,9 +89,9 @@ export const MonthlyAssignmentCompletion = ({ data }: MonthlyAssignmentCompletio
                 type="monotone"
                 dataKey="rate"
                 stroke="var(--color-rate)"
-                strokeWidth={3}
+                strokeWidth={2.5}
                 dot={<CustomDot />}
-                activeDot={{ r: 8, strokeWidth: 0 }}
+                activeDot={{ r: 7, strokeWidth: 0 }}
                 animationDuration={1500}
               />
             </LineChart>

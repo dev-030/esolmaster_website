@@ -8,6 +8,7 @@ import {
   Loader2,
   School,
   Users,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
@@ -25,12 +26,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useGetClassesQuery, addTasksToClass, scheduleClassTask } from "@/api/class";
 import { cn } from "@/lib/utils";
+import { useTeacherSubscription } from "@/provider/SubscriptionProvider";
 
 interface AssignToClassDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   taskId: string;
   taskTitle: string;
+  isPremium?: boolean;
 }
 
 export const AssignToClassDialog = ({
@@ -38,7 +41,10 @@ export const AssignToClassDialog = ({
   onOpenChange,
   taskId,
   taskTitle,
+  isPremium = false,
 }: AssignToClassDialogProps) => {
+  const { isPremiumTaskAllowed, openUpgradeModal } = useTeacherSubscription();
+  const isLocked = isPremium && !isPremiumTaskAllowed(taskId);
   const { data: classesData, isLoading } = useGetClassesQuery({ page: 1, limit: 50 });
   const [selectedClassId, setSelectedClassId] = useState<string>("");
   const [hasDueDate, setHasDueDate] = useState<boolean>(false);
@@ -98,22 +104,45 @@ export const AssignToClassDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !isAssigning && onOpenChange(v)}>
-      <DialogContent className="sm:max-w-lg rounded-[22px] border border-slate-200/80 bg-white p-6 shadow-xl ring-0">
+      <DialogContent className="sm:max-w-lg rounded-xl border border-slate-200/80 bg-white p-6 shadow-none ring-0">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#3454FB]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/5 text-primary">
               <ClipboardList className="h-5 w-5" />
             </div>
             <div>
-              <DialogTitle className="text-base font-bold text-slate-800 tracking-tight">
+              <DialogTitle className="text-base font-semibold text-slate-900 tracking-tight">
                 Assign to Classroom
               </DialogTitle>
-              <DialogDescription className="text-xs text-slate-400 font-medium mt-0.5 line-clamp-1">
+              <DialogDescription className="text-xs text-slate-500 font-normal mt-0.5 line-clamp-1">
                 Assign &ldquo;{taskTitle}&rdquo; to your students
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
+
+        {isLocked && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between gap-3 text-xs text-amber-900 mt-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>This is a PRO activity. An active plan is required to assign it.</span>
+            </div>
+            <Button
+              size="sm"
+              type="button"
+              onClick={() => {
+                onOpenChange(false);
+                openUpgradeModal(
+                  "Upgrade to Assign Premium Activities",
+                  "Access all premium interactive reading, listening, and grammar activities."
+                );
+              }}
+              className="h-7 text-xs bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-none shrink-0 cursor-pointer"
+            >
+              Upgrade Plan
+            </Button>
+          </div>
+        )}
 
         <div className="space-y-4 py-2">
           {/* Class selection */}
@@ -124,7 +153,7 @@ export const AssignToClassDialog = ({
 
             {isLoading ? (
               <div className="flex items-center justify-center py-8 text-xs text-slate-400">
-                <Loader2 className="h-4 w-4 animate-spin mr-2 text-[#3454FB]" />
+                <Loader2 className="h-4 w-4 animate-spin mr-2 text-primary" />
                 Loading your classrooms...
               </div>
             ) : classes.length === 0 ? (
@@ -144,14 +173,14 @@ export const AssignToClassDialog = ({
                       className={cn(
                         "w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer",
                         isSelected
-                          ? "border-[#3454FB] bg-blue-50/40 ring-1 ring-[#3454FB]"
+                          ? "border-primary bg-primary/10 ring-1 ring-primary"
                           : "border-slate-100 hover:border-slate-300 hover:bg-slate-50/60 bg-white",
                       )}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div
                           className="h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0"
-                          style={{ backgroundColor: cls.color || "#3454FB" }}
+                          style={{ backgroundColor: cls.color || "#2563EB" }}
                         >
                           {cls.name[0]?.toUpperCase()}
                         </div>
@@ -174,7 +203,7 @@ export const AssignToClassDialog = ({
                           className={cn(
                             "h-5 w-5 rounded-full border flex items-center justify-center transition-colors",
                             isSelected
-                              ? "bg-[#3454FB] border-[#3454FB] text-white"
+                              ? "bg-primary border-primary text-white"
                               : "border-slate-300 bg-white",
                           )}
                         >
@@ -238,19 +267,35 @@ export const AssignToClassDialog = ({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isAssigning}
-            className="rounded-xl text-xs font-semibold h-9 border-slate-200"
+            className="rounded-lg text-xs font-medium h-9 border-slate-200/80 bg-white hover:bg-slate-50 text-slate-700 shadow-none"
           >
             Cancel
           </Button>
-          <Button
-            type="button"
-            onClick={handleAssign}
-            disabled={!selectedClassId || isAssigning}
-            className="rounded-xl bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs h-9 px-4 shadow-none"
-          >
-            {isAssigning && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
-            {isAssigning ? "Assigning..." : "Assign to Class"}
-          </Button>
+          {isLocked ? (
+            <Button
+              type="button"
+              onClick={() => {
+                onOpenChange(false);
+                openUpgradeModal(
+                  "Upgrade to Assign Premium Activities",
+                  "Access all premium interactive activities."
+                );
+              }}
+              className="rounded-lg bg-[#007EEF] hover:bg-[#0066cc] text-white font-medium text-xs h-9 px-4 shadow-none cursor-pointer"
+            >
+              Upgrade to Assign
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              onClick={handleAssign}
+              disabled={!selectedClassId || isAssigning}
+              className="rounded-lg bg-primary hover:bg-primary/90 text-white font-medium text-xs h-9 px-4 shadow-none"
+            >
+              {isAssigning && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
+              {isAssigning ? "Assigning..." : "Assign to Class"}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

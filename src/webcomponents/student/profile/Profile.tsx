@@ -128,7 +128,7 @@ export const Profile = () => {
           className={`gap-2 rounded-[12px] text-xs font-semibold h-9 px-4 transition-all ${
             editing
               ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/20"
-              : "bg-[#3454FB] hover:bg-[#2842D8] text-white shadow-sm shadow-blue-500/15"
+              : "bg-primary hover:bg-primary/90 text-white shadow-sm shadow-primary/15"
           }`}
         >
           {savingProfile ? (
@@ -145,7 +145,7 @@ export const Profile = () => {
       <div className="rounded-[22px] border border-slate-100/90 bg-white p-6 md:p-8 space-y-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)]">
         {/* Avatar Section */}
         <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
-          <div className="w-16 h-16 rounded-full bg-[#3454FB] text-white flex items-center justify-center font-bold text-2xl shadow-md shadow-blue-500/20 ring-4 ring-blue-50">
+          <div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center font-bold text-2xl shadow-md shadow-primary/20 ring-4 ring-primary/10">
             {profile?.firstName?.charAt(0)?.toUpperCase() ?? "U"}
           </div>
           <div>
@@ -175,7 +175,7 @@ export const Profile = () => {
                     {...field}
                     disabled={!editing}
                     placeholder="First name"
-                    className="h-10 rounded-[12px] border-slate-200 text-xs focus:border-[#3454FB]"
+                    className="h-10 rounded-[12px] border-slate-200 text-xs focus:border-primary"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -193,7 +193,7 @@ export const Profile = () => {
                     {...field}
                     disabled={!editing}
                     placeholder="Last name"
-                    className="h-10 rounded-[12px] border-slate-200 text-xs focus:border-[#3454FB]"
+                    className="h-10 rounded-[12px] border-slate-200 text-xs focus:border-primary"
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -264,7 +264,7 @@ export const Profile = () => {
                               : "password"
                           }
                           placeholder="••••••••"
-                          className="h-10 rounded-[12px] border-slate-200 text-xs focus:border-[#3454FB]"
+                          className="h-10 rounded-[12px] border-slate-200 text-xs focus:border-primary"
                         />
                         <InputGroupAddon>
                           <button
@@ -296,7 +296,7 @@ export const Profile = () => {
                 type="submit"
                 form="password-form"
                 disabled={savingPassword}
-                className="gap-2 rounded-[12px] bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs h-9 px-4 shadow-sm shadow-blue-500/15"
+                className="gap-2 rounded-[12px] bg-primary hover:bg-primary/90 text-white font-semibold text-xs h-9 px-4 shadow-sm shadow-primary/15"
               >
                 {savingPassword ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

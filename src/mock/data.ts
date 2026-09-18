@@ -11,7 +11,7 @@ export const mockClasses: Classroom[] = [
     teacherName: "Ms. Sarah Chen",
     studentCount: 24,
     taskCount: 3,
-    color: "#2F7EDA",
+    color: "#2563EB",
     description: "B2 level English for international students.",
     createdAt: "2024-09-01T08:00:00Z",
     maxStudents: 30,

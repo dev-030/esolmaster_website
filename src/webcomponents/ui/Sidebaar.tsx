@@ -18,10 +18,14 @@ import {
   Settings,
   HelpCircle,
   Sparkles,
-  PanelLeftClose,
+  Zap,
+  Star,
+  Shield,
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRole } from "@/provider/RoleProvider";
+import { useTeacherSubscription } from "@/provider/SubscriptionProvider";
 import { useGetMyProfileQuery, useSignOutMutation } from "@/api/auth";
 import { toast } from "sonner";
 
@@ -58,7 +62,7 @@ const MENU_CONFIG = {
       { name: "User Management", href: "/users", icon: Users },
       { name: "Content Library", href: "/content-library", icon: Folder },
       { name: "Performance", href: "/perfomance", icon: BarChart2 },
-      { name: "Packages", href: "/billing", icon: Package },
+      { name: "Packages", href: "/packages", icon: Package },
       { name: "Analytics", href: "/analysis", icon: BarChart2 },
       { name: "Reports", href: "/admin_reports", icon: ClipboardList },
       { name: "Badges", href: "/badges", icon: Trophy },
@@ -71,6 +75,7 @@ const MENU_CONFIG = {
 
 export const Sidebar = () => {
   const { role } = useRole();
+  const { planType, isPro, isBasic, limits, usage, openUpgradeModal } = useTeacherSubscription();
   const pathname = usePathname();
   const config = MENU_CONFIG[role as Role] || MENU_CONFIG["student"];
   const { mutateAsync: signOut, isPending: isSignOutPending } = useSignOutMutation();
@@ -93,23 +98,10 @@ export const Sidebar = () => {
   return (
     <aside className="w-[230px] h-screen sticky left-0 top-0 flex flex-col bg-white border-r border-slate-100/90 z-30 select-none">
       {/* Brand Logo & Collapse */}
-      <div className="flex items-center justify-between px-5 py-[18px]">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#3454FB] shadow-sm shadow-blue-500/20">
-            <Book className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-[16px] font-bold tracking-tight text-slate-800">
-            ESOL Master
-          </span>
+      <div className="flex items-center justify-between px-5 pt-[18px] pb-8">
+        <div className="flex items-center">
+          <img src="/logo.png" alt="ESOL Master" className="h-8 w-auto object-contain" />
         </div>
-
-        <button
-          type="button"
-          aria-label="Collapse sidebar"
-          className="text-slate-400 hover:text-slate-600 p-1 rounded-md transition-colors"
-        >
-          <PanelLeftClose className="h-4 w-4" />
-        </button>
       </div>
 
       {/* Main Navigation */}
@@ -124,18 +116,18 @@ export const Sidebar = () => {
               className={cn(
                 "group relative flex items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-[13.5px] font-semibold transition-all duration-150",
                 active
-                  ? "bg-blue-50/70 text-[#3454FB]"
+                  ? "bg-primary/10 text-primary"
                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
               )}
             >
-              {/* Active left indicator bar (Shopeers style) */}
+              {/* Active left indicator bar */}
               {active && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-[#3454FB]" />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-primary" />
               )}
               <Icon
                 className={cn(
                   "h-[18px] w-[18px] shrink-0 transition-colors",
-                  active ? "text-[#3454FB]" : "text-slate-400 group-hover:text-slate-600"
+                  active ? "text-primary" : "text-slate-600 group-hover:text-slate-800"
                 )}
               />
               <span className="truncate">{item.name}</span>
@@ -145,41 +137,136 @@ export const Sidebar = () => {
       </nav>
 
       {/* Bottom Section */}
-      <div className="px-3 pb-4 pt-2 space-y-1">
-        {/* Upgrade Card (Shopeers Royal Blue Gradient Card) */}
-        <div className="mb-3 mx-1 rounded-[18px] bg-gradient-to-br from-[#1C3DB6] via-[#142987] to-[#0A1647] p-4 text-white shadow-md shadow-blue-900/10">
-          <div className="mb-2.5 flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/15 backdrop-blur-xs">
-            <Sparkles className="h-4 w-4 text-white" />
-          </div>
-          <p className="text-[13px] font-bold leading-snug text-white">
-            Upgrade to Premium!
-          </p>
-          <p className="mt-1 text-[11px] leading-relaxed text-blue-100/80">
-            Unlock advanced activities, detailed analytics & full AI features.
-          </p>
-          <button
-            type="button"
-            className="mt-3 w-full rounded-[10px] bg-gradient-to-r from-[#3454FB] to-[#4F6CFF] py-1.5 text-[11px] font-bold text-white shadow-sm shadow-blue-500/25 transition hover:opacity-95 cursor-pointer"
-          >
-            Upgrade premium
-          </button>
-        </div>
+      <div className="p-4 border-t border-slate-100/80 bg-slate-50/30">
+        {/* Subscription Plan Card (Teachers) */}
+        {role === "teacher" && (() => {
+          const planIcon = isPro ? Zap : isBasic ? Star : Shield;
+          const planIconStyle = isPro
+            ? "bg-[#007EEF]/10 border-[#007EEF]/20 text-[#007EEF]"
+            : isBasic
+            ? "bg-blue-50 border-blue-200/60 text-blue-600"
+            : "bg-slate-100 border-slate-200/60 text-slate-600";
+          const planBadgeStyle = isPro
+            ? "bg-[#007EEF]/10 text-[#007EEF] border border-[#007EEF]/20"
+            : isBasic
+            ? "bg-blue-50 text-blue-700 border border-blue-200/60"
+            : "bg-slate-100 text-slate-600 border border-slate-200/60";
+          const Icon = planIcon;
+          const maxClasses = limits.maxClasses || 1;
+          const classPct = Math.min(100, Math.round((usage.classesCount / maxClasses) * 100));
+
+          return (
+            <div className="mb-3 mx-1 rounded-xl bg-white border border-slate-200/80 p-3.5 shadow-none transition-all hover:border-slate-300 text-slate-800">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2.5">
+                  <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg border shrink-0", planIconStyle)}>
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold leading-tight text-slate-900 tracking-tight">
+                      {isPro ? "Pro Plan" : isBasic ? "Basic Plan" : "Free Plan"}
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      <span className="font-medium text-slate-700">{usage.classesCount}</span> / {limits.maxClasses} classes used
+                    </p>
+                  </div>
+                </div>
+                <span className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wide border", planBadgeStyle)}>
+                  {planType}
+                </span>
+              </div>
+
+              {/* Progress bar */}
+              <div className="w-full bg-slate-100 rounded-full h-1.5 my-2.5 overflow-hidden">
+                <div
+                  className="bg-[#007EEF] h-full rounded-full transition-all duration-300"
+                  style={{ width: `${classPct}%` }}
+                />
+              </div>
+
+              {isPro ? (
+                <Link
+                  href="/profile_teacher/billing_info"
+                  className="flex items-center justify-center gap-1.5 w-full rounded-lg border border-slate-200/80 bg-slate-50/70 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-100 cursor-pointer shadow-none"
+                >
+                  Manage Subscription
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => openUpgradeModal("Upgrade Your Classroom", "Create more classes, enroll more students, and unlock all premium activities.")}
+                  className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-[#007EEF] py-1.5 text-xs font-medium text-white transition hover:bg-[#0066cc] cursor-pointer shadow-none"
+                  style={{ boxShadow: "none" }}
+                >
+                  Upgrade to Pro
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Settings & Help */}
-        <Link
-          href="/profile"
-          className="flex items-center gap-3 rounded-[12px] px-3.5 py-2 text-[13.5px] font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-all"
-        >
-          <Settings className="h-[18px] w-[18px] text-slate-400" />
-          Settings
-        </Link>
-        <Link
-          href="/help"
-          className="flex items-center gap-3 rounded-[12px] px-3.5 py-2 text-[13.5px] font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition-all"
-        >
-          <HelpCircle className="h-[18px] w-[18px] text-slate-400" />
-          Help &amp; Support
-        </Link>
+        {(() => {
+          const settingsHref = config.bottom[0]?.href || "/profile";
+          const isSettingsActive =
+            isActive(settingsHref) ||
+            pathname === "/admin_profile" ||
+            pathname.startsWith("/admin_profile/") ||
+            pathname === "/profile_teacher" ||
+            pathname.startsWith("/profile_teacher/") ||
+            pathname === "/profile" ||
+            pathname.startsWith("/profile/");
+          const isHelpActive = isActive("/help");
+
+          return (
+            <>
+              <Link
+                href={settingsHref}
+                className={cn(
+                  "group relative flex items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-[13.5px] font-semibold transition-all duration-150",
+                  isSettingsActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+                )}
+              >
+                {isSettingsActive && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-primary" />
+                )}
+                <Settings
+                  className={cn(
+                    "h-[18px] w-[18px] shrink-0 transition-colors",
+                    isSettingsActive ? "text-primary" : "text-slate-600 group-hover:text-slate-800"
+                  )}
+                />
+                <span className="truncate">Settings</span>
+              </Link>
+
+              {role !== "teacher" && (
+                <Link
+                  href="/help"
+                  className={cn(
+                    "group relative flex items-center gap-3 rounded-[12px] px-3.5 py-2.5 text-[13.5px] font-semibold transition-all duration-150",
+                    isHelpActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+                  )}
+                >
+                  {isHelpActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-primary" />
+                  )}
+                  <HelpCircle
+                    className={cn(
+                      "h-[18px] w-[18px] shrink-0 transition-colors",
+                      isHelpActive ? "text-primary" : "text-slate-600 group-hover:text-slate-800"
+                    )}
+                  />
+                  <span className="truncate">Help &amp; Support</span>
+                </Link>
+              )}
+            </>
+          );
+        })()}
 
         {/* Logout */}
         <button

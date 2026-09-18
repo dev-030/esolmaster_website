@@ -72,8 +72,8 @@ export const WordBoxMatchQuestion = ({
 
       {/* Official Exam Word Box Frame */}
       {words.length > 0 && (
-        <div className="border border-blue-200 bg-blue-50/25 rounded-xl p-4 shadow-2xs">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-blue-700 mb-3 pb-1.5 border-b border-blue-100 flex items-center justify-between">
+        <div className="border border-primary/20 bg-primary/10 rounded-xl p-4 shadow-2xs">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-primary mb-3 pb-1.5 border-b border-primary/10 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               📦 <span className="text-slate-800">Word Box Options</span>
             </span>
@@ -88,7 +88,7 @@ export const WordBoxMatchQuestion = ({
                   key={`${word}-${wIdx}`} 
                   className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-slate-200/80 shadow-2xs"
                 >
-                  <span className="w-6 h-6 rounded bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                  <span className="w-6 h-6 rounded bg-primary/5 border border-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
                     {letter}
                   </span>
                   <span className="text-xs font-semibold text-slate-700 select-none">{word}</span>
@@ -129,12 +129,12 @@ export const WordBoxMatchQuestion = ({
                   }}
                   disabled={submitted || words.length === 0}
                 >
-                  <SelectTrigger className="w-full h-9.5 bg-slate-50 border-slate-200 text-xs font-medium focus:ring-blue-500/20 rounded-lg">
+                  <SelectTrigger className="w-full h-9.5 bg-slate-50 border-slate-200 text-xs font-medium focus:ring-primary/20 rounded-lg">
                     <SelectValue placeholder="Select from Word Box...">
                       {value && (
                         <span className="flex items-center gap-1.5 truncate">
                           {selectedLetter && (
-                            <span className="font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded text-[11px]">
+                            <span className="font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded text-[11px]">
                               {selectedLetter}
                             </span>
                           )}

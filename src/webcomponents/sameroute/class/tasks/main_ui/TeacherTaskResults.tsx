@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, CheckCircle2, Clock3, Gauge, Loader2, Users } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock3, Gauge, Loader2, Users, FileText } from "lucide-react";
 import { useGetScheduledTaskAnalyticsQuery } from "@/api/class";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { TeacherAttemptViewer } from "./TeacherAttemptViewer";
 
 const STATUS_STYLES = {
   COMPLETED: "bg-emerald-50 text-emerald-700 ring-emerald-200",
@@ -23,19 +26,22 @@ const STATUS_LABELS = {
 export const TeacherTaskResults = () => {
   const { classId, taskId } = useParams<{ classId: string; taskId: string }>();
   const { data, isLoading } = useGetScheduledTaskAnalyticsQuery(classId, taskId);
+  
+  const [viewAttemptId, setViewAttemptId] = useState<string | null>(null);
+  const [viewStudentName, setViewStudentName] = useState<string>("");
 
   if (isLoading || !data) {
-    return <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-blue-600" /></div>;
+    return <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
 
   return (
     <div className="space-y-5">
-      <Link href={`/classes/${classId}/tasks`} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-blue-600">
+      <Link href={`/classes/${classId}/tasks`} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-primary/90">
         <ArrowLeft className="h-4 w-4" /> Back to activities
       </Link>
 
       <div>
-        <span className="mb-1.5 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold capitalize text-blue-700">{data.task.type.toLowerCase()}</span>
+        <span className="mb-1.5 inline-flex rounded-full bg-primary/5 px-2.5 py-1 text-xs font-semibold capitalize text-primary">{data.task.type.toLowerCase()}</span>
         <h1 className="text-2xl font-bold tracking-tight text-slate-800">{data.task.title}</h1>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
           <Clock3 className="h-4 w-4" />
@@ -44,18 +50,18 @@ export const TeacherTaskResults = () => {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Card className="gap-2 border-blue-100 p-4 py-4 shadow-none">
-          <div className="flex items-center justify-between text-sm font-medium text-slate-500"><span>Completed</span><Users className="h-4 w-4 text-blue-500" /></div>
+        <Card className="gap-2 border-primary/10 p-4 py-4 shadow-none">
+          <div className="flex items-center justify-between text-sm font-medium text-slate-500"><span>Completed</span><Users className="h-4 w-4 text-primary" /></div>
           <p className="text-2xl font-bold text-slate-800">{data.completedStudents}<span className="text-base font-medium text-slate-400"> / {data.totalStudents}</span></p>
           <p className="text-xs text-slate-500">{data.completionRate}% submission rate</p>
         </Card>
-        <Card className="gap-2 border-blue-100 p-4 py-4 shadow-none">
-          <div className="flex items-center justify-between text-sm font-medium text-slate-500"><span>Average score</span><Gauge className="h-4 w-4 text-blue-500" /></div>
+        <Card className="gap-2 border-primary/10 p-4 py-4 shadow-none">
+          <div className="flex items-center justify-between text-sm font-medium text-slate-500"><span>Average score</span><Gauge className="h-4 w-4 text-primary" /></div>
           <p className="text-2xl font-bold text-slate-800">{data.averagePercentage}%</p>
           <p className="text-xs text-slate-500">Across completed submissions</p>
         </Card>
-        <Card className="gap-2 border-blue-100 p-4 py-4 shadow-none">
-          <div className="flex items-center justify-between text-sm font-medium text-slate-500"><span>Available marks</span><CheckCircle2 className="h-4 w-4 text-blue-500" /></div>
+        <Card className="gap-2 border-primary/10 p-4 py-4 shadow-none">
+          <div className="flex items-center justify-between text-sm font-medium text-slate-500"><span>Available marks</span><CheckCircle2 className="h-4 w-4 text-primary" /></div>
           <p className="text-2xl font-bold text-slate-800">{data.totalMarks}</p>
           <p className="text-xs text-slate-500">Total marks per student</p>
         </Card>
@@ -75,6 +81,7 @@ export const TeacherTaskResults = () => {
                 <th className="px-4 py-3 font-semibold">Marks</th>
                 <th className="px-4 py-3 font-semibold">Score</th>
                 <th className="hidden px-4 py-3 font-semibold md:table-cell">Submitted</th>
+                <th className="px-4 py-3 font-semibold text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -99,6 +106,22 @@ export const TeacherTaskResults = () => {
                     )}
                   </td>
                   <td className="hidden px-4 py-3.5 text-slate-500 md:table-cell">{student.completedAt ? new Date(student.completedAt).toLocaleString() : "—"}</td>
+                  <td className="px-4 py-3.5 text-right">
+                    {student.attemptId && student.status === 'COMPLETED' && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-primary hover:text-primary/90 hover:bg-primary/5"
+                        onClick={() => {
+                          setViewAttemptId(student.attemptId);
+                          setViewStudentName(student.name || "Unnamed student");
+                        }}
+                      >
+                        <FileText className="h-4 w-4 mr-1.5" />
+                        View
+                      </Button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -106,6 +129,12 @@ export const TeacherTaskResults = () => {
           {!data.students.length && <p className="py-12 text-center text-sm text-slate-500">No students are enrolled in this class.</p>}
         </div>
       </Card>
+
+      <TeacherAttemptViewer 
+        attemptId={viewAttemptId} 
+        studentName={viewStudentName} 
+        onClose={() => setViewAttemptId(null)} 
+      />
     </div>
   );
 };

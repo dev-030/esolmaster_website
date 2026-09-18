@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { TabKey, UserTabs } from "./UserTab";
 import { User, UserRow } from "./UserRow";
-import { Pagination } from "@/webcomponents/reusable";
+import { Pagination, SectionHeading } from "@/webcomponents/reusable";
 import { DeleteDialog } from "@/webcomponents/sameroute/class/dialogs";
 import { useGetAdminUsersQuery } from "@/api/admin/query";
-import { Loader2 } from "lucide-react";
+import { getAdminUsers } from "@/api/admin/api";
+import { Loader2, Search, X, Users as UsersIcon, GraduationCap, BookOpen, UserCheck } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PAGE_SIZE = 6;
 
@@ -18,6 +21,7 @@ const transformApiUser = (apiUser: any): User => ({
   email: apiUser.email,
   avatar: apiUser.avatarUrl,
   role: apiUser.role === "teacher" ? "Teacher" : apiUser.role === "student" ? "Student" : "Admin",
+  subscription: apiUser.subscription ?? (apiUser.role === "teacher" ? { planName: "Free", planType: "FREE" } : null),
   status: apiUser.isActive ? "Active" : "Inactive",
   joined: new Date(apiUser.joinedAt).toISOString().split('T')[0], // yyyy-mm-dd
   lastActive: apiUser.lastActive 
@@ -50,10 +54,42 @@ const getTimeAgo = (date: Date): string => {
 };
 
 export const Users = () => {
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabKey>("All");
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [cachedSummary, setCachedSummary] = useState<any>(null);
+
+  // Debounce search input by 250ms to keep input responsive while avoiding spam requests
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim());
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Prefetch tabs on initial render so switching between All, Students, and Teachers is instant
+  useEffect(() => {
+    if (!debouncedSearch) {
+      queryClient.prefetchQuery({
+        queryKey: ['adminUsers', { page: 1, limit: PAGE_SIZE, role: undefined, search: undefined }],
+        queryFn: () => getAdminUsers({ page: 1, limit: PAGE_SIZE }),
+        staleTime: 1000 * 60 * 3,
+      });
+      queryClient.prefetchQuery({
+        queryKey: ['adminUsers', { page: 1, limit: PAGE_SIZE, role: 'student', search: undefined }],
+        queryFn: () => getAdminUsers({ page: 1, limit: PAGE_SIZE, role: 'student' }),
+        staleTime: 1000 * 60 * 3,
+      });
+      queryClient.prefetchQuery({
+        queryKey: ['adminUsers', { page: 1, limit: PAGE_SIZE, role: 'teacher', search: undefined }],
+        queryFn: () => getAdminUsers({ page: 1, limit: PAGE_SIZE, role: 'teacher' }),
+        staleTime: 1000 * 60 * 3,
+      });
+    }
+  }, [queryClient, debouncedSearch]);
   
   // Get role filter based on active tab
   const getRoleFilter = (): "teacher" | "student" | "admin" | undefined => {
@@ -66,16 +102,24 @@ export const Users = () => {
   const { 
     data: apiResponse, 
     isLoading, 
+    isFetching,
     isError,
     refetch 
   } = useGetAdminUsersQuery({ 
     page, 
     limit: PAGE_SIZE,
     role: getRoleFilter(),
-    search: searchTerm || undefined
+    search: debouncedSearch || undefined
   });
-  
-  // Delete mutation
+
+  // Preserve global summary across all tabs
+  useEffect(() => {
+    if (apiResponse?.summary) {
+      setCachedSummary(apiResponse.summary);
+    }
+  }, [apiResponse?.summary]);
+
+  const summary = apiResponse?.summary || cachedSummary;
   
   // Transform API data to User interface
   const users: User[] = apiResponse?.data?.map(transformApiUser) || [];
@@ -86,50 +130,28 @@ export const Users = () => {
     setPage(1); // Reset to first page when tab changes
   };
   
-  // const handleDelete = async () => {
-  //   if (!deleteTarget) return;
-    
-  //   try {
-  //     await deleteUserMutation.mutateAsync(deleteTarget.id);
-  //     // Refetch to update the list
-  //     refetch();
-  //     setDeleteTarget(null);
-  //   } catch (error) {
-  //     console.error("Failed to delete user:", error);
-  //   }
-  // };
-  
   const handleView = (user: User) => {
     // Implement view logic - could open a modal or navigate to user details
     console.log("View user:", user);
   };
   
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-6">
-        <UserTabs active={activeTab} onChange={handleTabChange} />
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12">
-          <div className="flex items-center justify-center gap-3 text-gray-500">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            <span>Loading users...</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
   // Error state
-  if (isError) {
+  if (isError && !apiResponse && !summary) {
     return (
       <div className="flex flex-col gap-6">
-        <UserTabs active={activeTab} onChange={handleTabChange} />
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12">
-          <div className="flex flex-col items-center justify-center gap-3 text-gray-500">
-            <p>Failed to load users</p>
+        <SectionHeading
+          heading="User Management"
+          subheading="Manage learner and instructor accounts, role permissions, and platform activity."
+        />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80">
+          <UserTabs active={activeTab} onChange={handleTabChange} />
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200/70 shadow-none p-12">
+          <div className="flex flex-col items-center justify-center gap-3 text-slate-500">
+            <p className="text-xs sm:text-[13px] font-medium">Failed to load users</p>
             <button 
               onClick={() => refetch()}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-xs sm:text-[13px] font-medium text-primary hover:text-primary/90 cursor-pointer"
             >
               Try again
             </button>
@@ -141,54 +163,122 @@ export const Users = () => {
   
   return (
     <div className="flex flex-col gap-6">
-      {/* Search Bar - Optional addition */}
-      <div className="flex justify-between items-center">
-        <UserTabs active={activeTab} onChange={handleTabChange} />
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setPage(1); // Reset to first page on search
-            }}
-            className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-          />
+      <SectionHeading
+        heading="User Management"
+        subheading="Manage learner and instructor accounts, role permissions, and platform activity."
+      />
+
+      {/* Stats Summary - Skeletons during load, then persistent static values */}
+      {summary ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Total Users */}
+          <div className="bg-white rounded-xl border border-slate-200/70 p-4 sm:p-5 shadow-none flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-slate-500">Total Users</span>
+              <span className="text-2xl font-semibold text-slate-900 tracking-tight mt-1">
+                {summary.totalUsers}
+              </span>
+            </div>
+            <div className="h-9 w-9 rounded-lg bg-slate-100/80 border border-slate-200/60 flex items-center justify-center text-slate-600 shrink-0">
+              <UsersIcon className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Students */}
+          <div className="bg-white rounded-xl border border-slate-200/70 p-4 sm:p-5 shadow-none flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-slate-500">Students</span>
+              <span className="text-2xl font-semibold text-slate-900 tracking-tight mt-1">
+                {summary.totalStudents}
+              </span>
+            </div>
+            <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+              <GraduationCap className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Teachers */}
+          <div className="bg-white rounded-xl border border-slate-200/70 p-4 sm:p-5 shadow-none flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-slate-500">Teachers</span>
+              <span className="text-2xl font-semibold text-slate-900 tracking-tight mt-1">
+                {summary.totalTeachers}
+              </span>
+            </div>
+            <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+              <BookOpen className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Active Users */}
+          <div className="bg-white rounded-xl border border-slate-200/70 p-4 sm:p-5 shadow-none flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-slate-500">Active Users</span>
+              <span className="text-2xl font-semibold text-slate-900 tracking-tight mt-1">
+                {summary.activeUsers}
+              </span>
+            </div>
+            <div className="h-9 w-9 rounded-lg bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600 shrink-0">
+              <UserCheck className="w-4 h-4" />
+            </div>
+          </div>
         </div>
-      </div>
-      
-      {/* Stats Summary - Optional */}
-      {apiResponse?.summary && (
-        <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <div className="text-2xl font-bold text-gray-800">{apiResponse.summary.totalUsers}</div>
-            <div className="text-xs text-gray-500">Total Users</div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <div className="text-2xl font-bold text-blue-600">{apiResponse.summary.totalStudents}</div>
-            <div className="text-xs text-gray-500">Students</div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <div className="text-2xl font-bold text-green-600">{apiResponse.summary.totalTeachers}</div>
-            <div className="text-xs text-gray-500">Teachers</div>
-          </div>
-          <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <div className="text-2xl font-bold text-emerald-600">{apiResponse.summary.activeUsers}</div>
-            <div className="text-xs text-gray-500">Active Users</div>
-          </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-xl border border-slate-200/70 p-4 sm:p-5 shadow-none flex items-center justify-between">
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-3.5 w-16 bg-slate-100" />
+                <Skeleton className="h-7 w-12 bg-slate-100" />
+              </div>
+              <Skeleton className="h-9 w-9 rounded-lg bg-slate-100 shrink-0" />
+            </div>
+          ))}
         </div>
       )}
-      
+
+      {/* Tabs and Search Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80">
+        <UserTabs active={activeTab} onChange={handleTabChange} />
+        <div className="pb-2.5 sm:pb-2.5">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1); // Reset to first page on search
+              }}
+              className="h-9 pl-9 pr-8 text-xs sm:text-[13px] rounded-lg border border-slate-200/80 bg-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors shadow-none w-full sm:w-64"
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm("");
+                  setPage(1);
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200/70 shadow-none overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/60">
+              <tr className="border-b border-slate-100 bg-slate-50/50">
                 {[
                   "User",
                   "Role",
+                  "Plan",
                   "Status",
                   "Joined",
                   "Last Active",
@@ -196,19 +286,51 @@ export const Users = () => {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="py-3 px-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                    className="py-3 px-4 sm:px-5 text-left text-xs font-semibold text-slate-600 tracking-normal"
                   >
                     {h}
                   </th>
                 ))}
-               </tr>
+              </tr>
             </thead>
             <tbody>
-              {users.length === 0 ? (
+              {(isLoading || (isFetching && users.length === 0)) ? (
+                [1, 2, 3, 4, 5, 6].map((i) => (
+                  <tr key={i} className="border-b border-slate-100/80">
+                    <td className="py-3 sm:py-3.5 px-4 sm:px-5">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-slate-100 shrink-0" />
+                        <div className="flex flex-col gap-1.5">
+                          <Skeleton className="h-3.5 w-28 bg-slate-100" />
+                          <Skeleton className="h-3 w-36 bg-slate-100" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 sm:py-3.5 px-4 sm:px-5">
+                      <Skeleton className="h-5 w-16 rounded-md bg-slate-100" />
+                    </td>
+                    <td className="py-3 sm:py-3.5 px-4 sm:px-5">
+                      <Skeleton className="h-5 w-14 rounded-md bg-slate-100" />
+                    </td>
+                    <td className="py-3 sm:py-3.5 px-4 sm:px-5">
+                      <Skeleton className="h-5 w-16 rounded-md bg-slate-100" />
+                    </td>
+                    <td className="py-3 sm:py-3.5 px-4 sm:px-5">
+                      <Skeleton className="h-3.5 w-20 bg-slate-100" />
+                    </td>
+                    <td className="py-3 sm:py-3.5 px-4 sm:px-5">
+                      <Skeleton className="h-3.5 w-16 bg-slate-100" />
+                    </td>
+                    <td className="py-3 sm:py-3.5 px-4 sm:px-5">
+                      <Skeleton className="h-7 w-7 rounded-lg bg-slate-100" />
+                    </td>
+                  </tr>
+                ))
+              ) : users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
-                    className="py-12 text-center text-sm text-gray-400"
+                    colSpan={7}
+                    className="py-12 text-center text-xs sm:text-[13px] text-slate-400"
                   >
                     No users found.
                   </td>
@@ -229,12 +351,13 @@ export const Users = () => {
         
         {/* Pagination */}
         {totalItems > PAGE_SIZE && (
-          <div className="px-4 py-3 border-t border-gray-100">
+          <div className="border-t border-slate-100">
             <Pagination
               page={page}
               totalItems={totalItems}
               pageSize={PAGE_SIZE}
               onPageChange={setPage}
+              className="border-t-0 bg-white"
             />
           </div>
         )}

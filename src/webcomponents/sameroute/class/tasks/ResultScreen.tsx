@@ -273,7 +273,7 @@ const TYPE_LABEL: Record<string, string> = {
   ORDERING: "Ordering",
 };
 
-export const ResultScreen = ({ result }: { result: AttemptResult }) => {
+export const ResultScreen = ({ result, hideBackButton }: { result: AttemptResult, hideBackButton?: boolean }) => {
   const { classId } = useParams<{ classId: string }>();
   const { score, total, percentage, results } = result;
 
@@ -450,12 +450,14 @@ export const ResultScreen = ({ result }: { result: AttemptResult }) => {
       </div>
 
       {/* ACTIONS */}
-      <div className="flex justify-between pt-2">
-        <Link href={`/classes/${classId}/tasks`} className={buttonVariants({ variant: "outline" })}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to activities
-        </Link>
-      </div>
+      {!hideBackButton && (
+        <div className="flex justify-between pt-2">
+          <Link href={`/classes/${classId}/tasks`} className={buttonVariants({ variant: "outline" })}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to activities
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

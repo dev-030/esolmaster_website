@@ -37,7 +37,7 @@ export const RecentActivity = ({
             key={i}
             className="flex items-center gap-3.5 py-3.5 first:pt-0 last:pb-0 hover:bg-slate-50/50 rounded-xl px-2 -mx-2 transition-colors"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-blue-50/80 text-[#3454FB]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-primary/10 text-primary">
               {item.taskType === "GRAMMAR" ? (
                 <SpellCheck className="w-5 h-5" />
               ) : item.taskType === "READING" ? (
@@ -63,8 +63,8 @@ export const RecentActivity = ({
             </div>
 
             <div className="text-right shrink-0">
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-[#3454FB] bg-blue-50 px-2 py-0.5 rounded-full">
-                <Zap className="w-3 h-3 fill-[#3454FB]" />
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full">
+                <Zap className="w-3 h-3 fill-primary" />
                 +{item.xpEarned} XP
               </span>
               <p className="text-[11px] text-slate-400 font-medium mt-0.5">

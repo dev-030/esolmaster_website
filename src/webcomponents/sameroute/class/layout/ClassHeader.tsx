@@ -54,6 +54,8 @@ export const ClassHeaderSkeleton = ({ isTeacher = true }: { isTeacher?: boolean 
   );
 };
 
+import { useTeacherSubscription } from "@/provider/SubscriptionProvider";
+
 export const ClassHeader = ({
   classDetails,
   action,
@@ -62,22 +64,33 @@ export const ClassHeader = ({
   onTabChange,
   isLoading,
 }: ClassHeaderProps) => {
+  const { limits, planType } = useTeacherSubscription();
+
   if (isLoading || !classDetails) {
     return <ClassHeaderSkeleton isTeacher={isTeacher} />;
   }
+
+  const studentCount = classDetails.studentCount ?? 0;
+  const taskCount = classDetails.taskCount ?? 0;
+  const maxStudents = limits.maxStudentsPerClass;
+  const maxTasks = limits.maxScheduledTasksInClass;
+  const remainingStudents = Math.max(0, maxStudents - studentCount);
+  const remainingTasks = Math.max(0, maxTasks - taskCount);
 
   const tabs = [
     {
       label: "Students",
       value: "students",
       icon: Users,
-      count: classDetails.studentCount ?? 0,
+      count: isTeacher ? `${studentCount} / ${maxStudents}` : studentCount,
+      remaining: isTeacher ? remainingStudents : undefined,
     },
     {
       label: "Activities",
       value: "tasks",
       icon: ClipboardList,
-      count: classDetails.taskCount ?? 0,
+      count: isTeacher ? `${taskCount} / ${maxTasks}` : taskCount,
+      remaining: isTeacher ? remainingTasks : undefined,
     },
     {
       label: "Settings",
@@ -93,7 +106,7 @@ export const ClassHeader = ({
         <div className="flex min-w-0 items-center gap-3.5">
           <div
             className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] text-lg font-bold text-white shadow-sm"
-            style={{ backgroundColor: classDetails.color || "#3454FB" }}
+            style={{ backgroundColor: classDetails.color || "#007EEF" }}
           >
             {classDetails.name.charAt(0).toUpperCase()}
           </div>
@@ -102,30 +115,31 @@ export const ClassHeader = ({
               {classDetails.name}
             </h1>
             <p className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mt-0.5">
-              <BookOpen className="h-3.5 w-3.5 text-[#3454FB]" />
+              <BookOpen className="h-3.5 w-3.5 text-primary" />
               {classDetails.subject}
             </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 sm:justify-end">
-          {/* Stats Pills for Student View (Teachers have counts in the tabs) */}
-          {!isTeacher && (
-            <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
-                <Users className="h-3.5 w-3.5 text-[#3454FB]" />
-                <strong className="text-slate-700 font-semibold">{classDetails.studentCount}</strong>{" "}
-                {classDetails.studentCount === 1 ? "learner" : "learners"}
-              </span>
-              <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
-                <ClipboardList className="h-3.5 w-3.5 text-[#3454FB]" />
-                <strong className="text-slate-700 font-semibold">{classDetails.taskCount}</strong>{" "}
-                {classDetails.taskCount === 1 ? "activity" : "activities"}
-              </span>
-            </div>
-          )}
-          {action}
-        </div>
+        {(!isTeacher || action) && (
+          <div className="flex flex-wrap items-center gap-2.5 sm:justify-end">
+            {!isTeacher && (
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                  <Users className="h-3.5 w-3.5 text-primary" />
+                  <strong className="text-slate-700 font-semibold">{classDetails.studentCount}</strong>{" "}
+                  {classDetails.studentCount === 1 ? "learner" : "learners"}
+                </span>
+                <span className="flex items-center gap-1.5 rounded-full bg-slate-50 border border-slate-100 px-3 py-1 text-xs font-medium text-slate-500">
+                  <ClipboardList className="h-3.5 w-3.5 text-primary" />
+                  <strong className="text-slate-700 font-semibold">{classDetails.taskCount}</strong>{" "}
+                  {classDetails.taskCount === 1 ? "activity" : "activities"}
+                </span>
+              </div>
+            )}
+            {action}
+          </div>
+        )}
       </div>
 
       {/* Integrated Tab Bar for Teachers */}
@@ -141,23 +155,24 @@ export const ClassHeader = ({
                 onClick={() => onTabChange(tab.value)}
                 className={`group relative flex items-center gap-2 py-3 px-1 text-sm font-semibold transition-all duration-150 border-b-2 -mb-px cursor-pointer shrink-0 ${
                   isActive
-                    ? "border-[#3454FB] text-[#3454FB]"
+                    ? "border-primary text-primary"
                     : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
                 }`}
               >
                 <Icon
                   className={`h-4 w-4 transition-colors ${
                     isActive
-                      ? "text-[#3454FB]"
+                      ? "text-primary"
                       : "text-slate-400 group-hover:text-slate-600"
                   }`}
                 />
                 <span>{tab.label}</span>
                 {tab.count !== undefined && (
                   <span
-                    className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-bold rounded-full transition-colors ${
+                    title={tab.remaining !== undefined ? `${tab.remaining} remaining on ${planType} plan` : undefined}
+                    className={`inline-flex items-center justify-center min-w-[20px] h-5 px-2 text-[11px] font-semibold rounded-full transition-colors ${
                       isActive
-                        ? "bg-blue-50 text-[#3454FB]"
+                        ? "bg-primary/10 text-primary"
                         : "bg-slate-100 text-slate-500 group-hover:bg-slate-200/80 group-hover:text-slate-700"
                     }`}
                   >

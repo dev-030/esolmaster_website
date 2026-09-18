@@ -101,15 +101,15 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
     <div className="space-y-6 pb-12">
       {/* ── Summary Cards Header ── */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-4 rounded-2xl border-slate-200/80 bg-white shadow-xs">
+        <Card className="p-4 rounded-xl border-slate-200/70 bg-white shadow-none">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
-            <BookOpen className="w-4 h-4 text-[#3454FB]" />
+            <BookOpen className="w-4 h-4 text-primary" />
             <span>Activity Type</span>
           </div>
-          <p className="mt-2 text-base font-bold text-slate-800 capitalize">
+          <p className="mt-2 text-base font-semibold text-slate-900 capitalize">
             {taskType.toLowerCase()}
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-[11px] text-slate-400 mt-0.5 font-normal">
             {awardingBody ? `${awardingBody} · ` : ""}
             {entryLevel
               ? entryLevel.replace("ENTRY", "Entry ").replace("LEVEL", "Level ")
@@ -117,46 +117,46 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
           </p>
         </Card>
 
-        <Card className="p-4 rounded-2xl border-slate-200/80 bg-white shadow-xs">
+        <Card className="p-4 rounded-xl border-slate-200/70 bg-white shadow-none">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
             <HelpCircle className="w-4 h-4 text-purple-600" />
             <span>Total Questions</span>
           </div>
-          <p className="mt-2 text-base font-bold text-slate-800">
+          <p className="mt-2 text-base font-semibold text-slate-900">
             {questions.length} questions
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-[11px] text-slate-400 mt-0.5 font-normal">
             Across {taskSections.length} section
             {taskSections.length !== 1 ? "s" : ""}
           </p>
         </Card>
 
-        <Card className="p-4 rounded-2xl border-slate-200/80 bg-white shadow-xs">
+        <Card className="p-4 rounded-xl border-slate-200/70 bg-white shadow-none">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
             <Target className="w-4 h-4 text-emerald-600" />
             <span>Marks & Scoring</span>
           </div>
-          <p className="mt-2 text-base font-bold text-slate-800">
+          <p className="mt-2 text-base font-semibold text-slate-900">
             {totalMarks} Total Marks
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-[11px] text-slate-400 mt-0.5 font-normal">
             {passMark
               ? `Pass Mark: ${passMark} marks`
               : "Scored by completion rate"}
           </p>
         </Card>
 
-        <Card className="p-4 rounded-2xl border-slate-200/80 bg-white shadow-xs">
+        <Card className="p-4 rounded-xl border-slate-200/70 bg-white shadow-none">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
             <Award className="w-4 h-4 text-amber-600" />
             <span>Marking Criteria</span>
           </div>
-          <p className="mt-2 text-base font-bold text-slate-800">
+          <p className="mt-2 text-base font-semibold text-slate-900">
             {taskCriteria.length > 0
               ? `${taskCriteria.length} criteria defined`
               : "Standard Marking"}
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-[11px] text-slate-400 mt-0.5 font-normal">
             {passLogic || "All criteria must be attempted"}
           </p>
         </Card>
@@ -164,10 +164,10 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
 
       {/* ── Criteria List (if applicable) ── */}
       {taskCriteria.length > 0 && (
-        <Card className="p-5 rounded-2xl border-slate-200/80 bg-white shadow-xs space-y-3">
+        <Card className="p-5 rounded-xl border-slate-200/70 bg-white shadow-none space-y-3">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-600" />
-            <h3 className="text-sm font-bold text-slate-800">
+            <h3 className="text-sm font-semibold text-slate-900">
               Assessment Criteria / Learning Outcomes
             </h3>
           </div>
@@ -199,35 +199,35 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
           return (
             <div
               key={section.id || secIdx}
-              className="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden"
+              className="rounded-xl border border-slate-200/70 bg-white shadow-none overflow-hidden"
             >
               {/* Section Header & Reading Stimulus */}
               <div className="border-b border-slate-100 bg-slate-50/70 p-5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="h-6 px-2 rounded-md bg-[#3454FB] text-white text-xs font-bold flex items-center">
+                    <span className="h-6 px-2 rounded-md bg-primary text-white text-xs font-semibold flex items-center">
                       Section {secIdx + 1}
                     </span>
-                    <h2 className="text-base font-bold text-slate-800">
+                    <h2 className="text-base font-semibold text-slate-900">
                       {cleanHtmlText(section.title || `Task ${secIdx + 1}`)}
                     </h2>
                   </div>
-                  <span className="text-xs font-semibold text-slate-500">
+                  <span className="text-xs font-medium text-slate-500">
                     {sectionQuestions.length} Question
                     {sectionQuestions.length !== 1 ? "s" : ""}
                   </span>
                 </div>
 
                 {section.instruction && (
-                  <p className="text-xs text-slate-600 italic">
+                  <p className="text-xs text-slate-500 font-normal italic">
                     {cleanHtmlText(section.instruction)}
                   </p>
                 )}
 
                 {/* Stimulus Text or Image */}
                 {(section.content || section.imageUrl) && (
-                  <div className="mt-3 p-4 rounded-xl border border-slate-200/80 bg-white text-sm text-slate-700 leading-relaxed shadow-2xs space-y-3">
-                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <div className="mt-3 p-4 rounded-xl border border-slate-200/70 bg-white text-sm text-slate-700 leading-relaxed shadow-none space-y-3">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
                       <FileText className="w-3.5 h-3.5" />
                       <span>Reading / Stimulus Material</span>
                     </div>
@@ -266,7 +266,7 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                       {/* Question meta row */}
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <div className="flex items-center gap-2">
-                          <span className="h-6 w-6 rounded-full bg-blue-50 text-[#3454FB] text-xs font-bold flex items-center justify-center">
+                          <span className="h-6 w-6 rounded-full bg-primary/5 text-primary text-xs font-bold flex items-center justify-center">
                             {displayNum}
                           </span>
                           <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
@@ -283,7 +283,7 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                             return (
                               <Badge
                                 variant="outline"
-                                className="text-[10px] font-semibold border-blue-200 bg-blue-50/70 text-[#3454FB]"
+                                className="text-[10px] font-semibold border-primary/20 bg-primary/10 text-primary"
                                 title={desc}
                               >
                                 Criterion: {code}
@@ -392,19 +392,19 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                                   cfg.correctAnswers.map((ans: string, aIdx: number) => (
                                     <span
                                       key={aIdx}
-                                      className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-mono shadow-2xs"
+                                      className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-mono shadow-none"
                                     >
                                       {cleanHtmlText(ans)}
                                     </span>
                                   ))
                                 ) : (
-                                  <span className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-mono shadow-2xs">
+                                  <span className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-mono shadow-none">
                                     {cleanHtmlText(String(cfg.correctAnswers))}
                                   </span>
                                 )}
                               </div>
                             ) : cfg.correctAnswer ? (
-                              <span className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-mono shadow-2xs">
+                              <span className="px-2.5 py-1 rounded-md bg-white border border-emerald-200 font-mono shadow-none">
                                 {cleanHtmlText(cfg.correctAnswer)}
                               </span>
                             ) : (

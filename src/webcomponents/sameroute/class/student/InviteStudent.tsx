@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus, Search, X, Loader2, Plus, Users, Check } from "lucide-react";
 import { toast } from "sonner";
-import { useAddStudentsToClassMutation, useStudentFinderQuery } from "@/api/class";
+import { useAddStudentsToClassMutation, useStudentFinderQuery, useGetClassByIdQuery } from "@/api/class";
+import { useTeacherSubscription } from "@/provider/SubscriptionProvider";
 import { useParams } from "next/navigation";
 
 interface Props {
@@ -108,11 +109,25 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
     setSelectedStudents(selectedStudents.filter((s) => s.user.id !== studentId));
   };
 
+  const { limits, planType, openUpgradeModal } = useTeacherSubscription();
+  const { data: classDetails } = useGetClassByIdQuery(classId);
+  const currentCount = classDetails?.studentCount ?? 0;
+  const maxStudents = limits.maxStudentsPerClass;
+  const remaining = Math.max(0, maxStudents - currentCount);
+  const isFull = remaining <= 0;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (selectedStudents.length === 0) {
       toast.error("Please add at least one student");
+      return;
+    }
+
+    if (selectedStudents.length > remaining) {
+      toast.error(
+        `Adding ${selectedStudents.length} student${selectedStudents.length > 1 ? "s" : ""} exceeds your remaining capacity (${remaining} remaining on ${planType} plan).`
+      );
       return;
     }
 
@@ -147,18 +162,41 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
       <DialogContent className="sm:max-w-[480px] rounded-[22px] border border-slate-200/80 bg-white p-6 shadow-xl ring-0 focus-visible:ring-0 outline-none">
         <DialogHeader className="gap-1">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-blue-50 text-[#3454FB]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-primary/5 text-primary">
               <UserPlus className="h-5 w-5" />
             </div>
             <div>
-              <DialogTitle className="text-base font-bold text-slate-800 tracking-tight">
-                Add Students to Class
-              </DialogTitle>
+              <div className="flex items-center gap-2">
+                <DialogTitle className="text-base font-bold text-slate-800 tracking-tight">
+                  Add Students to Class
+                </DialogTitle>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60">
+                  {remaining} seats left ({currentCount}/{maxStudents})
+                </span>
+              </div>
               <DialogDescription className="text-xs text-slate-400 font-medium mt-0.5">
-                Search registered students by email to enroll them in this class.
+                Search registered students by email to enroll them ({planType} Plan allows up to {maxStudents} students).
               </DialogDescription>
             </div>
           </div>
+          {isFull && (
+            <div className="mt-2 p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-900 text-xs flex items-center justify-between">
+              <span>Class has reached its maximum of {maxStudents} students.</span>
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenChange(false);
+                  openUpgradeModal(
+                    "Upgrade Student Limit",
+                    `Your ${planType} plan allows up to ${maxStudents} students per class. Upgrade to enroll more students.`
+                  );
+                }}
+                className="font-bold text-[#007EEF] hover:underline cursor-pointer ml-2 shrink-0"
+              >
+                Upgrade Plan
+              </button>
+            </div>
+          )}
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
@@ -175,12 +213,12 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
                 value={searchEmail}
                 onChange={(e) => setSearchEmail(e.target.value)}
                 disabled={isAdding}
-                className="w-full pl-10 pr-10 h-10 rounded-xl border border-slate-200/80 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus-visible:outline-none focus-visible:border-[#3454FB] focus-visible:ring-1 focus-visible:ring-[#3454FB]/20 shadow-none transition-all"
+                className="w-full pl-10 pr-10 h-10 rounded-xl border border-slate-200/80 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary/20 shadow-none transition-all"
                 autoFocus
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
                 {isFetching && (
-                  <Loader2 className="h-4 w-4 animate-spin text-[#3454FB]" />
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
                 )}
                 {!isFetching && searchEmail && (
                   <button
@@ -208,9 +246,9 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
               <Label className="text-xs font-semibold text-slate-700">
                 Found Student
               </Label>
-              <div className="flex items-center justify-between rounded-xl border border-blue-100 bg-blue-50/40 p-3 shadow-2xs">
+              <div className="flex items-center justify-between rounded-xl border border-primary/10 bg-primary/10 p-3 shadow-2xs">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#3454FB] text-xs font-bold text-white shadow-xs">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white shadow-xs">
                     {searchResult.user.firstName?.charAt(0)?.toUpperCase()}
                     {searchResult.user.lastName?.charAt(0)?.toUpperCase()}
                   </div>
@@ -228,7 +266,7 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
                   type="button"
                   size="sm"
                   onClick={handleAddToSelection}
-                  className="ml-2 gap-1 rounded-[10px] bg-[#3454FB] hover:bg-[#2842D8] text-white text-xs font-semibold h-8 px-3 shadow-none shrink-0"
+                  className="ml-2 gap-1 rounded-[10px] bg-primary hover:bg-primary/90 text-white text-xs font-semibold h-8 px-3 shadow-none shrink-0"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Add
@@ -259,7 +297,7 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
                     className="flex items-center justify-between p-2.5 hover:bg-slate-50 transition-colors"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-[#3454FB]">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                         {student.user.firstName?.charAt(0)?.toUpperCase()}
                       </div>
                       <div className="min-w-0">
@@ -313,7 +351,7 @@ export const InviteStudentDialog = ({ open, onOpenChange }: Props) => {
             <Button
               type="submit"
               disabled={selectedStudents.length === 0 || isAdding}
-              className="rounded-xl bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs h-9 px-4 shadow-none disabled:opacity-40"
+              className="rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold text-xs h-9 px-4 shadow-none disabled:opacity-40"
             >
               {isAdding ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-1.5" />

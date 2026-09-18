@@ -21,11 +21,11 @@ import {
 const chartConfig = {
   completed: {
     label: "Total Completed",
-    color: "#2F7EDA",
+    color: "#007EEF",
   },
   totalTasks: {
     label: "Total Tasks",
-    color: "#2F7EDA33",
+    color: "#007EEF33",
   },
 } satisfies ChartConfig;
 
@@ -43,14 +43,12 @@ interface YearlyTaskPerformanceProps {
 export const YearlyTaskPerformance = ({ data }: YearlyTaskPerformanceProps) => {
   if (!data || data.length === 0) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">
-            Yearly Task Performance
-          </CardTitle>
+      <Card className="w-full rounded-xl border border-slate-200/70 shadow-none">
+        <CardHeader className="px-5 py-4 border-b border-slate-100">
+          <CardTitle className="text-sm font-semibold text-slate-800">Yearly Task Performance</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[350px] flex items-center justify-center text-muted-foreground">
+          <div className="h-[350px] flex items-center justify-center text-sm text-slate-400">
             No data available
           </div>
         </CardContent>
@@ -59,31 +57,29 @@ export const YearlyTaskPerformance = ({ data }: YearlyTaskPerformanceProps) => {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">
-          Yearly Task Performance
-        </CardTitle>
+    <Card className="w-full rounded-xl border border-slate-200/70 shadow-none">
+      <CardHeader className="px-5 py-4 border-b border-slate-100">
+        <CardTitle className="text-sm font-semibold text-slate-800">Yearly Task Performance</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <ChartContainer config={chartConfig} className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart 
-              data={data} 
+            <BarChart
+              data={data}
               barCategoryGap="20%"
               margin={{ top: 20, right: 10, left: -20, bottom: 0 }}
             >
-              <CartesianGrid vertical={false} strokeDasharray="3 3" />
+              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis
                 dataKey="year"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
               />
-              <YAxis 
-                tickLine={false} 
-                axisLine={false} 
-                tick={{ fontSize: 12 }} 
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 11, fill: "#94a3b8" }}
               />
               <Tooltip content={<ChartTooltipContent />} />
               <Legend content={<ChartLegendContent />} />

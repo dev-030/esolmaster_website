@@ -17,8 +17,8 @@ export const LearnerProgressCard = ({ learnerProgressData }: { learnerProgressDa
         <AreaChart data={learnerProgressData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="primaryArea" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%"  stopColor="#2F7EDA" stopOpacity={0.15} />
-              <stop offset="95%" stopColor="#2F7EDA4D" stopOpacity={0.01} />
+              <stop offset="5%"  stopColor="#2563EB" stopOpacity={0.15} />
+              <stop offset="95%" stopColor="#2563EB4D" stopOpacity={0.01} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />

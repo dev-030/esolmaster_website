@@ -119,7 +119,7 @@ const PdfPageCanvas = ({
   };
 
   return (
-    <div className="relative mb-6 shadow-lg bg-white inline-block">
+    <div className="relative mb-6 border border-slate-200/80 rounded-lg overflow-hidden shadow-none bg-white inline-block">
       {!isRendered && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50">
           <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />

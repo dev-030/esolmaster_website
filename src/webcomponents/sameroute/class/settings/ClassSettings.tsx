@@ -80,14 +80,14 @@ export const ClassSettings = () => {
           <div className="flex items-center gap-3.5">
             <div
               className="flex h-12 w-12 items-center justify-center rounded-[14px] text-lg font-bold text-white shadow-sm"
-              style={{ backgroundColor: cls.color || "#3454FB" }}
+              style={{ backgroundColor: cls.color || "#007EEF" }}
             >
               {cls.name[0]?.toUpperCase()}
             </div>
             <div>
               <p className="text-lg font-bold text-slate-800 tracking-tight">{cls.name}</p>
               <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mt-0.5">
-                <BookOpen className="h-3.5 w-3.5 text-[#3454FB]" /> {cls.subject}
+                <BookOpen className="h-3.5 w-3.5 text-primary" /> {cls.subject}
               </p>
             </div>
           </div>
@@ -113,10 +113,10 @@ export const ClassSettings = () => {
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <div className="flex items-center gap-3 rounded-xl bg-slate-50/60 border border-slate-100 p-3 text-sm text-slate-600">
-            <Users className="h-4 w-4 text-[#3454FB]" /> <strong className="font-semibold text-slate-800">{cls.studentCount}</strong> students enrolled
+            <Users className="h-4 w-4 text-primary" /> <strong className="font-semibold text-slate-800">{cls.studentCount}</strong> students enrolled
           </div>
           <div className="flex items-center gap-3 rounded-xl bg-slate-50/60 border border-slate-100 p-3 text-sm text-slate-600">
-            <ClipboardList className="h-4 w-4 text-[#3454FB]" /> <strong className="font-semibold text-slate-800">{cls.taskCount}</strong> activities assigned
+            <ClipboardList className="h-4 w-4 text-primary" /> <strong className="font-semibold text-slate-800">{cls.taskCount}</strong> activities assigned
           </div>
         </div>
       </Card>

@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Class, CreateClassPayload } from "@/types/class";
 import { cn } from "@/lib/utils";
+import { useTeacherSubscription } from "@/provider/SubscriptionProvider";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -33,7 +34,7 @@ const schema = z.object({
 export type ClassFormData = z.infer<typeof schema>;
 
 const COLOR_OPTIONS = [
-  "#3454FB", // Electric Blue (Primary Brand)
+  "#007EEF", // Electric Blue (Primary Brand)
   "#2563EB", // Royal Blue
   "#0EA5E9", // Sky Blue
   "#10B981", // Emerald Green
@@ -61,12 +62,15 @@ export const ClassDialog = ({
   onSave,
 }: ClassDialogProps) => {
   const isEdit = !!initial;
+  const { planType, limits } = useTeacherSubscription();
+  const maxPlanStudents = limits.maxStudentsPerClass;
+
   const [isSaving, setIsSaving] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>(
-    initial?.color || "#3454FB"
+    initial?.color || "#007EEF"
   );
   const [hasLimit, setHasLimit] = useState<boolean>(false);
-  const [limitValue, setLimitValue] = useState<number | string>(30);
+  const [limitValue, setLimitValue] = useState<number | string>(maxPlanStudents);
 
   const {
     register,
@@ -80,7 +84,7 @@ export const ClassDialog = ({
       name: "",
       subject: "",
       description: "",
-      color: "#3454FB",
+      color: "#007EEF",
     },
   });
 
@@ -97,14 +101,14 @@ export const ClassDialog = ({
 
   useEffect(() => {
     if (open) {
-      const initialColor = initial?.color || "#3454FB";
+      const initialColor = initial?.color || "#007EEF";
       setSelectedColor(initialColor);
       const initialHasLimit =
         initial?.maxStudents !== undefined &&
         initial?.maxStudents !== null &&
         initial.maxStudents > 0;
       setHasLimit(initialHasLimit);
-      setLimitValue(initialHasLimit ? initial!.maxStudents! : 30);
+      setLimitValue(initialHasLimit ? initial!.maxStudents! : maxPlanStudents);
       reset({
         name: initial?.name ?? "",
         subject: initial?.subject ?? "",
@@ -112,7 +116,7 @@ export const ClassDialog = ({
         color: initialColor,
       });
     }
-  }, [open, initial, reset]);
+  }, [open, initial, reset, maxPlanStudents]);
 
   const handleColorSelect = (c: string) => {
     setSelectedColor(c);
@@ -131,7 +135,15 @@ export const ClassDialog = ({
         toast.error("Please enter a valid student limit (at least 1)");
         return;
       }
+      if (parsed > maxPlanStudents) {
+        toast.error(
+          `Your ${planType} plan allows a maximum of ${maxPlanStudents} students per class. Upgrade your plan for higher capacity.`
+        );
+        return;
+      }
       finalMaxStudents = Math.floor(parsed);
+    } else {
+      finalMaxStudents = maxPlanStudents;
     }
 
     const cls: CreateClassPayload = {
@@ -173,7 +185,7 @@ export const ClassDialog = ({
             <Input
               id="name"
               placeholder="e.g. Intermediate English B2"
-              className="rounded-xl border-slate-200 text-sm focus-visible:ring-[#3454FB]/20"
+              className="rounded-xl border-slate-200 text-sm focus-visible:ring-primary/20"
               {...register("name")}
             />
             {errors.name && (
@@ -189,7 +201,7 @@ export const ClassDialog = ({
             <Input
               id="subject"
               placeholder="e.g. English"
-              className="rounded-xl border-slate-200 text-sm focus-visible:ring-[#3454FB]/20"
+              className="rounded-xl border-slate-200 text-sm focus-visible:ring-primary/20"
               {...register("subject")}
             />
             {errors.subject && (
@@ -208,7 +220,7 @@ export const ClassDialog = ({
               id="description"
               placeholder="Brief description of the class..."
               rows={2}
-              className="rounded-xl border-slate-200 text-sm focus-visible:ring-[#3454FB]/20 resize-none"
+              className="rounded-xl border-slate-200 text-sm focus-visible:ring-primary/20 resize-none"
               {...register("description")}
             />
           </div>
@@ -252,7 +264,7 @@ export const ClassDialog = ({
                 Student Capacity Limit
               </Label>
               <span className="text-[11px] text-slate-500 font-medium">
-                {hasLimit ? `${limitValue || 0} students max` : "No limit (unlimited)"}
+                {hasLimit ? `${limitValue || 0} students max` : `Plan default (${maxPlanStudents} max)`}
               </span>
             </div>
 
@@ -267,14 +279,14 @@ export const ClassDialog = ({
                     : "text-slate-500 hover:text-slate-700"
                 )}
               >
-                <Infinity className="h-3.5 w-3.5 text-[#3454FB]" />
-                <span>No limit</span>
+                <Users className="h-3.5 w-3.5 text-primary" />
+                <span>Plan default ({maxPlanStudents})</span>
               </button>
               <button
                 type="button"
                 onClick={() => {
                   setHasLimit(true);
-                  if (!limitValue || limitValue === 0) setLimitValue(30);
+                  if (!limitValue || limitValue === 0) setLimitValue(maxPlanStudents);
                 }}
                 className={cn(
                   "flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold rounded-lg transition-all cursor-pointer",
@@ -283,8 +295,8 @@ export const ClassDialog = ({
                     : "text-slate-500 hover:text-slate-700"
                 )}
               >
-                <Users className="h-3.5 w-3.5 text-blue-600" />
-                <span>Set limit</span>
+                <Users className="h-3.5 w-3.5 text-primary" />
+                <span>Custom limit</span>
               </button>
             </div>
 
@@ -294,18 +306,18 @@ export const ClassDialog = ({
                   <Input
                     type="number"
                     min={1}
-                    max={5000}
-                    placeholder="e.g. 30"
+                    max={maxPlanStudents}
+                    placeholder={`Up to ${maxPlanStudents}`}
                     value={limitValue}
                     onChange={(e) => setLimitValue(e.target.value)}
-                    className="rounded-xl border-slate-200 text-sm focus-visible:ring-[#3454FB]/20 pr-16"
+                    className="rounded-xl border-slate-200 text-sm focus-visible:ring-primary/20 pr-16"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium pointer-events-none">
                     students
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 font-medium">
-                  Once reached, new students will not be able to join this class.
+                <p className="text-[11px] text-slate-500 font-medium">
+                  Your <span className="font-semibold text-slate-700">{planType}</span> plan allows up to <span className="font-semibold text-slate-700">{maxPlanStudents}</span> students per class.
                 </p>
               </div>
             )}
@@ -324,7 +336,8 @@ export const ClassDialog = ({
             <Button
               type="submit"
               disabled={isSaving}
-              className="rounded-xl bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs h-9 px-4 shadow-none"
+              className="rounded-xl bg-[#007EEF] hover:bg-[#0066cc] text-white font-semibold text-xs h-9 px-4 border-none shadow-none"
+              style={{ boxShadow: "none" }}
             >
               {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
               {isSaving

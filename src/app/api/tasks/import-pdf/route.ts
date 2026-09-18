@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const maxDuration = 120; // seconds (only applies to Vercel/serverless)
 
 export async function POST(request: NextRequest) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5300";
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8001";
 
   // Forward the raw multipart body directly to the backend
   const formData = await request.formData();

@@ -5,6 +5,10 @@ import { Toaster } from "@/components/ui/sonner";
 export const metadata: Metadata = {
   title: "ESOL Master",
   description: "ESOL Learning Platform",
+  icons: {
+    icon: "/icon-512.png",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

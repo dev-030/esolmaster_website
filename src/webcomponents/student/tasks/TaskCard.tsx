@@ -50,9 +50,9 @@ export const TASK_TYPE_CONFIG: Record<TaskType, {
     label: "Grammar",
     icon: PencilLine,
     badgeVariant: "info",
-    bg: "bg-blue-50",
-    border: "border-blue-100",
-    text: "text-[#3454FB]",
+    bg: "bg-primary/5",
+    border: "border-primary/10",
+    text: "text-primary",
   },
   VOCABULARY: {
     label: "Vocabulary",
@@ -113,7 +113,7 @@ export const TaskCard = ({ task }: { task: BrowseTask }) => {
 
         {/* Title and class info */}
         <div>
-          <h3 className="font-semibold text-sm text-slate-800 leading-snug line-clamp-2 group-hover:text-[#3454FB] transition-colors">
+          <h3 className="font-semibold text-sm text-slate-800 leading-snug line-clamp-2 group-hover:text-primary/90 transition-colors">
             {task.taskTitle}
           </h3>
           <p className="text-xs text-slate-400 font-medium mt-1 line-clamp-1">
@@ -152,7 +152,7 @@ export const TaskCard = ({ task }: { task: BrowseTask }) => {
         <Link href={`/classes/${task.classId}/task/${task.scheduledTaskId}`} className="block">
           <Button
             size="sm"
-            className="w-full gap-1.5 rounded-[12px] bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold text-xs h-9 shadow-sm shadow-blue-500/15 group-hover:gap-2.5 transition-all duration-150 cursor-pointer"
+            className="w-full gap-1.5 rounded-[12px] bg-primary hover:bg-primary/90 text-white font-semibold text-xs h-9 shadow-sm shadow-primary/15 group-hover:gap-2.5 transition-all duration-150 cursor-pointer"
           >
             {task.attemptStatus === "COMPLETED"
               ? "View results"

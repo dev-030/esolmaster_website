@@ -29,6 +29,7 @@ import {
   useRemoveStudentsFromClassMutation,
   useUpdateClassJoinStatusMutation,
 } from "@/api/class";
+import { useTeacherSubscription } from "@/provider/SubscriptionProvider";
 
 const JoinCodeCardSkeleton = () => (
   <div className="rounded-[20px] border border-slate-100 bg-white p-5 animate-pulse">
@@ -131,6 +132,12 @@ export const StudentClassPage = () => {
   const [isRemoving, setIsRemoving] = useState(false);
 
   const { data: classDetails, isLoading: isClassLoading, refetch: refetchClass } = useGetClassByIdQuery(classId);
+  const { limits, planType, openUpgradeModal } = useTeacherSubscription();
+  const currentCount = classDetails?.studentCount ?? 0;
+  const maxStudents = limits.maxStudentsPerClass;
+  const remainingStudents = Math.max(0, maxStudents - currentCount);
+  const isClassFull = remainingStudents <= 0;
+
   const { mutateAsync: regenerateJoinCode, isPending: isRegenerating } =
     useRegenerateClassJoinCodeMutation(classId);
   const { mutateAsync: updateJoinStatus, isPending: isUpdatingJoinStatus } =
@@ -215,7 +222,7 @@ export const StudentClassPage = () => {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Info */}
             <div className="flex items-center gap-3.5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-blue-50 text-[#3454FB]">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-primary/5 text-primary">
                 <Users className="h-5 w-5" />
               </div>
               <div>
@@ -247,14 +254,14 @@ export const StudentClassPage = () => {
             {/* Code Pill + Controls */}
             <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               {/* Monospace Code Pill */}
-              <div className="flex items-center gap-2 rounded-[12px] border border-blue-100/80 bg-blue-50/40 px-3.5 py-1.5">
-                <span className="font-mono text-sm font-bold tracking-[0.2em] text-[#3454FB]">
+              <div className="flex items-center gap-2 rounded-[12px] border border-blue-100/80 bg-primary/10 px-3.5 py-1.5">
+                <span className="font-mono text-sm font-bold tracking-[0.2em] text-primary">
                   {classDetails.joinCode || "------"}
                 </span>
                 <button
                   type="button"
                   onClick={copyJoinCode}
-                  className="rounded-md p-1 text-slate-400 hover:text-[#3454FB] hover:bg-white transition-colors"
+                  className="rounded-md p-1 text-slate-400 hover:text-primary/90 hover:bg-white transition-colors"
                   title="Copy join code"
                 >
                   {copied ? (
@@ -281,7 +288,7 @@ export const StudentClassPage = () => {
                   size="sm"
                   onClick={() => changeJoinStatus("OPEN")}
                   disabled={isUpdatingJoinStatus}
-                  className="rounded-[10px] text-xs font-semibold h-8 bg-[#3454FB] hover:bg-[#2842D8] text-white shadow-none"
+                  className="rounded-[10px] text-xs font-semibold h-8 bg-primary hover:bg-primary/90 text-white shadow-none"
                 >
                   <Play className="mr-1.5 h-3.5 w-3.5" /> Resume joins
                 </Button>
@@ -303,14 +310,37 @@ export const StudentClassPage = () => {
                 Regenerate
               </Button>
 
-              {/* Invite Student Button */}
-              <Button
-                onClick={() => setInviteOpen(true)}
-                className="gap-1.5 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[10px] h-8 px-3 text-xs shadow-none transition-all ml-auto sm:ml-0"
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                Invite Student
-              </Button>
+              {/* Remaining Capacity Badge */}
+              <span className="text-xs text-slate-500 font-medium px-2.5 py-1 rounded-[10px] bg-slate-50 border border-slate-200/70 hidden sm:inline-flex items-center gap-1.5">
+                <span className={`h-1.5 w-1.5 rounded-full ${isClassFull ? "bg-amber-500" : "bg-emerald-500"}`} />
+                <span>
+                  <strong className="text-slate-800 font-semibold">{remainingStudents}</strong> spots remaining{" "}
+                  <span className="text-slate-400 font-normal">({currentCount}/{maxStudents})</span>
+                </span>
+              </span>
+
+              {/* Invite Student Button / Upgrade if Full */}
+              {isClassFull ? (
+                <Button
+                  onClick={() =>
+                    openUpgradeModal(
+                      "Student Limit Reached",
+                      `This class is at full capacity (${maxStudents}/${maxStudents} students) on your ${planType} plan. Upgrade to enroll more students.`
+                    )
+                  }
+                  className="gap-1.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-[10px] h-8 px-3 text-xs shadow-none transition-all ml-auto sm:ml-0 cursor-pointer"
+                >
+                  Class full · Upgrade
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => setInviteOpen(true)}
+                  className="gap-1.5 bg-primary hover:bg-primary/90 text-white font-semibold rounded-[10px] h-8 px-3 text-xs shadow-none transition-all ml-auto sm:ml-0"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Invite Student
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -321,7 +351,12 @@ export const StudentClassPage = () => {
         {/* Table Card Header with Search */}
         <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100">
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">Class Roster</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-800">Class Roster</h3>
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200/60">
+                {currentCount} / {maxStudents} enrolled · <strong className="text-slate-800 font-semibold">{remainingStudents}</strong> remaining ({planType})
+              </span>
+            </div>
             <p className="text-xs text-slate-400 font-medium mt-0.5">
               Manage student enrollments and monitor individual activity progress
             </p>
@@ -333,7 +368,7 @@ export const StudentClassPage = () => {
               placeholder="Search students..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-9 pl-9 text-xs rounded-[12px] border-slate-100 bg-slate-50/60 focus:bg-white focus:border-[#3454FB] transition-all"
+              className="h-9 pl-9 text-xs rounded-[12px] border-slate-100 bg-slate-50/60 focus:bg-white focus:border-primary transition-all"
             />
           </div>
         </div>
@@ -343,7 +378,7 @@ export const StudentClassPage = () => {
           <ClassRosterTableSkeleton />
         ) : students.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
-            <div className="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#3454FB]">
+            <div className="h-12 w-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
               <Users className="w-6 h-6" />
             </div>
             <div>
@@ -357,7 +392,7 @@ export const StudentClassPage = () => {
             {!debouncedSearch && (
               <Button
                 onClick={() => setInviteOpen(true)}
-                className="gap-2 mt-2 bg-[#3454FB] hover:bg-[#2842D8] text-white font-semibold rounded-[12px] text-xs h-8 px-4"
+                className="gap-2 mt-2 bg-primary hover:bg-primary/90 text-white font-semibold rounded-[12px] text-xs h-8 px-4"
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 Invite First Student
@@ -461,7 +496,7 @@ export const StudentClassPage = () => {
                           onClick={() => handlePageChange(pageNum)}
                           className={`min-w-8 h-8 rounded-[10px] text-xs font-semibold ${
                             isCurrent
-                              ? "bg-[#3454FB] hover:bg-[#2842D8] text-white border-[#3454FB]"
+                              ? "bg-primary hover:bg-primary/90 text-white border-primary"
                               : "border-slate-100 text-slate-600"
                           }`}
                         >

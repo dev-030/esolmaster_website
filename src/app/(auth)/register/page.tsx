@@ -1,6 +1,5 @@
-import { Register } from "@/webcomponents/account";
+import { redirect } from "next/navigation";
 
 export default function RegisterPage() {
-
-    return <Register />;
+  redirect("/signup");
 }

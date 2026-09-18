@@ -39,7 +39,7 @@ import { formatDistanceToNow } from "date-fns";
 type Role = "admin" | "student" | "teacher";
 
 const ICON: Record<NotificationType, React.ReactNode> = {
-  TASK_OPENED: <CheckSquare className="w-4 h-4 text-blue-500" />,
+  TASK_OPENED: <CheckSquare className="w-4 h-4 text-primary" />,
   TASK_ENDING_SOON: <Clock className="w-4 h-4 text-amber-500" />,
   SUBSCRIPTION_EXPIRING: <CreditCard className="w-4 h-4 text-red-500" />,
   BADGE_EARNED: <Trophy className="w-4 h-4 text-yellow-500" />,
@@ -47,7 +47,7 @@ const ICON: Record<NotificationType, React.ReactNode> = {
 };
 
 const ICON_BG: Record<NotificationType, string> = {
-  TASK_OPENED: "bg-blue-50",
+  TASK_OPENED: "bg-primary/5",
   TASK_ENDING_SOON: "bg-amber-50",
   SUBSCRIPTION_EXPIRING: "bg-red-50",
   BADGE_EARNED: "bg-yellow-50",
@@ -80,7 +80,7 @@ const NotificationDropdown = () => {
           </span>
           {unreadCount > 0 && (
             <span
-              className="text-xs text-[#3454FB] font-semibold cursor-pointer hover:underline"
+              className="text-xs text-primary font-semibold cursor-pointer hover:underline"
               onClick={(e) => {
                 e.stopPropagation();
                 markAllRead();
@@ -95,7 +95,7 @@ const NotificationDropdown = () => {
         <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
           {isLoading && (
             <div className="flex justify-center py-6">
-              <Loader2 className="w-4 h-4 animate-spin text-[#3454FB]" />
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
             </div>
           )}
           {!isLoading && notifications.length === 0 && (
@@ -130,7 +130,7 @@ const NotificationDropdown = () => {
                 </p>
               </div>
               {!notif.isRead && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#3454FB] shrink-0 mt-2" />
+                <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 mt-2" />
               )}
             </DropdownMenuItem>
           ))}
@@ -141,7 +141,7 @@ const NotificationDropdown = () => {
         <DropdownMenuItem className="rounded-none focus:bg-slate-50 p-0">
           <Link
             href="/notification"
-            className="flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold text-[#3454FB] w-full cursor-pointer"
+            className="flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold text-primary w-full cursor-pointer"
           >
             View all notifications
           </Link>
@@ -170,25 +170,14 @@ export const Navbar = () => {
 
   return (
     <nav className="h-[68px] border-b border-slate-100/90 bg-white flex items-center justify-between px-6 md:px-8 sticky top-0 z-20">
-      {/* Left: Search input (Shopeers style) */}
-      <div className="relative w-72 max-w-sm hidden sm:block">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <input
-          type="text"
-          placeholder="Search anything..."
-          className="w-full h-9 pl-10 pr-10 text-xs font-medium bg-slate-50/70 border border-slate-200/70 rounded-[12px] focus:bg-white focus:border-[#3454FB] focus:outline-none transition-all placeholder:text-slate-400"
-        />
-        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-bold text-slate-400">
-          ⌘K
-        </div>
-      </div>
+
 
       {/* Right: Actions */}
       <div className="flex items-center gap-3 sm:gap-4 ml-auto">
         {/* Student XP Badge */}
         {role === "student" && (
-          <div className="flex items-center gap-1.5 rounded-full bg-blue-50/80 border border-blue-100 px-3 py-1 text-xs font-bold text-[#3454FB]">
-            <Zap className="h-3.5 w-3.5 fill-[#3454FB]" />
+          <div className="flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/10 px-3 py-1 text-xs font-bold text-primary">
+            <Zap className="h-3.5 w-3.5 fill-primary" />
             <span>{myProfile?.totalXp || 0} XP</span>
           </div>
         )}
@@ -209,7 +198,7 @@ export const Navbar = () => {
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2.5 outline-none pl-1 cursor-pointer">
             <Avatar className="h-9 w-9 rounded-full ring-2 ring-slate-100">
-              <AvatarFallback className="bg-[#3454FB] text-white text-xs font-bold">
+              <AvatarFallback className="bg-primary text-white text-xs font-bold">
                 {userInitials}
               </AvatarFallback>
             </Avatar>

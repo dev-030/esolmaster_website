@@ -334,7 +334,7 @@ export const StudentDashboard = () => {
 
           <button
             type="button"
-            className="flex items-center gap-1.5 rounded-xl bg-[#3454FB] hover:bg-[#2842D8] px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-blue-500/15 transition-all"
+            className="flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary/90 px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-primary/15 transition-all"
           >
             Export
           </button>
@@ -433,7 +433,7 @@ export const StudentDashboard = () => {
           </div>
 
           <div className="flex flex-col items-center justify-center my-6">
-            <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-tr from-[#3454FB] to-[#5572FF] shadow-lg shadow-blue-500/20">
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-primary/80 shadow-lg shadow-primary/20">
               <div className="flex flex-col items-center justify-center text-white">
                 <GraduationCap className="w-7 h-7 mb-0.5" />
                 <span className="text-xl font-bold leading-none">
@@ -445,7 +445,7 @@ export const StudentDashboard = () => {
             <p className="mt-3 text-sm font-semibold text-slate-800">
               Level {dashboardData?.level?.level?.toString() ?? "1"}
             </p>
-            <span className="mt-0.5 rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-[#3454FB]">
+            <span className="mt-0.5 rounded-full bg-primary/5 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
               {dashboardData?.level?.level && dashboardData.level.level > 10
                 ? "Master Learner"
                 : dashboardData?.level?.level && dashboardData.level.level > 5
@@ -457,11 +457,11 @@ export const StudentDashboard = () => {
           <div className="w-full space-y-2 pt-2 border-t border-slate-100">
             <div className="flex justify-between text-xs font-semibold">
               <span className="text-slate-400">Total Progress</span>
-              <span className="text-[#3454FB] font-bold">{dashboardData?.level?.totalXp ?? 0} XP</span>
+              <span className="text-primary font-bold">{dashboardData?.level?.totalXp ?? 0} XP</span>
             </div>
             <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#3454FB] rounded-full transition-all duration-500"
+                className="h-full bg-primary rounded-full transition-all duration-500"
                 style={{
                   width: `${Math.min(
                     ((dashboardData?.level?.totalXp ?? 0) /

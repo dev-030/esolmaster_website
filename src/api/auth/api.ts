@@ -84,3 +84,41 @@ export const changePassword = async (payload: {
   const { data } = await axios.post("/auth/change-password", payload);
   return data;
 };
+
+export const sendEmailOtp = async (payload: { newEmail: string }) => {
+  const { data } = await axios.post("/auth/send-email-otp", payload);
+  return data;
+};
+
+export const verifyEmailOtp = async (payload: { newEmail: string; code: string }) => {
+  const { data } = await axios.post("/auth/verify-email-otp", payload);
+  return data;
+};
+
+export interface UserSessionDto {
+  id: string;
+  browser: string;
+  os: string;
+  deviceType: "desktop" | "mobile" | "tablet";
+  ipAddress: string;
+  city: string;
+  country: string;
+  lastActiveAt: string;
+  createdAt: string;
+  isCurrent: boolean;
+}
+
+export const getSessions = async () => {
+  const { data } = await axios.get<UserSessionDto[]>("/auth/sessions");
+  return data;
+};
+
+export const revokeSession = async (sessionId: string) => {
+  const { data } = await axios.delete(`/auth/sessions/${sessionId}`);
+  return data;
+};
+
+export const revokeAllOtherSessions = async () => {
+  const { data } = await axios.delete("/auth/sessions/all-other");
+  return data;
+};

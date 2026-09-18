@@ -303,7 +303,7 @@ export const ReadingPassage = ({
                     setDraft(next);
                     onChange?.(next);
                   }}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-destructive text-white flex items-center justify-center shadow-lg"
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-destructive text-white flex items-center justify-center shadow-none border border-white/20"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

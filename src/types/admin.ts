@@ -53,6 +53,12 @@ export interface User {
   email: string;
 
   role: UserRole;
+  subscription?: {
+    planName: string;
+    planType: string;
+    billingCycle?: string;
+    billingStatus?: string;
+  } | null;
   status: UserStatus;
   isActive: boolean;
 

@@ -114,7 +114,7 @@ export const VocabSuggestionInput = ({
                   onClick={() => handleSelectDefinition(s)}
                   className="flex items-center gap-3 py-2 cursor-pointer"
                 >
-                  <div className="shrink-0 w-8 h-8 rounded bg-blue-100 flex items-center justify-center">
+                  <div className="shrink-0 w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
                     <span className="text-sm">📝</span>
                   </div>
                   <div className="flex-1 min-w-0">
