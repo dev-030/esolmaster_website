@@ -16,11 +16,13 @@ export const TeacherAttemptViewer = ({ attemptId, onClose, studentName }: Teache
 
   return (
     <Dialog open={!!attemptId} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{studentName}&apos;s Submission</DialogTitle>
-          <DialogDescription>
-            Detailed view of the student&apos;s answers and score.
+      <DialogContent className="w-full sm:max-w-3xl md:max-w-4xl lg:max-w-5xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 rounded-[20px] bg-white shadow-2xl border border-slate-200/80">
+        <DialogHeader className="pb-3 border-b border-slate-100">
+          <DialogTitle className="text-xl font-bold text-slate-800">
+            {studentName}&apos;s Submission
+          </DialogTitle>
+          <DialogDescription className="text-xs text-slate-500 mt-0.5">
+            Detailed view of the student&apos;s answers, score, and exam breakdown.
           </DialogDescription>
         </DialogHeader>
 
