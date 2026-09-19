@@ -233,11 +233,11 @@ export const TaskOverviewAnswerKey = ({ taskData }: TaskOverviewAnswerKeyProps) 
                     </div>
 
                     {section.imageUrl && (
-                      <div className="max-w-md overflow-hidden rounded-lg border border-slate-100">
+                      <div className="max-w-md overflow-hidden rounded-lg border border-slate-100 bg-white flex items-center justify-center p-1">
                         <img
                           src={section.imageUrl}
                           alt="Section Stimulus"
-                          className="w-full object-contain"
+                          className="max-w-full max-h-[60vh] w-auto h-auto object-contain rounded"
                         />
                       </div>
                     )}
