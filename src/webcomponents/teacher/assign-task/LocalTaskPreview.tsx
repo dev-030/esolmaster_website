@@ -407,7 +407,11 @@ export const LocalTaskPreview = ({
                     >
                       −
                     </button>
-                    <span className="min-w-[42px] text-center font-semibold text-slate-800 text-xs select-none">
+                    <span
+                      onClick={() => setImageZoom(1)}
+                      className="min-w-[42px] text-center font-semibold text-slate-800 text-xs select-none cursor-pointer hover:text-primary transition-colors"
+                      title="Click to reset to 100%"
+                    >
                       {Math.round(imageZoom * 100)}%
                     </span>
                     <button
@@ -423,17 +427,24 @@ export const LocalTaskPreview = ({
               </div>
 
               {/* Stimulus Body */}
-              <div className="p-5 bg-slate-50/50 min-h-[340px] flex items-center justify-center">
+              <div className="p-4 sm:p-5 bg-slate-50/50 min-h-[340px] flex items-start justify-center">
                 {activeSection.stimulusType === "IMAGE" && activeSection.imageUrl ? (
-                  <div className="overflow-auto max-h-[60vh] w-full flex justify-center p-1">
-                    <div className="rounded-xl bg-white p-3 border border-slate-200/70 shadow-none flex items-center justify-center">
+                  <div className="overflow-auto max-h-[64vh] w-full flex items-start justify-center p-1">
+                    <div
+                      className="rounded-xl bg-white p-2.5 sm:p-3 border border-slate-200/80 shadow-xs flex items-center justify-center transition-all duration-150"
+                      style={{
+                        maxWidth: imageZoom <= 1 ? "100%" : "none",
+                      }}
+                    >
                       <img
                         src={activeSection.imageUrl}
                         alt="Exam Stimulus Graphic"
-                        className="rounded-lg object-contain transition-transform origin-top max-w-full"
+                        className="rounded-lg object-contain transition-all duration-150 select-none"
                         style={{
-                          transform: `scale(${imageZoom})`,
-                          maxWidth: imageZoom <= 1 ? "100%" : "none",
+                          maxHeight: `${54 * imageZoom}vh`,
+                          maxWidth: imageZoom <= 1 ? "100%" : `${imageZoom * 100}%`,
+                          width: "auto",
+                          height: "auto",
                         }}
                       />
                     </div>
