@@ -12,10 +12,11 @@ export const TranstackProvider = ({
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 30_000,
+            staleTime: 5_000,
             gcTime: 5 * 60_000,
             retry: 1,
-            refetchOnWindowFocus: false,
+            refetchOnWindowFocus: true,
+            refetchOnMount: true,
           },
         },
       }),
