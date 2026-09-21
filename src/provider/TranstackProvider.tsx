@@ -12,10 +12,12 @@ export const TranstackProvider = ({
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 5_000,
+            // Mutations already invalidate affected queries. A short freshness
+            // window avoids duplicate requests as users move between screens.
+            staleTime: 30_000,
             gcTime: 5 * 60_000,
             retry: 1,
-            refetchOnWindowFocus: true,
+            refetchOnWindowFocus: false,
             refetchOnMount: true,
           },
         },

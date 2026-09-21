@@ -54,7 +54,7 @@ export const useGetStudentSkillDistributionQuery = () => {
 
 export const useGetStudentScheduledTasksQuery = (params: ScheduledTaskQuery) => {
   return useQuery({
-    queryKey: ["student", "scheduled-tasks"],
+    queryKey: ["student", "scheduled-tasks", params],
     queryFn: () => getStudentScheduledTasks(params),
   });
 };
