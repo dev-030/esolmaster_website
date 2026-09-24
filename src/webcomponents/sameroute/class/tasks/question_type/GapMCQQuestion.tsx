@@ -4,7 +4,7 @@ import { GapFillConfig } from "@/types/question";
 import { cn } from "@/lib/utils";
 import { QuestionComponentProps } from "@/types/attempt";
 
-const GAP_REGEX = /(?:_{2,}|\.{3,}|…|\[blank\])/i;
+const GAP_REGEX = /(?:_{2,}|\.{3,}|…|\[(?:blank|gap)\])/i;
 
 export const GapMCQQuestion = ({
   question,
